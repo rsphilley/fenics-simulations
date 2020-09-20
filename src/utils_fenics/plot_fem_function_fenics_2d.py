@@ -4,9 +4,12 @@
 Created on Sun Nov 17 11:47:02 2019
 
 @author: hwan - Took out relevant code from dolfin's plotting.py _plot_matplotlib code
-              - To enter dolfin's own plotting code, use dl.plot(some_dolfin_object) wheresome_dolfin_object is a 3D object and an error will be thrown up
+              - To enter dolfin's own plotting code, use dl.plot(some_dolfin_object)
+                where some_dolfin_object is a 3D object and an error will be thrown up
 """
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 plt.ioff() # Turn interactive plotting off
 
 from utils_fenics.convert_array_to_dolfin_function import\
@@ -23,12 +26,12 @@ def plot_fem_function_fenics_2d(function_space, nodal_values,
 
     #=== Plot figure ===#
     fig, ax = plot(nodal_values_fe, title, fig_size)
+    divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
-    plt.colorbar(p_test_fig, cax = cax)
+    plt.colorbar(fig, cax = cax)
 
     #=== Save figure ===#
     plt.savefig(filepath, dpi=300, bbox_inches = 'tight', pad_inches = 0)
-    print('Figure saved to ' + filepath)
 
 def plot(obj, title, fig_size):
     if hasattr(obj, "cpp_object"):

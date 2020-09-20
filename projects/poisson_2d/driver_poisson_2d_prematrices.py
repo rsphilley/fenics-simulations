@@ -83,7 +83,8 @@ if __name__ == "__main__":
     if options.plot_parameters == 1:
         for n in range(0, options.num_data):
             plot_fem_function_fenics_2d(meta_space, parameters[n,:],
-                                        'parameter', filepaths.parameter,
+                                        'parameter',
+                                        filepaths.directory_figures + 'parameter_%d.png' %(n),
                                         (5,5))
 
     ####################

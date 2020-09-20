@@ -5,6 +5,8 @@ Created on Sun May  28 10:16:28 2020
 
 @author: hwan
 """
+import os
+
 from utils_io.value_to_string import value_to_string
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -33,7 +35,7 @@ class FilePaths():
         #=== Key Strings ===#
         project_name = 'poisson_2D_'
         data_options = 'n%d'%(options.num_nodes)
-        self.directory_dataset = '../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
+        self.directory_dataset = '../../../Datasets/FEniCS/poisson_2d/' +\
             data_options + '/'
 
         #=== File Name Properties ===#
@@ -118,3 +120,5 @@ class FilePaths():
 
         #=== Figures ==#
         self.directory_figures = 'Figures/'
+        if not os.path.exists(self.directory_figures):
+            os.makedirs(self.directory_figures)
