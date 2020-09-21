@@ -39,7 +39,7 @@ boundary_matrix_constant : 0.5
 load_vector_constant : -1
 
 #=== Plotting ===#
-plot_parameters : 1
+plot_parameters : 0
 plot_solutions : 1
 
 #=== Random Seed ===#

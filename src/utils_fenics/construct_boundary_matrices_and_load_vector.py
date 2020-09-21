@@ -18,19 +18,20 @@ def construct_boundary_matrices_and_load_vector(filepaths,
     v = TestFunction(fe_space)
 
     #=== Marking boundaries for boundary conditions ===#
-    bottom = CompiledSubDomain("near(x[1], side) && on_boundary", side = 0.0)
-    exterior = CompiledSubDomain("!near(x[1], side) && on_boundary", side = 0.0)
+    exterior = CompiledSubDomain("!near(x[1], side) && on_boundary", side = -1)
+    bottom = CompiledSubDomain("near(x[1], side) && on_boundary", side = -1)
     boundaries = MeshFunction("size_t", mesh, mesh.topology().dim()-1)
     boundaries.set_all(0)
     exterior.mark(boundaries, 1)
     bottom.mark(boundaries, 2)
 
+    #=== Defining Measures ===#
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
     #=== Boundary Matrix and Load Vector ===#
-    boundary_matrix = assemble(inner(boundary_matrix_constant*u,v)*dx(1)).array()
-    load_vector = np.array(assemble(v*ds(2)))
+    boundary_matrix = assemble(inner(boundary_matrix_constant*u,v)*ds(1)).array()
+    load_vector = np.array(assemble(-load_vector_constant*v*ds(2)))
 
     #=== Save Boundary Matrices and Load Vector ===#
     print('saving boundary matrix and load vector')
