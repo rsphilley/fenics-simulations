@@ -1,9 +1,9 @@
 #=== Mesh Properties ===#
 mesh_point_1 : [-1,-1]
 mesh_point_2 : [1,1]
-num_nodes_x : 9
-num_nodes_y : 9
-num_obs_points : 43
+num_nodes_x : 15
+num_nodes_y : 15
+num_obs_points : 58
 order_fe_space : 1
 order_meta_space : 1
 

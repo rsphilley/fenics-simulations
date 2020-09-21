@@ -24,6 +24,7 @@ from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
 from utils_project.filepaths import FilePaths
 from utils_project.weak_forms import stiffness
 from utils_project.solve_poisson_2d import solve_pde_prematrices
+from utils_project.form_observation_data import form_observation_data
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -112,26 +113,17 @@ if __name__ == "__main__":
     #   Computing Solution   #
     ##########################
     #=== Solve PDE with Prematrices ===#
-    solution = solve_pde_prematrices(options, filepaths,
-                                     parameters,
-                                     prestiffness, boundary_matrix, load_vector)
+    state = solve_pde_prematrices(options, filepaths,
+                                  parameters,
+                                  prestiffness, boundary_matrix, load_vector)
 
     #=== Plot Solution ===#
     if options.plot_solutions == 1:
         for n in range(0, options.num_data):
-            plot_fem_function_fenics_2d(meta_space, solution[n,:],
+            plot_fem_function_fenics_2d(meta_space, state[n,:],
                                         'state',
                                         filepaths.directory_figures + 'state_%d.png' %(n),
                                         (5,5))
 
-    ##=== Form Observation Data ===#
-    #boundary_indices_no_bottom = reduce(np.union1d,
-    #        (boundary_indices_left, boundary_indices_right, boundary_indices_top))
-    #form_observation_data(options, filepaths, boundary_indices_no_bottom)
-
-    ##=== Plot Solution ==#
-    #if options.plot_solutions == 1:
-    #    for n in range(0, options.num_data):
-    #        plot_fem_function(filepaths.directory_figures, 'solution',
-    #                          nodes, elements,
-    #                          solution[n,:], sample_number = n)
+    #=== Form Observation Data ===#
+    form_observation_data(options, filepaths, fe_space, state)
