@@ -1,0 +1,46 @@
+#=== Mesh Properties ===#
+mesh_point_1 : [-1,-1,-1]
+mesh_point_2 : [1,1,1]
+num_nodes_x : 5
+num_nodes_y : 5
+num_nodes_z : 5
+num_obs_points : 58
+order_fe_space : 1
+order_meta_space : 1
+
+#=== Train or Test Set ===#
+generate_train_data : 1
+generate_test_data : 0
+
+#=== Number of Data ===#
+num_data : 1
+
+#=== Parameter Options ===#
+construct_prior : 1
+draw_and_save_parameters : 1
+
+#=== Autocorrelation Prior Properties ===#
+prior_type_AC : 1
+prior_mean_AC : 2
+prior_variance_AC : 2.0
+prior_corr_AC : 0.5
+
+#=== Matern Prior Properties ===#
+prior_type_matern : 0
+prior_kern_type : 'm32'
+prior_cov_length : 0.08
+
+#=== Construct and Save Prematrices ===#
+construct_and_save_prematrices : 1
+construct_and_save_boundary_matrices : 1
+
+#=== PDE Properties ===#
+boundary_matrix_constant : 0.5
+load_vector_constant : -1
+
+#=== Plotting ===#
+plot_parameters : 0
+plot_solutions : 1
+
+#=== Random Seed ===#
+random_seed : 4

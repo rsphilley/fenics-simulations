@@ -12,8 +12,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                               Using Prematrices                             #
 ###############################################################################
 def solve_pde_prematrices(options, filepaths,
-                          parameters,
-                          prestiffness, boundary_matrix, load_vector):
+        parameters,
+        prestiffness, boundary_matrix, load_vector):
 
     state = np.zeros((options.num_data, options.num_nodes))
 

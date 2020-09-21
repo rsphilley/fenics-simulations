@@ -4,12 +4,35 @@
 Created on Sun Nov 17 11:47:02 2019
 
 @author: hwan - Took out relevant code from dolfin's plotting.py _plot_matplotlib code
-              - To enter dolfin's own plotting code, use dl.plot(some_dolfin_object) wheresome_dolfin_object is a 3D object and an error will be thrown up
+              - To enter dolfin's own plotting code, use dl.plot(some_dolfin_object)
+                where some_dolfin_object is a 3D object and an error will be thrown up
 """
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+plt.ioff() # Turn interactive plotting off
 import dolfin.cpp as cpp
 
+from utils_fenics.convert_array_to_dolfin_function import\
+        convert_array_to_dolfin_function
+
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
+def plot_fem_function_fenics_3d(function_space, nodal_values,
+                                title, filepath,
+                                angle_1, angle_2,
+                                fig_size):
+
+    #=== Convert array to dolfin function ===#
+    nodal_values_fe = convert_array_to_dolfin_function(function_space, nodal_values)
+
+    #=== Plot figure ===#
+    fig, ax = plot(nodal_values_fe, title, angle_1, angle_2, fig_size)
+    caxis = inset_axes(ax, width="5%", height="60%", loc='right')
+    plt.colorbar(fig, cax=caxis, ticks=[0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4])
+
+    #=== Save figure ===#
+    plt.savefig(filepath, dpi=300, bbox_inches = 'tight', pad_inches = 0)
 
 def plot(obj, title, angle_1, angle_2, fig_size):
     # Importing this toolkit has side effects enabling 3d support
@@ -24,7 +47,6 @@ def plot(obj, title, angle_1, angle_2, fig_size):
     # For dolfin.function.Function, extract cpp_object
     if hasattr(obj, "cpp_object"):
         obj = obj.cpp_object()
-
     if isinstance(obj, cpp.function.Function):
         return my_mplot_function(ax, obj,), ax
     elif isinstance(obj, cpp.mesh.Mesh):

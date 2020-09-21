@@ -14,7 +14,7 @@ from utils_prior.gaussian_field import construct_matern_covariance
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
-from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_fenics.plot_fem_function_fenics_3d import plot_fem_function_fenics_3d
 from prematrices.construct_prematrix import construct_prematrix
 from utils_fenics.construct_boundary_matrices_and_load_vector import\
         construct_boundary_matrices_and_load_vector
@@ -23,7 +23,7 @@ from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
 # Import project utilities
 from utils_project.filepaths import FilePaths
 from utils_project.weak_forms import stiffness
-from utils_project.solve_poisson_2d import solve_pde_prematrices
+from utils_project.solve_poisson_3d import solve_pde_prematrices
 from utils_project.form_observation_data import form_observation_data
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -40,7 +40,8 @@ if __name__ == "__main__":
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
     options = AttrDict(options)
-    options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)
+    options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)\
+                        *(options.num_nodes_z + 1)
 
     #=== File Paths ===#
     filepaths = FilePaths(options)
@@ -84,9 +85,10 @@ if __name__ == "__main__":
     #=== Plot Parameters ===#
     if options.plot_parameters == 1:
         for n in range(0, options.num_data):
-            plot_fem_function_fenics_2d(meta_space, parameters[n,:],
+            plot_fem_function_fenics_3d(meta_space, parameters[n,:],
                                         'parameter',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
+                                        90, 270,
                                         (5,5))
 
     ###################
@@ -120,9 +122,10 @@ if __name__ == "__main__":
     #=== Plot Solution ===#
     if options.plot_solutions == 1:
         for n in range(0, options.num_data):
-            plot_fem_function_fenics_2d(meta_space, state[n,:],
+            plot_fem_function_fenics_3d(meta_space, state[n,:],
                                         'state',
                                         filepaths.directory_figures + 'state_%d.png' %(n),
+                                        90, 270,
                                         (5,5))
 
     #=== Form Observation Data ===#
