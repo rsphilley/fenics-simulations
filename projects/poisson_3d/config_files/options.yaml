@@ -13,7 +13,7 @@ generate_train_data : 1
 generate_test_data : 0
 
 #=== Number of Data ===#
-num_data : 1
+num_data : 10
 
 #=== Parameter Options ===#
 construct_prior : 1
@@ -40,7 +40,7 @@ load_vector_constant : -1
 
 #=== Plotting ===#
 plot_parameters : 0
-plot_solutions : 1
+plot_solutions : 0
 
 #=== Random Seed ===#
 random_seed : 4
