@@ -26,5 +26,4 @@ def construct_mesh(options):
     nodes = meta_space.tabulate_dof_coordinates()
 
     return fe_space, meta_space,\
-            u, v, parameter,\
             nodes, dof_fe, dof_meta

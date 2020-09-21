@@ -16,12 +16,14 @@ from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 from prematrices.construct_prematrix import construct_prematrix
-from utils_io.load_fem_matrices import load_prematrices, load_boundary_matrices_and_load_vector
+from utils_fenics.construct_boundary_matrices_and_load_vector import\
+        construct_boundary_matrices_and_load_vector
+from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
 from utils_project.weak_forms import stiffness
-# from utils_project.solve_poisson_2D import solve_PDE_prematrices
+from utils_project.solve_poisson_2d import solve_pde_prematrices
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -47,7 +49,6 @@ if __name__ == "__main__":
     ############
     #=== Construct Mesh ===#
     fe_space, meta_space,\
-    u, v, sigma,\
     nodes, dof_fe, dof_meta = construct_mesh(options)
 
     ############################
@@ -87,42 +88,46 @@ if __name__ == "__main__":
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
                                         (5,5))
 
-    ####################
-    ##   FEM Objects   #
-    ####################
-    ##=== Construct or Load Prematrices ===#
-    #if options.construct_and_save_prematrices == 1:
-    #    if not os.path.exists(filepaths.directory_dataset):
-    #        os.makedirs(filepaths.directory_dataset)
-    #    prestiffness = construct_prematrix(options, stiffness, test=False)
-    #    sparse.save_npz('prestiffness.npz', prestiffness)
-    #premass, prestiffness = load_prematrices(filepaths, dof_meta)
+    ###################
+    #   FEM Objects   #
+    ###################
+    #=== Construct or Load Prematrices ===#
+    if options.construct_and_save_prematrices == 1:
+        if not os.path.exists(filepaths.directory_dataset):
+            os.makedirs(filepaths.directory_dataset)
+        prestiffness = construct_prematrix(options,
+                                           fe_space, meta_space,
+                                           dof_fe, dof_meta,
+                                           stiffness, test=False)
+        sparse.save_npz(filepaths.prestiffness + '.npz', prestiffness)
+    prestiffness = sparse.load_npz(filepaths.prestiffness + '.npz')
 
-    ##=== Construct or Load Boundary Matrix and Load Vector ===#
-    #if options.construct_and_save_boundary_matrices == 1:
-    #    construct_boundary_matrices_and_load_vector(filepaths,
-    #            nodes, elements, boundary_indices,
-    #            options.boundary_matrix_constant, options.load_vector_constant)
-    #boundary_matrix, load_vector = load_boundary_matrices_and_load_vector(filepaths, dof_meta)
-    #boundary_matrix = options.boundary_matrix_constant*boundary_matrix
-    #load_vector = -options.load_vector_constant*load_vector
+    #=== Construct or Load Boundary Matrix and Load Vector ===#
+    if options.construct_and_save_boundary_matrices == 1:
+        construct_boundary_matrices_and_load_vector(filepaths,
+                fe_space, options.boundary_matrix_constant, options.load_vector_constant)
+    boundary_matrix, load_vector = load_boundary_matrices_and_load_vector(filepaths, dof_fe)
 
-    ###########################
-    ##   Computing Solution   #
-    ###########################
-    ##=== Solve PDE with Prematrices ===#
-    #premass, prestiffness = load_prematrices(filepaths, dof_meta)
-    #solution = solve_PDE_prematrices(options, filepaths,
-    #                                 parameters,
-    #                                 prestiffness, boundary_matrix, load_vector)
+    ##########################
+    #   Computing Solution   #
+    ##########################
+    #=== Solve PDE with Prematrices ===#
+    solution = solve_pde_prematrices(options, filepaths,
+                                     parameters,
+                                     prestiffness, boundary_matrix, load_vector)
+
+    #=== Plot Solution ===#
+    if options.plot_solutions == 1:
+        for n in range(0, options.num_data):
+            plot_fem_function_fenics_2d(meta_space, solution[n,:],
+                                        'state',
+                                        filepaths.directory_figures + 'state_%d.png' %(n),
+                                        (5,5))
 
     ##=== Form Observation Data ===#
     #boundary_indices_no_bottom = reduce(np.union1d,
     #        (boundary_indices_left, boundary_indices_right, boundary_indices_top))
     #form_observation_data(options, filepaths, boundary_indices_no_bottom)
-
-    ##=== Plot Mesh with Observation Points ===#
-    #plot_mesh(filepaths, 'mesh', nodes, elements)
 
     ##=== Plot Solution ==#
     #if options.plot_solutions == 1:

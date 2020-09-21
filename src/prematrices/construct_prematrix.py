@@ -12,15 +12,20 @@ import matplotlib.pyplot as plt
 from fenics import *
 
 def construct_prematrix(option,
+                        fe_space, meta_space,
                         dof_fe, dof_meta,
-                        parameter, u, v,
                         weak_form, test=False):
 
-    # prematrix dimensions = n^2 x n
-    prematrix_shape = (dof_fe**2, dof_meta)
+    # functions on the spaces
+    u = TrialFunction(fe_space)
+    v = TestFunction(fe_space)
+    parameter = Function(meta_space)
 
     # for choosing which basis functions are active
     parameter_vec = np.zeros((dof_meta))
+
+    # prematrix dimensions = n^2 x n
+    prematrix_shape = (dof_fe**2, dof_meta)
 
     # lists for storing prestiffness coordinataes
     prematrix_rows = np.array([])
@@ -55,8 +60,8 @@ def construct_prematrix(option,
             (prematrix_data, (prematrix_rows, prematrix_cols)), shape=prematrix_shape)
     print()
     print(f'Shape of prestiffness matrix: {prematrix.shape}')
-    print(f'Number of non-zeros in prematrix:  {prematrix.nnz}')
-    print('Percent of non-zeros in prematrix:'\
+    print(f'Number of non-zeros in prematrix: {prematrix.nnz}')
+    print('Percent of non-zeros in prematrix: '\
             f'{prematrix.nnz / (prematrix.shape[0] * prematrix.shape[1]) * 100} %')
 
     if test == True:
@@ -72,7 +77,7 @@ def construct_prematrix(option,
         A_csr = sparse.csr_matrix(A_assembled)
         print()
         print(f'Number of non-zeros in stiffness matrix: {A_csr.nnz}')
-        print('Prestiffness matrix is'
+        print('Prestiffness matrix is '
                 f'{prematrix.nnz / A_csr.nnz} times larger than stiffness matrix in sparse format')
         print()
 
@@ -82,8 +87,7 @@ def construct_prematrix(option,
         A_prematrix = np.reshape(A_prematrix, (dof_fe, dof_fe))
 
         max_diff = np.amax(abs(A_assembled - A_prematrix))
-        print('max diff between direct assembly of stiffness mat'
-
+        print('max diff between direct assembly of stiffness mat '
                 f'and using prestiffness: {max_diff}')
 
     return prematrix
