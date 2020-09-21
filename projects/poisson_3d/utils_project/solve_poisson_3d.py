@@ -36,6 +36,6 @@ def solve_pde_prematrices(options, filepaths,
 
     #=== Save Solution ===#
     df_state = pd.DataFrame({'state': state.flatten()})
-    df_state.to_csv(filepaths.state_full_gaussian_blobs + '.csv', index=False)
+    df_state.to_csv(filepaths.state_full + '.csv', index=False)
 
     return state
