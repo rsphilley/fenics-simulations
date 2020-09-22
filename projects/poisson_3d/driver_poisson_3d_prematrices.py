@@ -13,18 +13,23 @@ import yaml
 from attrdict import AttrDict
 import scipy.sparse as sparse
 
+# For generating vtk files
+from dolfin import *
+
 # Import src code
 from utils_mesh.construct_mesh_rectangular import construct_mesh
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
 from utils_prior.gaussian_field import construct_matern_covariance
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
-from utils_io.load_parameters import load_parameters
+from utils_io.load_dataset import load_dataset
 from utils_fenics.plot_fem_function_fenics_3d import plot_fem_function_fenics_3d
 from prematrices.construct_prematrix import construct_prematrix
 from utils_fenics.construct_boundary_matrices_and_load_vector import\
         construct_boundary_matrices_and_load_vector
 from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
+from utils_fenics.convert_array_to_dolfin_function import\
+        convert_array_to_dolfin_function
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
@@ -86,7 +91,7 @@ if __name__ == "__main__":
                                num_samples = options.num_data)
 
     #=== Load Parameters ===#
-    parameters = load_parameters(filepaths, dof_meta, options.num_data)
+    parameters = load_dataset(filepaths.parameter, dof_meta, options.num_data)
 
     #=== Plot Parameters ===#
     if options.plot_parameters == 1:
@@ -136,3 +141,18 @@ if __name__ == "__main__":
 
     #=== Form Observation Data ===#
     form_observation_data(options, filepaths, fe_space, state)
+
+    ######################
+    #   Paraview Plots   #
+    ######################
+    # Note that we use fenics_env to produce the vtk files, but the paraview
+    # module was not installed under fenics. So we use a separate script from
+    # this to produce the paraview plots
+    if options.save_vtk_files == 1:
+        for n in range(0, options.num_data):
+            parameter_fe = convert_array_to_dolfin_function(meta_space, parameters[n,:])
+            state_fe = convert_array_to_dolfin_function(meta_space, state[n,:])
+            vtkfile_parameter = File(filepaths.figure_vtk_parameter + '_%d.pvd'%(n))
+            vtkfile_parameter << parameter_fe
+            vtkfile_state = File(filepaths.figure_vtk_state + '_%d.pvd'%(n))
+            vtkfile_state << state_fe

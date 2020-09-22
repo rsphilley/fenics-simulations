@@ -122,3 +122,7 @@ class FilePaths():
         self.directory_figures = 'Figures/'
         if not os.path.exists(self.directory_figures):
             os.makedirs(self.directory_figures)
+        self.figure_vtk_parameter = self.directory_figures + 'parameter'
+        self.figure_vtk_state = self.directory_figures + 'state'
+        self.figure_paraview_parameter = self.directory_figures + 'paraview_parameter'
+        self.figure_paraview_state = self.directory_figures + 'paraview_state'
