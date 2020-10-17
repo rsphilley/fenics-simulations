@@ -40,10 +40,6 @@ if __name__ == "__main__":
     #=== File Paths ===#
     filepaths = FilePaths(options)
 
-    #=== Load Parameters and State ===#
-    parameters = load_dataset(filepaths.parameter, options.num_nodes, options.num_data)
-    state = load_dataset(filepaths.state_full, options.num_nodes, options.num_data)
-
     #=== Colourbar Scale ===#
     cbar_RGB_parameter = [1.0576069802911363, 0.231373, 0.298039, 0.752941,
             3.6660661539477166, 0.865003, 0.865003, 0.865003, 6.274525327604296,
