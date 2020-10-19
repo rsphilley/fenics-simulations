@@ -35,7 +35,7 @@ class FilePaths():
         #=== Key Strings ===#
         project_name = 'poisson_2D_'
         data_options = 'n%d'%(options.num_nodes)
-        self.directory_dataset = '../../../Datasets/FEniCS/poisson_2d/' +\
+        self.directory_dataset = '../../../datasets/fenics-simulations/poisson_2d/' +\
             data_options + '/'
 
         #=== File Name Properties ===#
