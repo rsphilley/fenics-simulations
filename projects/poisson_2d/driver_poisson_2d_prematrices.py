@@ -62,7 +62,10 @@ if __name__ == "__main__":
     #=== Plot Mesh ===#
     if options.plot_mesh == True:
         mesh = fe_space.mesh()
-        plot_mesh(filepaths, '', mesh.coordinates(), mesh.cells())
+        plot_mesh(filepaths,
+                  (5,5), '',
+                  (-1,1), (-1,1),
+                  mesh.coordinates(), mesh.cells())
 
     ############################
     #   Prior and Parameters   #

@@ -9,7 +9,9 @@ import pandas as pd
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def plot_mesh(filepaths, plot_title,
+def plot_mesh(filepaths,
+              fig_size, plot_title,
+              x_axis_limits, y_axis_limits,
               nodes, elements):
 
     #=== Creating Directory ===#
@@ -28,6 +30,7 @@ def plot_mesh(filepaths, plot_title,
         obs_coords[point,:] = nodes[obs_indices[point],:]
 
     #=== Plot Mesh ===#
+    plt.figure(figsize = fig_size)
     for element in elements:
         x = [nodes_x[element[i]] for i in range(len(element))]
         y = [nodes_y[element[i]] for i in range(len(element))]
@@ -36,5 +39,8 @@ def plot_mesh(filepaths, plot_title,
     for point in range(0, len(obs_indices)):
         plt.plot(obs_coords[point,0], obs_coords[point,1], 'r+')
 
-    plt.savefig(filepaths.directory_figures + 'mesh_n%d'%(nodes.shape[0]))
+    plt.xlim(x_axis_limits)
+    plt.ylim(y_axis_limits)
+    plt.savefig(filepaths.directory_figures + 'mesh_n%d'%(nodes.shape[0]),
+                dpi=100, bbox_inches = 'tight', pad_inches = 0)
     plt.close()
