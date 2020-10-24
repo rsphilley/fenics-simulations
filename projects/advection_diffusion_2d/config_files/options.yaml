@@ -1,9 +1,9 @@
 #=== Mesh Properties ===#
 mesh_point_1 : [-1,-1]
 mesh_point_2 : [1,1]
-num_nodes_x : 15
-num_nodes_y : 15
-num_obs_points : 10
+num_nodes_x : 30
+num_nodes_y : 30
+num_obs_points : 118
 order_fe_space : 1
 order_meta_space : 1
 
@@ -40,7 +40,6 @@ load_vector_constant : -1
 #=== Plotting ===#
 plot_parameters : 1
 plot_solutions : 1
-plot_mesh : 1
 
 #=== Random Seed ===#
 random_seed : 4

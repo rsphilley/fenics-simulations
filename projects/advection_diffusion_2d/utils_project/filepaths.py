@@ -33,9 +33,9 @@ class FilePaths():
     def __init__(self, options):
 
         #=== Key Strings ===#
-        project_name = 'poisson_3d_'
+        project_name = 'poisson_2D_'
         data_options = 'n%d'%(options.num_nodes)
-        self.directory_dataset = '../../../datasets/fenics/poisson_3d/' +\
+        self.directory_dataset = '../../../datasets/fenics-simulations/poisson_2d/' +\
             data_options + '/'
 
         #=== File Name Properties ===#
@@ -56,7 +56,7 @@ class FilePaths():
                     options.prior_cov_length)
 
         #=== Mesh ===#
-        mesh_name = 'mesh_square_3d_n%d' %(options.num_nodes)
+        mesh_name = 'mesh_square_2D_n%d' %(options.num_nodes)
         mesh_directory = '../../../Datasets/Mesh/' + mesh_name + '/'
         self.mesh_nodes = mesh_directory + mesh_name + '_nodes.csv'
         self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
@@ -122,7 +122,3 @@ class FilePaths():
         self.directory_figures = 'Figures/'
         if not os.path.exists(self.directory_figures):
             os.makedirs(self.directory_figures)
-        self.figure_vtk_parameter = self.directory_figures + 'parameter'
-        self.figure_vtk_state = self.directory_figures + 'state'
-        self.figure_paraview_parameter = self.directory_figures + 'paraview_parameter'
-        self.figure_paraview_state = self.directory_figures + 'paraview_state'

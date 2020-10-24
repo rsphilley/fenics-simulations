@@ -15,7 +15,6 @@ import scipy.sparse as sparse
 
 # Import src code
 from utils_mesh.construct_mesh_rectangular import construct_mesh
-from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
 from utils_prior.gaussian_field import construct_matern_covariance
 from utils_io.load_prior import load_prior
@@ -58,11 +57,6 @@ if __name__ == "__main__":
     #=== Construct Mesh ===#
     fe_space, meta_space,\
     nodes, dof_fe, dof_meta = construct_mesh(options)
-
-    #=== Plot Mesh ===#
-    if options.plot_mesh == True:
-        mesh = fe_space.mesh()
-        plot_mesh(filepaths, '', mesh.coordinates(), mesh.cells())
 
     ############################
     #   Prior and Parameters   #
