@@ -33,7 +33,7 @@ class FilePaths():
     def __init__(self, options):
 
         #=== Key Strings ===#
-        project_name = 'advection_diffusion_2d'
+        project_name = 'poisson_2D_'
         data_options = 'n%d'%(options.num_nodes)
         self.directory_dataset = '../../../datasets/fenics/poisson_2d/' +\
             data_options + '/'

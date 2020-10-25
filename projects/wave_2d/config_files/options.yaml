@@ -1,22 +1,22 @@
 #=== Mesh Properties ===#
 mesh_point_1 : [-1,-1]
 mesh_point_2 : [1,1]
-num_nodes_x : 15
-num_nodes_y : 15
-num_obs_points : 10
+num_nodes_x : 30
+num_nodes_y : 30
+num_obs_points : 118
 order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : 0
-generate_test_data : 1
+generate_train_data : 1
+generate_test_data : 0
 
 #=== Number of Data ===#
-num_data : 200
+num_data : 10
 
 #=== Parameter Options ===#
-construct_prior : 0
-draw_and_save_parameters : 0
+construct_prior : 1
+draw_and_save_parameters : 1
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_AC : 1
@@ -30,17 +30,18 @@ prior_kern_type : 'm32'
 prior_cov_length : 0.08
 
 #=== Construct and Save Prematrices ===#
-construct_and_save_prematrices : 0
-construct_and_save_boundary_matrices : 0
+construct_and_save_prematrices : 1
+construct_and_save_boundary_matrices : 1
 
 #=== PDE Properties ===#
+final_time : 1
+time_step_size : 0.01
 boundary_matrix_constant : 0.5
 load_vector_constant : -1
 
 #=== Plotting ===#
 plot_parameters : 1
 plot_solutions : 1
-plot_mesh : 1
 
 #=== Random Seed ===#
 random_seed : 4

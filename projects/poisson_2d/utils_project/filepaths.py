@@ -60,18 +60,6 @@ class FilePaths():
         mesh_directory = '../../../Datasets/Mesh/' + mesh_name + '/'
         self.mesh_nodes = mesh_directory + mesh_name + '_nodes.csv'
         self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
-        self.mesh_boundary_indices_edges = mesh_directory + mesh_name +\
-                '_boundary_indices_edges.csv'
-        self.mesh_boundary_indices = mesh_directory + mesh_name +\
-                '_boundary_indices.csv'
-        self.mesh_boundary_indices_bottom = mesh_directory + mesh_name +\
-                '_boundary_indices_bottom.csv'
-        self.mesh_boundary_indices_left = mesh_directory + mesh_name +\
-                '_boundary_indices_left.csv'
-        self.mesh_boundary_indices_right = mesh_directory + mesh_name +\
-                '_boundary_indices_right.csv'
-        self.mesh_boundary_indices_top = mesh_directory + mesh_name +\
-                '_boundary_indices_top.csv'
 
         #=== Pre-Matrices ===#
         self.premass = self.directory_dataset +\
@@ -111,12 +99,6 @@ class FilePaths():
                 project_name + 'state_obs_' + train_or_test +\
                 'o%d_d%d_'%(options.num_obs_points, options.num_data) +\
                 data_options + '_' + prior_string
-        self.state_full_gaussian_blobs = self.directory_dataset +\
-            project_name + 'state_gaussian_blobs_test_' +\
-            data_options
-        self.state_obs_gaussian_blobs = self.directory_dataset +\
-            project_name + 'state_obs_gaussian_blobs_test_' + 'o%d_'%(options.num_obs_points) +\
-            data_options
 
         #=== Figures ==#
         self.directory_figures = 'Figures/'
