@@ -38,9 +38,10 @@ from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
+from utils_project.velocity_field import compute_velocity_field
 # from utils_project.weak_forms import stiffness
 # from utils_project.solve_poisson_2d import solve_pde_prematrices
-# from utils_project.form_observation_data import form_observation_data
+from utils_project.form_observation_data import form_observation_points, form_observation_data
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -96,10 +97,27 @@ if __name__ == "__main__":
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
                                         (5,5), (0,4))
-    pdb.set_trace()
+
+    ######################
+    #   Velocity Field   #
+    ######################
+    wind_velocity = compute_velocity_field(filepaths.directory_figures + 'velocity_field.png',
+                                           Vh.mesh())
+
     ###################
     #   FEM Objects   #
     ###################
+    #=== Time Objects ===#
+    simulation_times = np.arange(options.time_initial,
+                                 options.time_final+.5*options.time_dt,
+                                 options.time_dt)
+    observation_times = np.arange(options.time_1,
+                                  options.time_final+.5*options.time_dt,
+                                  options.time_obs)
+
+    #=== Define Observation Points ===#
+    obs_coords = form_observation_points(options, filepaths, Vh)
+
     #=== Construct or Load Prematrices ===#
     if options.construct_and_save_prematrices == 1:
         if not os.path.exists(filepaths.directory_dataset):

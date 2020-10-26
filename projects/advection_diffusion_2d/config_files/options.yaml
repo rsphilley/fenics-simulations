@@ -1,7 +1,7 @@
 #=== Mesh Properties ===#
 hole_single_circle : False
 hole_two_rectangles : True
-discretization_domain : 20
+discretization_domain : 21
 domain_length : 1
 domain_width : 1
 rect_1_point_1 : [0.25, 0.15]
@@ -11,14 +11,14 @@ rect_2_point_2 : [0.75, 0.85]
 discretization_circle : 16
 circle_center : [0.25, 0.25]
 circle_radius : 0.1
-num_obs_points : 118
+num_obs_points : 10
 
 #=== Train or Test Set ===#
 generate_train_data : 1
 generate_test_data : 0
 
 #=== Number of Data ===#
-num_data : 10
+num_data : 4
 
 #=== Parameter Options ===#
 construct_prior : 1
@@ -33,11 +33,12 @@ prior_delta : 8
 construct_and_save_matrices : 1
 construct_and_save_boundary_matrices : 1
 
-#=== PDE Properties ===#
-final_time : 1
-time_step_size : 0.01
-boundary_matrix_constant : 0.5
-load_vector_constant : -1
+#=== Time Properties ===#
+time_initial : 0
+time_final : 4
+time_1 : 1
+time_dt : 0.1
+time_obs : 0.2
 
 #=== Plotting ===#
 plot_parameters : 1
