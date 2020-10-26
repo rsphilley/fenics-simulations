@@ -19,34 +19,28 @@ import ufl
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-%matplotlib inline
-sys.path.append( os.environ.get('HIPPYLIB_BASE_DIR', "../") )
+sys.path.append(os.environ.get('HIPPYLIB_BASE_DIR', "../"))
 from hippylib import *
-sys.path.append( os.environ.get('HIPPYLIB_BASE_DIR', "..") + "/applications/ad_diff/" )
-from model_ad_diff import TimeDependentAD, SpaceTimePointwiseStateObservation
-
-import logging
-logging.getLogger('FFC').setLevel(logging.WARNING)
-logging.getLogger('UFL').setLevel(logging.WARNING)
-dl.set_log_active(False)
+sys.path.append(os.environ.get('HIPPYLIB_BASE_DIR', "..") + "/applications/ad_diff/")
+# from model_ad_diff import TimeDependentAD, SpaceTimePointwiseStateObservation
 
 # Import src code
-from utils_mesh.construct_mesh_rectangular import construct_mesh
+from utils_mesh.construct_mesh_rectangular_with_hole import construct_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
-from prematrices.construct_prematrix import construct_prematrix
-from utils_fenics.construct_boundary_matrices_and_load_vector import\
-        construct_boundary_matrices_and_load_vector
-from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
+# from prematrices.construct_prematrix import construct_prematrix
+# from utils_fenics.construct_boundary_matrices_and_load_vector import\
+#         construct_boundary_matrices_and_load_vector
+# from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.weak_forms import stiffness
-from utils_project.solve_poisson_2d import solve_pde_prematrices
-from utils_project.form_observation_data import form_observation_data
+# from utils_project.weak_forms import stiffness
+# from utils_project.solve_poisson_2d import solve_pde_prematrices
+# from utils_project.form_observation_data import form_observation_data
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -63,53 +57,46 @@ if __name__ == "__main__":
         options = yaml.safe_load(f)
     options = AttrDict(options)
 
-    #=== File Paths ===#
-    filepaths = FilePaths(options)
-
     ############
     #   Mesh   #
     ############
     #=== Construct Mesh and Function Space ===#
-    geometry = Rectangle(dl.Point(0.0, 0.0), dl.Point(options.length, options.width))\
-               - Circle(center, radius, options.discretization_circle)
-    mesh = generate_mesh(geometry, options.discretization_domain)
-    Vh = dl.FunctionSpace(mesh, "Lagrange", 1) # Function space for state, adjoint, and
-                                               # parameter variables are chosen to be the same
-    dof = Vh.dim()
+    Vh, nodes, dof = construct_mesh(options)
+
+    #=== File Paths ===#
+    options.num_nodes = dof
+    print(dof)
+    filepaths = FilePaths(options)
 
     ############################
     #   Prior and Parameters   #
     ############################
     #=== Construct Prior ===#
     if options.construct_prior == 1:
-            construct_bilaplacian_prior(filepaths, Vh,
-                                        options.prior_mean,
+            construct_bilaplacian_prior(filepaths,
+                                        Vh, options.prior_mean,
                                         options.prior_gamma, options.prior_delta)
-            prior =BiLaplacianPrior(Vh,
-                                    options.prior_gamma, options.prior_delta,
-                                    robin_bc=True)
-            prior.mean = dl.interpolate(dl.Constant(options.prior_mean), Vh).vector()
 
     #=== Load Prior ===#
-    prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof_meta)
+    prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
 
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == 1:
         draw_from_distribution(filepaths,
-                               prior_mean, prior_covariance_cholesky, dof_meta,
+                               prior_mean, prior_covariance_cholesky, dof,
                                num_samples = options.num_data)
 
     #=== Load Parameters ===#
-    parameters = load_parameters(filepaths, dof_meta, options.num_data)
+    parameters = load_parameters(filepaths, dof, options.num_data)
 
     #=== Plot Parameters ===#
     if options.plot_parameters == 1:
         for n in range(0, options.num_data):
-            plot_fem_function_fenics_2d(meta_space, parameters[n,:],
+            plot_fem_function_fenics_2d(Vh, parameters[n,:],
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
                                         (5,5), (0,4))
-
+    pdb.set_trace()
     ###################
     #   FEM Objects   #
     ###################

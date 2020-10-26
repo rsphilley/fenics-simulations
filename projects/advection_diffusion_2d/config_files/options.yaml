@@ -1,12 +1,16 @@
 #=== Mesh Properties ===#
-mesh_point_1 : [-1,-1]
-mesh_point_2 : [1,1]
-discretization_domain : 64
-domain_length : 2.2
-domain_width : 0.41
+hole_single_circle : False
+hole_two_rectangles : True
+discretization_domain : 20
+domain_length : 1
+domain_width : 1
+rect_1_point_1 : [0.25, 0.15]
+rect_1_point_2 : [0.5, 0.4]
+rect_2_point_1 : [0.6, 0.6]
+rect_2_point_2 : [0.75, 0.85]
 discretization_circle : 16
-circle_center : [0.2, 0.2]
-circle_radius : 0.05
+circle_center : [0.25, 0.25]
+circle_radius : 0.1
 num_obs_points : 118
 
 #=== Train or Test Set ===#

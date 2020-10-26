@@ -2,24 +2,25 @@ import os
 
 import numpy as np
 import pandas as pd
+
 from hippylib import *
+import dolfin as dl
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def construct_bilaplacian_prior(filepaths, Vh,
-                                prior_mean,
-                                prior_gamma, prior_delta):
+def construct_bilaplacian_prior(filepaths,
+                                Vh, mean,
+                                gamma, delta):
 
     #=== Construct Prior ===#
     prior = BiLaplacianPrior(Vh,
-                             prior_gamma, prior_delta,
+                             gamma, delta,
                              robin_bc=True)
-    prior.mean = dl.interpolate(dl.Constant(prior_mean), Vh).vector()
 
     #=== Discretized Forms ===#
-    mean_vec = prior.mean
-    inv_L = prior.M + prior.A
-    L = np.linalg.inv(inv_cov)
+    mean_vec = mean*np.ones(Vh.dim())
+    inv_L = prior.M.array() + prior.A.array()
+    L = np.linalg.inv(inv_L)
     cov = np.matmul(L, L)
 
     #=== Save Prior ===#

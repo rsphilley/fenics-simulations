@@ -14,17 +14,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                               Prior Strings                                 #
 ###############################################################################
-def prior_string_AC(prior_type, mean, variance, corr):
+def prior_string_blp(prior_type, mean, gamma, delta):
     mean_string = value_to_string(mean)
-    variance_string = value_to_string(variance)
-    corr_string = value_to_string(corr)
+    gamma_string = value_to_string(gamma)
+    delta_string = value_to_string(delta)
 
-    return '%s_%s_%s_%s'%(prior_type, mean_string, variance_string, corr_string)
-
-def prior_string_matern(prior_type, kern_type, cov_length):
-    cov_length_string = value_to_string(cov_length)
-
-    return '%s_%s_%s'%(prior_type, kern_type, cov_length)
+    return '%s_%s_%s_%s'%(prior_type, mean_string, gamma_string, delta_string)
 
 ###############################################################################
 #                                 FilePaths                                   #
@@ -33,9 +28,9 @@ class FilePaths():
     def __init__(self, options):
 
         #=== Key Strings ===#
-        project_name = 'advection_diffusion_2d'
+        project_name = 'advection_diffusion_2d_'
         data_options = 'n%d'%(options.num_nodes)
-        self.directory_dataset = '../../../datasets/fenics/poisson_2d/' +\
+        self.directory_dataset = '../../../datasets/fenics/advection_diffusion_2d/' +\
             data_options + '/'
 
         #=== File Name Properties ===#
@@ -45,15 +40,10 @@ class FilePaths():
             train_or_test = 'test_'
 
         #=== Prior Properties ===#
-        if options.prior_type_AC == 1:
-            prior_string = prior_string_AC('AC',
-                    options.prior_mean_AC,
-                    options.prior_variance_AC,
-                    options.prior_corr_AC)
-        if options.prior_type_matern == 1:
-            prior_string = prior_string_matern('matern',
-                    options.prior_kern_type,
-                    options.prior_cov_length)
+        prior_string = prior_string_blp('blp',
+                                        options.prior_mean,
+                                        options.prior_gamma,
+                                        options.prior_delta)
 
         #=== Mesh ===#
         mesh_name = 'mesh_square_2D_n%d' %(options.num_nodes)
