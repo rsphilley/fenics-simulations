@@ -15,19 +15,19 @@ def solve_pde(options, filepaths,
               parameters,
               obs_indices, num_time_steps,
               fem_operator_spatial,
-              fem_operator_implicit_ts, fem_operator_implicit_ts_rhs):
+              fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
+              sample_number):
 
     #######################
     #   Storage Vectors   #
     #######################
-    state = np.zeros((options.num_data, options.num_nodes*num_time_steps))
-    state_obs = np.zeros((options.num_data, options.num_obs_points*num_time_steps))
+    state_obs = np.zeros((parameters.shape[0], options.num_obs_points*num_time_steps))
 
     #########################################
     #    Computing All States in Dataset    #
     #########################################
     start_time_solver = time.time()
-    for n in range(0, options.num_data):
+    for n in range(0, parameters.shape[0]):
         start_time_sample = time.time()
 
         #=== Setting up Initial Structures ===#
@@ -49,8 +49,9 @@ def solve_pde(options, filepaths,
                 state_n = np.concatenate((state_n, state_current_expanded), axis=1)
                 state_obs_n = np.concatenate(
                     (state_obs_n, state_current_expanded[:,obs_indices]), axis=1)
-            state[n,:] = state_n
             state_obs[n,:] = state_obs_n
+            if n == sample_number: # For visualization purposes
+                state_sample = np.reshape(state_n, (num_time_steps, options.num_nodes))
             elapsed_time_sample = time.time() - start_time_sample
         print('Solved: %d of %d. Time taken: %4f'%(n, options.num_data, elapsed_time_sample))
 
@@ -60,9 +61,7 @@ def solve_pde(options, filepaths,
     ########################
     #    Save Solutions    #
     ########################
-    df_state = pd.DataFrame({'state': state.flatten()})
-    df_state.to_csv(filepaths.state_full + '.csv', index=False)
     df_state_obs = pd.DataFrame({'state_obs': state_obs.flatten()})
     df_state_obs.to_csv(filepaths.state_obs + '.csv', index=False)
 
-    return state
+    return state_sample

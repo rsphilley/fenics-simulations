@@ -16,7 +16,7 @@ import scipy.sparse as sparse
 # Import hIPPYlib code
 import numpy as np
 import matplotlib.pyplot as plt
-sys.path.append(os.environ.get('HIPPYLIB_BASE_DIR', "../"))
+import dolfin as dl
 
 # Import src code
 from utils_mesh.construct_mesh_rectangular_with_hole import construct_mesh
@@ -25,6 +25,7 @@ from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_io.io_fem_operators import save_fem_operators, load_fem_operators
+from utils_io.value_to_string import value_to_string
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
 # Import project utilities
@@ -124,16 +125,50 @@ if __name__ == "__main__":
     #   Computing Solution   #
     ##########################
     #=== Solve PDE ===#
-    state = solve_pde(options, filepaths,
-                      parameters,
-                      obs_indices, simulation_times.shape[0],
-                      fem_operator_spatial,
-                      fem_operator_implicit_ts, fem_operator_implicit_ts_rhs)
+    sample_number = 0
+    state_sample = solve_pde(options, filepaths,
+                             parameters,
+                             obs_indices, simulation_times.shape[0],
+                             fem_operator_spatial,
+                             fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
+                             sample_number)
 
     #=== Plot Solution ===#
     if options.plot_solutions == True:
-        for n in range(0, options.num_data):
-            plot_fem_function_fenics_2d(Vh, state[n,:],
-                                        '',
-                                        filepaths.directory_figures + 'state_%d.png' %(n),
-                                        (5,5), (0,1))
+        for time_step in range(0, simulation_times.shape[0]):
+            time_string = value_to_string(simulation_times[time_step])
+            plot_fem_function_fenics_2d(
+                    Vh, state_sample[:,time_step],
+                    'Time = %.2f' %(simulation_times[time_step]),
+                    filepaths.directory_figures + 'state_%d_t%s.png' %(sample_number, time_step),
+                    (5,5), (0,1))
+
+    #################
+    #   Test Case   #
+    #################
+    if options.compute_test_case == True:
+        #=== Parameter ===#
+        ic_expr = dl.Expression(
+            'std::min(0.5,std::exp(-100*(std::pow(x[0]-0.35,2) +  std::pow(x[1]-0.7,2))))',
+            element=Vh.ufl_element())
+        true_initial_condition = np.expand_dims(
+                dl.interpolate(ic_expr, Vh).vector().get_local(), axis=0)
+        plot_fem_function_fenics_2d(Vh, true_initial_condition,
+                                    '',
+                                    filepaths.directory_figures + 'parameter_test.png',
+                                    (5,5), (0,4))
+
+        #=== State ===#
+        state_sample = solve_pde(options, filepaths,
+                                true_initial_condition,
+                                obs_indices, simulation_times.shape[0],
+                                fem_operator_spatial,
+                                fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
+                                0)
+        for time_step in range(0, simulation_times.shape[0]):
+            time_string = value_to_string(simulation_times[time_step])
+            plot_fem_function_fenics_2d(
+                    Vh, state_sample[:,time_step],
+                    'Time = %.2f' %(simulation_times[time_step]),
+                    filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
+                    (5,5), (0,1))

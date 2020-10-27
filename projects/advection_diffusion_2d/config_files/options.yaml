@@ -2,6 +2,9 @@
 flow_navier_stokes : True
 flow_darcy : False
 
+#=== Compute Test Case ===#
+compute_test_case : True
+
 #=== Mesh Properties ===#
 hole_single_circle : False
 hole_two_rectangles : True
@@ -49,8 +52,8 @@ time_dt : 0.1
 time_obs : 0.2
 
 #=== Plotting ===#
-plot_parameters : True
-plot_solutions : True
+plot_parameters : False
+plot_solutions : False
 
 #=== Random Seed ===#
 random_seed : 4
