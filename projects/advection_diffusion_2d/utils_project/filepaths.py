@@ -29,14 +29,22 @@ class FilePaths():
 
         #=== Key Strings ===#
         project_name = 'advection_diffusion_2d_'
-        data_options = 'n%d'%(options.num_nodes)
+        if options.flow_navier_stokes == True:
+            flow_string = 'navier_stokes'
+        if options.flow_darcy == True:
+            flow_string = 'darcy'
+        if options.time_stepping_explicit == True:
+            time_stepping_string = 'exp'
+        if options.time_stepping_implicit == True:
+            time_stepping_string = 'imp'
+        data_options = flow_string + '_' + time_stepping_string + '_n%d'%(options.num_nodes)
         self.directory_dataset = '../../../datasets/fenics/advection_diffusion_2d/' +\
             data_options + '/'
 
         #=== File Name Properties ===#
-        if options.generate_train_data == 1:
+        if options.generate_train_data == True:
             train_or_test = 'train_'
-        if options.generate_test_data == 1:
+        if options.generate_test_data == False:
             train_or_test = 'test_'
 
         #=== Prior Properties ===#
@@ -44,22 +52,6 @@ class FilePaths():
                                         options.prior_mean,
                                         options.prior_gamma,
                                         options.prior_delta)
-
-        #=== Mesh ===#
-        mesh_name = 'mesh_square_2D_n%d' %(options.num_nodes)
-        mesh_directory = '../../../Datasets/Mesh/' + mesh_name + '/'
-        self.mesh_nodes = mesh_directory + mesh_name + '_nodes.csv'
-        self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
-
-        #=== Pre-Matrices ===#
-        self.premass = self.directory_dataset +\
-                'premass_' + data_options
-        self.prestiffness = self.directory_dataset +\
-                'prestiffness_' + data_options
-        self.boundary_matrix = self.directory_dataset +\
-                'boundary_matrix_' + data_options
-        self.load_vector = self.directory_dataset +\
-                'load_vector_' + data_options
 
         #=== Prior ===#
         self.prior_mean = self.directory_dataset +\
@@ -70,6 +62,14 @@ class FilePaths():
                 'prior_covariance_cholesky_' + data_options + '_' + prior_string
         self.prior_covariance_cholesky_inverse = self.directory_dataset +\
                 'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string
+
+        #=== FEM Operators ===#
+        self.fem_operator_spatial = self.directory_dataset +\
+                'fem_operator_spatial' + data_options
+        self.fem_operator_implicit_ts = self.directory_dataset +\
+                'fem_operator_implicit_ts' + data_options
+        self.fem_operator_implicit_ts_rhs = self.directory_dataset +\
+                'fem_operator_implicit_ts_rhs' + data_options
 
         #=== Parameters ===#
         self.parameter = self.directory_dataset +\

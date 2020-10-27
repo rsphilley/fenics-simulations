@@ -44,3 +44,5 @@ def construct_bilaplacian_prior(filepaths,
             index=False)
 
     print('Prior constructed and saved')
+
+    return prior

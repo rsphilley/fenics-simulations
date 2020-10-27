@@ -25,7 +25,7 @@ def form_observation_points(options, filepaths, function_space):
     df_obs_indices = pd.DataFrame({'obs_indices': obs_indices})
     df_obs_indices.to_csv(filepaths.obs_indices + '.csv', index=False)
 
-    return obs_coords
+    return obs_indices, obs_coords
 
 def form_observation_data(options, filepaths, fe_space, state):
 

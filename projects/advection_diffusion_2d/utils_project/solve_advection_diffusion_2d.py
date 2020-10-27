@@ -11,31 +11,58 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                               Using Prematrices                             #
 ###############################################################################
-def solve_pde_prematrices(options, filepaths,
-                          parameters,
-                          prestiffness, boundary_matrix, load_vector):
+def solve_pde(options, filepaths,
+              parameters,
+              obs_indices, num_time_steps,
+              fem_operator_spatial,
+              fem_operator_implicit_ts, fem_operator_implicit_ts_rhs):
 
-    state = np.zeros((options.num_data, options.num_nodes))
+    #######################
+    #   Storage Vectors   #
+    #######################
+    state = np.zeros((options.num_data, options.num_nodes*num_time_steps))
+    state_obs = np.zeros((options.num_data, options.num_obs_points*num_time_steps))
 
-    #=== Solving PDE ===#
+    #########################################
+    #    Computing All States in Dataset    #
+    #########################################
     start_time_solver = time.time()
-    prestiffness = sparse.csr_matrix.dot(prestiffness, parameters.T)
-    prestiffness = sparse.csc_matrix(prestiffness)
-
     for n in range(0, options.num_data):
         start_time_sample = time.time()
-        stiffness_matrix = np.reshape(prestiffness[:,n],
-                (options.num_nodes, options.num_nodes))
 
-        state[n,:] = sparse.linalg.spsolve(stiffness_matrix + boundary_matrix, load_vector).T
-        elapsed_time_sample = time.time() - start_time_sample
+        #=== Setting up Initial Structures ===#
+        state_current = parameters[n,:]
+        state_n = np.expand_dims(state_current, axis=0)
+        state_obs_n = state_n[:,obs_indices]
+
+        #=== Solving PDE Explicit Time Stepping ===#
+        if options.time_stepping_explicit:
+            to_be_coded = ''
+
+        #=== Solving PDE Implicit Time Stepping ===#
+        if options.time_stepping_implicit:
+            for time_step in range(1,num_time_steps):
+                state_current = np.linalg.solve(
+                                        fem_operator_implicit_ts,
+                                        np.matmul(fem_operator_implicit_ts_rhs, state_current))
+                state_current_expanded = np.expand_dims(state_current,axis=0)
+                state_n = np.concatenate((state_n, state_current_expanded), axis=1)
+                state_obs_n = np.concatenate(
+                    (state_obs_n, state_current_expanded[:,obs_indices]), axis=1)
+            state[n,:] = state_n
+            state_obs[n,:] = state_obs_n
+            elapsed_time_sample = time.time() - start_time_sample
         print('Solved: %d of %d. Time taken: %4f'%(n, options.num_data, elapsed_time_sample))
 
     elapsed_time_solver = time.time() - start_time_solver
     print('All solutions computed. Total time taken: %4f'%(elapsed_time_solver))
 
-    #=== Save Solution ===#
+    ########################
+    #    Save Solutions    #
+    ########################
     df_state = pd.DataFrame({'state': state.flatten()})
     df_state.to_csv(filepaths.state_full + '.csv', index=False)
+    df_state_obs = pd.DataFrame({'state_obs': state_obs.flatten()})
+    df_state_obs.to_csv(filepaths.state_obs + '.csv', index=False)
 
     return state
