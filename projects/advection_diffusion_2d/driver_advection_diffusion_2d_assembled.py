@@ -83,7 +83,7 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(Vh, parameters[n,:],
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
-                                        (5,5), (0,4))
+                                        (5,5), (0,0.5))
 
 ###############################################################################
 #                                  Solve PDE                                  #
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                     Vh, state_sample[time_step,:],
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_%d_t%s.png' %(sample_number, time_step),
-                    (5,5), (0,1))
+                    (5,5), (0,0.5))
 
     #################
     #   Test Case   #
@@ -157,7 +157,7 @@ if __name__ == "__main__":
         plot_fem_function_fenics_2d(Vh, true_initial_condition,
                                     '',
                                     filepaths.directory_figures + 'parameter_test.png',
-                                    (5,5), (0,4))
+                                    (5,5), 'none')
 
         #=== State ===#
         state_sample = solve_pde(options, filepaths,
@@ -173,4 +173,4 @@ if __name__ == "__main__":
                     Vh, state_sample[time_step,:],
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
-                    (5,5), (0,4))
+                    (5,5), 'none')
