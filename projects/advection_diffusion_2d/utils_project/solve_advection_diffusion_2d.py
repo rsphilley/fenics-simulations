@@ -1,5 +1,9 @@
 import numpy as np
 import pandas as pd
+
+from utils_time_stepping.time_stepping_implicit import time_stepping_implicit
+from utils_time_stepping.time_stepping_explicit import time_stepping_erk4
+
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 import time
@@ -35,24 +39,25 @@ def solve_pde(options, filepaths,
         state_n = np.expand_dims(state_current, axis=0)
         state_obs_n = state_n[:,obs_indices]
 
-        #=== Solving PDE Explicit Time Stepping ===#
-        if options.time_stepping_explicit:
-            to_be_coded = ''
-
-        #=== Solving PDE Implicit Time Stepping ===#
-        if options.time_stepping_implicit:
-            for time_step in range(1,num_time_steps):
-                state_current = np.linalg.solve(
-                                        fem_operator_implicit_ts,
-                                        np.matmul(fem_operator_implicit_ts_rhs, state_current))
-                state_current_expanded = np.expand_dims(state_current,axis=0)
-                state_n = np.concatenate((state_n, state_current_expanded), axis=1)
-                state_obs_n = np.concatenate(
-                    (state_obs_n, state_current_expanded[:,obs_indices]), axis=1)
-            state_obs[n,:] = state_obs_n
+        #=== Time Stepping ===#
+        for time_step in range(1, num_time_steps):
+            if options.time_stepping_implicit == True:
+                state_current = time_stepping_implicit(
+                        fem_operator_implicit_ts, fem_operator_implicit_ts_rhs, state_current)
+            if options.time_stepping_erk4 == True:
+                state_current = time_stepping_erk4(options, fem_operator_spatial, state_current)
+            state_current_expanded = np.expand_dims(state_current, axis=0)
+            state_obs_n = np.concatenate(
+                (state_obs_n, state_current_expanded[:,obs_indices]), axis=1)
             if n == sample_number: # For visualization purposes
-                state_sample = np.reshape(state_n, (num_time_steps, options.num_nodes))
-            elapsed_time_sample = time.time() - start_time_sample
+                state_n = np.concatenate((state_n, state_current_expanded), axis=1)
+
+        #=== Finalizing Sample ===#
+        state_obs[n,:] = state_obs_n
+        if n == sample_number: # For visualization purposes
+            state_sample = np.reshape(state_n, (num_time_steps, options.num_nodes))
+
+        elapsed_time_sample = time.time() - start_time_sample
         print('Solved: %d of %d. Time taken: %4f'%(n, options.num_data, elapsed_time_sample))
 
     elapsed_time_solver = time.time() - start_time_solver

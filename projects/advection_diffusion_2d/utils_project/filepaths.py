@@ -33,8 +33,10 @@ class FilePaths():
             flow_string = 'navier_stokes'
         if options.flow_darcy == True:
             flow_string = 'darcy'
-        if options.time_stepping_explicit == True:
-            time_stepping_string = 'exp'
+        if options.time_stepping_erk4 == True:
+            time_stepping_string = 'erk4'
+        if options.time_stepping_lserk4 == True:
+            time_stepping_string = 'lserk4'
         if options.time_stepping_implicit == True:
             time_stepping_string = 'imp'
         data_options = flow_string + '_' + time_stepping_string + '_n%d'%(options.num_nodes)

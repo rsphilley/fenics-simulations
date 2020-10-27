@@ -24,6 +24,8 @@ from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
+from utils_hippylib.space_time_pointwise_state_observation\
+        import SpaceTimePointwiseStateObservation
 from utils_io.io_fem_operators import save_fem_operators, load_fem_operators
 from utils_io.value_to_string import value_to_string
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
@@ -32,8 +34,7 @@ from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 from utils_project.filepaths import FilePaths
 from utils_project.velocity_field import compute_velocity_field
 from utils_project.model_advection_diffusion_2d_initial_condition\
-        import SpaceTimePointwiseStateObservation,\
-               TimeDependentAdvectionDiffusionInitialCondition
+        import TimeDependentAdvectionDiffusionInitialCondition
 from utils_project.solve_advection_diffusion_2d import solve_pde
 from utils_project.form_observation_data import form_observation_points, form_observation_data
 

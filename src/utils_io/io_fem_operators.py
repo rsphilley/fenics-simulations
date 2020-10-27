@@ -5,10 +5,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def save_fem_operators(options, filepaths, pde_opt_problem):
 
-    if options.time_stepping_explicit == True:
+    if options.time_stepping_erk4 == True or options.time_stepping_lserk4 == True:
         #=== Save Spatial Operator ===#
-        sparse.save_npz(filepaths.fem_operator_spatial + '.npz',
-                        pde_opt_problem.N.array().flatten())
+        df_fem_operator_spatial = pd.DataFrame({
+            'fem_operator_spatial':pde_opt_problem.N.array().flatten()})
+        df_fem_operator_spatial.to_csv(
+                filepaths.fem_operator_spatial + '.csv', index=False)
 
     if options.time_stepping_implicit == True:
         #=== Save Implicit Time Stepping Operators ===#
@@ -25,9 +27,12 @@ def save_fem_operators(options, filepaths, pde_opt_problem):
 
 def load_fem_operators(options, filepaths):
 
-    if options.time_stepping_explicit == True:
+    if options.time_stepping_erk4 == True or options.time_stepping_lserk4 == True:
         #=== Load Spatial Operator ===#
-        fem_operator_spatial = sparse.load_npz(filepaths.fem_operator_spatial + '.npz')
+        df_fem_operator_spatial = pd.read_csv(filepaths.fem_operator_spatial + '.csv')
+        fem_operator_spatial = df_fem_operator_spatial.to_numpy()
+        fem_operator_spatial = fem_operator_spatial.reshape(
+                (options.num_nodes, options.num_nodes))
     else:
         fem_operator_spatial = 0
 
