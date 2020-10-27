@@ -53,6 +53,7 @@ if __name__ == "__main__":
     #=== Construct Mesh and Function Space ===#
     Vh, nodes, dof = construct_mesh(options)
     options.num_nodes = dof
+    print(dof)
 
     #=== File Paths ===#
     filepaths = FilePaths(options)

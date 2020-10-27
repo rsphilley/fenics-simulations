@@ -39,9 +39,12 @@ class FilePaths():
             time_stepping_string = 'lserk4'
         if options.time_stepping_implicit == True:
             time_stepping_string = 'imp'
-        data_options = flow_string + '_' + time_stepping_string + '_n%d'%(options.num_nodes)
+        num_nodes_string = 'n%d'%(options.num_nodes)
+        data_options = num_nodes_string + '_' +\
+                       flow_string + '_' +\
+                       time_stepping_string
         self.directory_dataset = '../../../datasets/fenics/advection_diffusion_2d/' +\
-            data_options + '/'
+            num_nodes_string + '/' + flow_string + '_' + time_stepping_string + '/'
 
         #=== File Name Properties ===#
         if options.generate_train_data == True:
@@ -57,31 +60,31 @@ class FilePaths():
 
         #=== Prior ===#
         self.prior_mean = self.directory_dataset +\
-                'prior_mean_' + data_options + '_' + prior_string
+                'prior_mean_' + num_nodes_string + '_' + prior_string
         self.prior_covariance = self.directory_dataset +\
-                'prior_covariance_' + data_options + '_' + prior_string
+                'prior_covariance_' + num_nodes_string + '_' + prior_string
         self.prior_covariance_cholesky = self.directory_dataset +\
-                'prior_covariance_cholesky_' + data_options + '_' + prior_string
+                'prior_covariance_cholesky_' + num_nodes_string + '_' + prior_string
         self.prior_covariance_cholesky_inverse = self.directory_dataset +\
-                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string
+                'prior_covariance_cholesky_inverse_' + num_nodes_string + '_' + prior_string
 
         #=== FEM Operators ===#
         self.fem_operator_spatial = self.directory_dataset +\
-                'fem_operator_spatial' + data_options
+                'fem_operator_spatial_' + num_nodes_string
         self.fem_operator_implicit_ts = self.directory_dataset +\
-                'fem_operator_implicit_ts' + data_options
+                'fem_operator_implicit_ts_' + num_nodes_string
         self.fem_operator_implicit_ts_rhs = self.directory_dataset +\
-                'fem_operator_implicit_ts_rhs' + data_options
+                'fem_operator_implicit_ts_rhs_' + num_nodes_string
 
         #=== Parameters ===#
         self.parameter = self.directory_dataset +\
                 project_name + 'parameter_' + train_or_test +\
-                'd%d_'%(options.num_data) + data_options + '_' + prior_string
+                'd%d_'%(options.num_data) + num_nodes_string + '_' + prior_string
 
         #=== Solution ===#
         self.obs_indices = self.directory_dataset +\
                 project_name + 'obs_indices_' +\
-                'o%d_'%(options.num_obs_points) + data_options
+                'o%d_'%(options.num_obs_points) + num_nodes_string
         self.state_full = self.directory_dataset +\
                 project_name + 'state_full_' + train_or_test +\
                 'd%d_'%(options.num_data) + data_options + '_' + prior_string
