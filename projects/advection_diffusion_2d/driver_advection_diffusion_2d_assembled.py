@@ -20,6 +20,7 @@ import dolfin as dl
 
 # Import src code
 from utils_mesh.construct_mesh_rectangular_with_hole import construct_mesh
+from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
@@ -57,6 +58,13 @@ if __name__ == "__main__":
 
     #=== File Paths ===#
     filepaths = FilePaths(options)
+
+    #=== Plot Mesh ===#
+    if options.plot_mesh == True:
+        plot_mesh(filepaths,
+                  (5,5), '',
+                  (0,1), (0,1),
+                  Vh.mesh().coordinates(), Vh.mesh().cells())
 
 ###############################################################################
 #                             Prior and Parameters                            #
