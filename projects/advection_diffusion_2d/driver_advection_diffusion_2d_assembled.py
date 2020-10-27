@@ -139,7 +139,7 @@ if __name__ == "__main__":
         for time_step in range(0, simulation_times.shape[0]):
             time_string = value_to_string(simulation_times[time_step])
             plot_fem_function_fenics_2d(
-                    Vh, state_sample[:,time_step],
+                    Vh, state_sample[time_step,:],
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_%d_t%s.png' %(sample_number, time_step),
                     (5,5), (0,1))
@@ -166,10 +166,11 @@ if __name__ == "__main__":
                                 fem_operator_spatial,
                                 fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
                                 0)
+
         for time_step in range(0, simulation_times.shape[0]):
             time_string = value_to_string(simulation_times[time_step])
             plot_fem_function_fenics_2d(
-                    Vh, state_sample[:,time_step],
+                    Vh, state_sample[time_step,:],
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
-                    (5,5), (0,1))
+                    (5,5), (0,4))

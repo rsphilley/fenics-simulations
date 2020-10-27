@@ -43,9 +43,9 @@ construct_and_save_matrices : True
 kappa : 0.001
 
 #=== Time Properties ===#
-time_stepping_erk4 : True
+time_stepping_erk4 : False
 time_stepping_lserk4 : False
-time_stepping_implicit : False
+time_stepping_implicit : True
 time_initial : 0
 time_final : 4
 time_1 : 1
