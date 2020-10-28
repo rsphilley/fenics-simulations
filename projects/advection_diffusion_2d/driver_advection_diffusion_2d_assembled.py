@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     #=== Define Observation Points ===#
     obs_indices, obs_coords = form_interior_observation_points(options, filepaths, Vh)
-    pdb.set_trace()
+
     #=== Plot Mesh ===#
     if options.plot_mesh == True:
         plot_mesh(filepaths,
