@@ -3,7 +3,7 @@ flow_navier_stokes : True
 flow_darcy : False
 
 #=== Compute Test Case ===#
-compute_test_case : True
+compute_test_case : False
 
 #=== Mesh Properties ===#
 hole_single_circle : False
@@ -21,11 +21,11 @@ circle_center : [0.25, 0.25]
 circle_radius : 0.1
 
 #=== Train or Test Set ===#
-generate_train_data : True
-generate_test_data : False
+generate_train_data : False
+generate_test_data : True
 
 #=== Number of Data ===#
-num_data : 2
+num_data : 5
 
 #=== Parameter Options ===#
 construct_prior : True
@@ -53,7 +53,7 @@ time_dt : 0.1
 time_obs : 0.2
 
 #=== Plotting ===#
-plot_mesh : True
+plot_mesh : False
 plot_parameters : False
 plot_solutions : False
 

@@ -5,23 +5,23 @@ Created on Sun May  28 10:16:28 2020
 
 @author: hwan
 """
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def value_to_string(value):
     if value >= 1:
         value = int(value)
         string = str(value)
+    elif value == 0:
+        string = '0'
     else:
         value_decimal_form = '%.9f'%(value)
         string = 'pt'
-        nonzero_value_flag = 0
-        for n in range(2,9):
-            if value_decimal_form[n] == '0':
-                string += '0'
-            else:
-                string += value_decimal_form[n]
-                nonzero_value_flag = 1
+
+        for n in range(1,len(value_decimal_form)):
+            if value_decimal_form[-n] != '0':
+                index = n
                 break
-        if nonzero_value_flag != 1:
-            string = '0'
+
+        string += value_decimal_form[2:12-index]
 
     return string

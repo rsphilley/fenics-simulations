@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     #=== Define Observation Points ===#
     obs_indices, obs_coords = form_interior_observation_points(options, filepaths, Vh)
-
+    pdb.set_trace()
     #=== Plot Mesh ===#
     if options.plot_mesh == True:
         plot_mesh(filepaths,
@@ -95,7 +95,7 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(Vh, parameters[n,:],
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
-                                        (5,5), (0,0.5))
+                                        (5,5), 'none')
 
 ###############################################################################
 #                                  Solve PDE                                  #
@@ -152,7 +152,7 @@ if __name__ == "__main__":
                     Vh, state_sample[time_step,:],
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_%d_t%s.png' %(sample_number, time_step),
-                    (5,5), (0,0.5))
+                    (5,5), 'none')
 
     #################
     #   Test Case   #
@@ -167,7 +167,7 @@ if __name__ == "__main__":
         plot_fem_function_fenics_2d(Vh, true_initial_condition,
                                     '',
                                     filepaths.directory_figures + 'parameter_test.png',
-                                    (5,5), 'none')
+                                    (5,5), (0,0.5))
 
         #=== State ===#
         state_sample = solve_pde(options, filepaths,
@@ -183,4 +183,4 @@ if __name__ == "__main__":
                     Vh, state_sample[time_step,:],
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
-                    (5,5), 'none')
+                    (5,5), (0,0.5))

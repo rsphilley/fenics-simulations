@@ -49,7 +49,7 @@ class FilePaths():
         #=== File Name Properties ===#
         if options.generate_train_data == True:
             train_or_test = 'train_'
-        if options.generate_test_data == False:
+        if options.generate_test_data == True:
             train_or_test = 'test_'
 
         #=== Prior Properties ===#
