@@ -11,7 +11,7 @@ def v_boundary(x,on_boundary):
 def q_boundary(x,on_boundary):
     return x[0] < dl.DOLFIN_EPS and x[1] < dl.DOLFIN_EPS
 
-def compute_velocity_field(filepath, mesh):
+def compute_velocity_field_navier_stokes(filepath, mesh):
     Xh = dl.VectorFunctionSpace(mesh,'Lagrange', 2)
     Wh = dl.FunctionSpace(mesh, 'Lagrange', 1)
     mixed_element = ufl.MixedElement([Xh.ufl_element(), Wh.ufl_element()])

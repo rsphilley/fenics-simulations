@@ -20,6 +20,7 @@ import dolfin as dl
 
 # Import src code
 from utils_mesh.construct_mesh_rectangular_with_hole import construct_mesh
+from utils_mesh.form_observation_points import form_interior_observation_points
 from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_io.load_prior import load_prior
@@ -33,11 +34,10 @@ from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.velocity_field import compute_velocity_field
+from utils_project.velocity_field import compute_velocity_field_navier_stokes
 from utils_project.model_advection_diffusion_2d_initial_condition\
         import TimeDependentAdvectionDiffusionInitialCondition
 from utils_project.solve_advection_diffusion_2d import solve_pde
-from utils_project.form_observation_data import form_observation_points, form_observation_data
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -58,6 +58,9 @@ if __name__ == "__main__":
 
     #=== File Paths ===#
     filepaths = FilePaths(options)
+
+    #=== Define Observation Points ===#
+    obs_indices, obs_coords = form_interior_observation_points(options, filepaths, Vh)
 
     #=== Plot Mesh ===#
     if options.plot_mesh == True:
@@ -102,8 +105,9 @@ if __name__ == "__main__":
     ##################
     #=== Velocity Field ===#
     if options.flow_navier_stokes == True:
-        velocity = compute_velocity_field(filepaths.directory_figures + 'velocity_field.png',
-                                          Vh.mesh())
+        velocity = compute_velocity_field_navier_stokes(
+                filepaths.directory_figures + 'velocity_field.png',
+                Vh.mesh())
 
     #=== Time Objects ===#
     simulation_times = np.arange(options.time_initial,
@@ -112,9 +116,6 @@ if __name__ == "__main__":
     observation_times = np.arange(options.time_1,
                                   options.time_final+.5*options.time_dt,
                                   options.time_obs)
-
-    #=== Define Observation Points ===#
-    obs_indices, obs_coords = form_observation_points(options, filepaths, Vh)
 
     #=== Construct or Load FEM Operators ===#
     if options.construct_and_save_matrices == True:

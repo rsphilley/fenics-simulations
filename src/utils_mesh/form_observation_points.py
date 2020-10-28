@@ -1,10 +1,12 @@
+import os
+
 import numpy as np
 import pandas as pd
 from fenics import *
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def form_observation_points(options, filepaths, function_space):
+def form_interior_observation_points(options, filepaths, function_space):
 
     #=== Extract mesh and triangulate ===#
     mesh = function_space.mesh()
@@ -22,18 +24,9 @@ def form_observation_points(options, filepaths, function_space):
         obs_coords[ind,:] = coords[obs_indices[ind],:]
 
     #=== Save observation indices ===#
+    if not os.path.exists(filepaths.directory_dataset):
+        os.makedirs(filepaths.directory_dataset)
     df_obs_indices = pd.DataFrame({'obs_indices': obs_indices})
     df_obs_indices.to_csv(filepaths.obs_indices + '.csv', index=False)
 
     return obs_indices, obs_coords
-
-def form_observation_data(options, filepaths, fe_space, state):
-
-    #=== Form observation data ===#
-    state_obs = state[:,obs_indices]
-
-    #=== Save observation indices and data ===#
-    df_obs_indices = pd.DataFrame({'obs_indices': obs_indices})
-    df_obs_indices.to_csv(filepaths.obs_indices + '.csv', index=False)
-    df_state_obs = pd.DataFrame({'state_obs': state_obs.flatten()})
-    df_state_obs.to_csv(filepaths.state_obs + '.csv', index=False)

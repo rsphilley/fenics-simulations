@@ -45,7 +45,7 @@ def solve_pde(options, filepaths,
                 state_current = time_stepping_implicit(
                         fem_operator_implicit_ts, fem_operator_implicit_ts_rhs, state_current)
             if options.time_stepping_erk4 == True:
-                state_current = time_stepping_erk4(options, fem_operator_spatial, state_current)
+                state_current = time_stepping_erk4(options, -fem_operator_spatial, state_current)
             state_current_expanded = np.expand_dims(state_current, axis=0)
             state_obs_n = np.concatenate(
                 (state_obs_n, state_current_expanded[:,obs_indices]), axis=1)
