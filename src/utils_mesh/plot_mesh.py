@@ -37,7 +37,7 @@ def plot_mesh(filepaths,
         plt.fill(x, y, edgecolor='black', fill=False)
 
     for point in range(0, len(obs_indices)):
-        plt.plot(obs_coords[point,0], obs_coords[point,1], 'r+')
+        plt.plot(obs_coords[point,0], obs_coords[point,1], 'r+', mew=5, ms=20)
 
     plt.xlim(x_axis_limits)
     plt.ylim(y_axis_limits)

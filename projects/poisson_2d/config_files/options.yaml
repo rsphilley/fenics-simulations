@@ -8,15 +8,15 @@ order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : 0
-generate_test_data : 1
+generate_train_data : 1
+generate_test_data : 0
 
 #=== Number of Data ===#
-num_data : 200
+num_data : 5
 
 #=== Parameter Options ===#
-construct_prior : 0
-draw_and_save_parameters : 0
+construct_prior : 1
+draw_and_save_parameters : 1
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_AC : 1

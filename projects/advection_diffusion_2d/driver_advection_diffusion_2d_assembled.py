@@ -163,10 +163,11 @@ if __name__ == "__main__":
             element=Vh.ufl_element())
         true_initial_condition = np.expand_dims(
                 dl.interpolate(ic_expr, Vh).vector().get_local(), axis=0)
+        true_initial_condition = 10*true_initial_condition
         plot_fem_function_fenics_2d(Vh, true_initial_condition,
                                     '',
                                     filepaths.directory_figures + 'parameter_test.png',
-                                    (5,5), (0,0.5))
+                                    (5,5), (0,5))
 
         #=== Save Parameter ===#
         if not os.path.exists(filepaths.directory_dataset):
@@ -188,7 +189,7 @@ if __name__ == "__main__":
                     Vh, state_sample[time_step,:],
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
-                    (5,5), (0,0.5))
+                    (5,5), (0,5))
 
         #=== Save State ===#
         if not os.path.exists(filepaths.directory_dataset):
