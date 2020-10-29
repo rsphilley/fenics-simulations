@@ -20,7 +20,7 @@ def solve_pde(options, filepaths,
               obs_indices, num_time_steps,
               fem_operator_spatial,
               fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
-              sample_number):
+              sample_number, generate_blob_flag):
 
     #######################
     #   Storage Vectors   #
@@ -67,6 +67,9 @@ def solve_pde(options, filepaths,
     #    Save Solutions    #
     ########################
     df_state_obs = pd.DataFrame({'state_obs': state_obs.flatten()})
-    df_state_obs.to_csv(filepaths.state_obs + '.csv', index=False)
+    if generate_blob_flag == 1:
+        df_state_obs.to_csv(filepaths.state_obs + '.csv', index=False)
+    else:
+        df_state_obs.to_csv(filepaths.state_obs_blob + '.csv', index=False)
 
     return state_sample

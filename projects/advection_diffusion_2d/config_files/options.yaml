@@ -3,7 +3,7 @@ flow_navier_stokes : True
 flow_darcy : False
 
 #=== Compute Test Case ===#
-compute_test_case : False
+compute_test_case : True
 
 #=== Mesh Properties ===#
 hole_single_circle : False

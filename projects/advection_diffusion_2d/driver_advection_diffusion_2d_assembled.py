@@ -13,9 +13,8 @@ import yaml
 from attrdict import AttrDict
 import scipy.sparse as sparse
 
-# Import hIPPYlib code
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 import dolfin as dl
 
 # Import src code
@@ -142,7 +141,7 @@ if __name__ == "__main__":
                              obs_indices, simulation_times.shape[0],
                              fem_operator_spatial,
                              fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
-                             sample_number)
+                             sample_number, False)
 
     #=== Plot Solution ===#
     if options.plot_solutions == True:
@@ -169,13 +168,19 @@ if __name__ == "__main__":
                                     filepaths.directory_figures + 'parameter_test.png',
                                     (5,5), (0,0.5))
 
+        #=== Save Parameter ===#
+        if not os.path.exists(filepaths.directory_dataset):
+            os.makedirs(filepaths.directory_dataset)
+        df_samples= pd.DataFrame({'parameter_blob': true_initial_condition.flatten()})
+        df_samples.to_csv(filepaths.parameter_blob + '.csv', index=False)
+
         #=== State ===#
         state_sample = solve_pde(options, filepaths,
                                 true_initial_condition,
                                 obs_indices, simulation_times.shape[0],
                                 fem_operator_spatial,
                                 fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
-                                0)
+                                0, True)
 
         for time_step in range(0, simulation_times.shape[0]):
             time_string = value_to_string(simulation_times[time_step])
@@ -184,3 +189,9 @@ if __name__ == "__main__":
                     'Time = %.2f' %(simulation_times[time_step]),
                     filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
                     (5,5), (0,0.5))
+
+        #=== Save State ===#
+        if not os.path.exists(filepaths.directory_dataset):
+            os.makedirs(filepaths.directory_dataset)
+        df_samples= pd.DataFrame({'parameter_blob': true_initial_condition.flatten()})
+        df_samples.to_csv(filepaths.parameter_blob + '.csv', index=False)
