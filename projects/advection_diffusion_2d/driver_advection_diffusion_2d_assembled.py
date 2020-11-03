@@ -22,6 +22,7 @@ from utils_mesh.construct_mesh_rectangular_with_hole import construct_mesh
 from utils_mesh.form_observation_points import form_interior_observation_points
 from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
+from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
@@ -72,9 +73,17 @@ if __name__ == "__main__":
 #                             Prior and Parameters                            #
 ###############################################################################
     #=== Construct Prior ===#
+    # if options.prior_type_blp == 1:
     prior = construct_bilaplacian_prior(filepaths,
-                                        Vh, options.prior_mean,
-                                        options.prior_gamma, options.prior_delta)
+                                        Vh, options.prior_mean_blp,
+                                        options.prior_gamma_blp,
+                                        options.prior_delta_blp)
+    if options.prior_type_ac == 1:
+        smoothness_prior_autocorr(filepaths,
+                                  nodes,
+                                  options.prior_mean_ac,
+                                  options.prior_variance_ac,
+                                  options.prior_corr_ac)
 
     #=== Load Prior ===#
     prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
@@ -148,7 +157,7 @@ if __name__ == "__main__":
     #   Computing Solution   #
     ##########################
     #=== Solve PDE ===#
-    sample_number = 0
+    sample_number = 2
     state_sample = solve_pde(options, filepaths,
                              parameters,
                              obs_indices,

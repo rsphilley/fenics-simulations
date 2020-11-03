@@ -21,6 +21,13 @@ def prior_string_blp(prior_type, mean, gamma, delta):
 
     return '%s_%s_%s_%s'%(prior_type, mean_string, gamma_string, delta_string)
 
+def prior_string_ac(prior_type, mean, variance, corr):
+    mean_string = value_to_string(mean)
+    variance_string = value_to_string(variance)
+    corr_string = value_to_string(corr)
+
+    return '%s_%s_%s_%s'%(prior_type, mean_string, variance_string, corr_string)
+
 ###############################################################################
 #                                 FilePaths                                   #
 ###############################################################################
@@ -53,10 +60,16 @@ class FilePaths():
             train_or_test = 'test_'
 
         #=== Prior Properties ===#
-        prior_string = prior_string_blp('blp',
-                                        options.prior_mean,
-                                        options.prior_gamma,
-                                        options.prior_delta)
+        if options.prior_type_blp == True:
+            prior_string = prior_string_blp('blp',
+                                            options.prior_mean_blp,
+                                            options.prior_gamma_blp,
+                                            options.prior_delta_blp)
+        if options.prior_type_ac == True:
+            prior_string = prior_string_ac('ac',
+                    options.prior_mean_ac,
+                    options.prior_variance_ac,
+                    options.prior_corr_ac)
 
         #=== Prior ===#
         self.prior_mean = self.directory_dataset +\
