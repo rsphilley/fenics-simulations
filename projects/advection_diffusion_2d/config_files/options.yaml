@@ -49,8 +49,11 @@ time_stepping_implicit : True
 time_initial : 0
 time_final : 4
 time_1 : 1
-time_dt : 0.1
-time_obs : 0.2
+time_dt_imp : 0.1
+time_obs_imp_scalar : 1
+time_dt_exp : 1e-4
+time_obs_exp_scalar : 1e2
+time_cfl : 0.5
 
 #=== Plotting ===#
 plot_mesh : False

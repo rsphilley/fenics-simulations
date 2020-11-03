@@ -109,12 +109,25 @@ if __name__ == "__main__":
                 Vh.mesh())
 
     #=== Time Objects ===#
-    simulation_times = np.arange(options.time_initial,
-                                 options.time_final+.5*options.time_dt,
-                                 options.time_dt)
-    observation_times = np.arange(options.time_1,
-                                  options.time_final+.5*options.time_dt,
-                                  options.time_obs)
+    if options.time_stepping_implicit == True:
+        time_dt = options.time_dt_imp
+        time_obs_scalar = options.time_obs_imp_scalar
+        simulation_times = np.arange(options.time_initial,
+                                     options.time_final+.5*time_dt,
+                                     time_dt)
+        num_time_steps = simulation_times.shape[0]
+    else:
+        time_dt = float(options.time_dt_exp)
+        time_obs_scalar = float(options.time_obs_exp_scalar)
+        simulation_times = [] # Explicit time-stepping is not computed in the
+                              # hIPPYlib provided class. Also, you don't want to
+                              # store all these steps anyway
+        num_time_steps = int(np.ceil((options.time_final+.5*time_dt)/time_dt))
+
+    time_dt_obs = time_obs_scalar*time_dt
+    observation_times = np.arange(options.time_initial,
+                                  options.time_final+.5*time_dt,
+                                  time_dt_obs)
 
     #=== Construct or Load FEM Operators ===#
     if options.construct_and_save_matrices == True:
@@ -138,18 +151,19 @@ if __name__ == "__main__":
     sample_number = 0
     state_sample = solve_pde(options, filepaths,
                              parameters,
-                             obs_indices, simulation_times.shape[0],
+                             obs_indices,
+                             time_dt, num_time_steps, observation_times.shape[0], time_obs_scalar,
                              fem_operator_spatial,
                              fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
                              sample_number, False)
 
     #=== Plot Solution ===#
     if options.plot_solutions == True:
-        for time_step in range(0, simulation_times.shape[0]):
-            time_string = value_to_string(simulation_times[time_step])
+        for time_step in range(0, observation_times.shape[0]):
+            time_string = value_to_string(observation_times[time_step])
             plot_fem_function_fenics_2d(
                     Vh, state_sample[time_step,:],
-                    'Time = %.2f' %(simulation_times[time_step]),
+                    'Time = %.2f' %(observation_times[time_step]),
                     filepaths.directory_figures + 'state_%d_t%s.png' %(sample_number, time_step),
                     (5,5), 'none')
 
@@ -178,18 +192,19 @@ if __name__ == "__main__":
         #=== State ===#
         state_sample = solve_pde(options, filepaths,
                                 true_initial_condition,
-                                obs_indices, simulation_times.shape[0],
+                                obs_indices,
+                                time_dt, num_time_steps, observation_times.shape[0], time_obs_scalar,
                                 fem_operator_spatial,
                                 fem_operator_implicit_ts, fem_operator_implicit_ts_rhs,
                                 0, True)
 
-        for time_step in range(0, simulation_times.shape[0]):
-            time_string = value_to_string(simulation_times[time_step])
+        for time_step in range(0, observation_times.shape[0]):
+            time_string = value_to_string(observation_times[time_step])
             plot_fem_function_fenics_2d(
                     Vh, state_sample[time_step,:],
-                    'Time = %.2f' %(simulation_times[time_step]),
+                    'Time = %.2f' %(observation_times[time_step]),
                     filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
-                    (5,5), (0,5))
+                    (5,5), 'none')
 
         #=== Save State ===#
         if not os.path.exists(filepaths.directory_dataset):

@@ -1,7 +1,6 @@
 import numpy as np
 
-def time_stepping_erk4(options, operator, state_current):
-    dt = options.time_dt
+def time_stepping_erk4(dt, operator, state_current):
 
     k_1 = np.matmul(operator, state_current)
     k_2 = np.matmul(operator, state_current + (1/2)*dt*k_1)

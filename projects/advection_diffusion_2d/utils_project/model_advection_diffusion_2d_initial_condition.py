@@ -36,7 +36,7 @@ class TimeDependentAdvectionDiffusionInitialCondition:
 
         # Assume constant timestepping
         self.simulation_times = simulation_times
-        dt = simulation_times[1] - simulation_times[0]
+        dt = options.time_dt_imp
         dt_expr = dl.Constant(dt)
 
         # Trial and Test functions for the weak forms
