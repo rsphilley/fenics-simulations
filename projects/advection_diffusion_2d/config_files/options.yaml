@@ -25,7 +25,7 @@ generate_train_data : True
 generate_test_data : False
 
 #=== Number of Data ===#
-num_data : 5
+num_data : 100
 
 #=== Parameter Options ===#
 construct_prior : True
@@ -64,8 +64,8 @@ time_cfl : 0.5
 
 #=== Plotting ===#
 plot_mesh : False
-plot_parameters : True
-plot_solutions : True
+plot_parameters : False
+plot_solutions : False
 
 #=== Random Seed ===#
 random_seed : 4

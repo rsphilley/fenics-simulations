@@ -76,7 +76,7 @@ def solve_pde(options, filepaths,
     #    Save Solutions    #
     ########################
     df_state_obs = pd.DataFrame({'state_obs': state_obs.flatten()})
-    if generate_blob_flag == 1:
+    if generate_blob_flag == False:
         df_state_obs.to_csv(filepaths.state_obs + '.csv', index=False)
     else:
         df_state_obs.to_csv(filepaths.state_obs_blob + '.csv', index=False)
