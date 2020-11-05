@@ -19,7 +19,7 @@ def construct_bilaplacian_prior(filepaths,
 
     #=== Discretized Forms ===#
     mean_vec = mean*np.ones(Vh.dim())
-    inv_L = prior.M.array() + prior.A.array()
+    inv_L = prior.A.array()
     L = np.linalg.inv(inv_L)
     cov = np.matmul(L, L)
 
