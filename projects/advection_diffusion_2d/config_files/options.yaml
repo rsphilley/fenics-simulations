@@ -3,7 +3,7 @@ flow_navier_stokes : True
 flow_darcy : False
 
 #=== Compute Test Case ===#
-compute_test_case : True
+compute_test_case : False
 
 #=== Mesh Properties ===#
 hole_single_circle : False
@@ -39,9 +39,9 @@ prior_delta_blp : 8
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_ac : True
-prior_mean_ac : 2
+prior_mean_ac : 0
 prior_variance_ac : 2.0
-prior_corr_ac : 0.5
+prior_corr_ac : 0.2
 
 #=== Construct and Save Matrices ===#
 construct_and_save_matrices : True
