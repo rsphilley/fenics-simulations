@@ -26,6 +26,13 @@ def prior_string_matern(prior_type, kern_type, cov_length):
 
     return '%s_%s_%s'%(prior_type, kern_type, cov_length)
 
+def prior_string_blp(prior_type, mean, gamma, delta):
+    mean_string = value_to_string(mean)
+    gamma_string = value_to_string(gamma)
+    delta_string = value_to_string(delta)
+
+    return '%s_%s_%s_%s'%(prior_type, mean_string, gamma_string, delta_string)
+
 ###############################################################################
 #                                 FilePaths                                   #
 ###############################################################################
@@ -39,21 +46,26 @@ class FilePaths():
             data_options + '/'
 
         #=== File Name Properties ===#
-        if options.generate_train_data == 1:
+        if options.generate_train_data == True:
             train_or_test = 'train_'
-        if options.generate_test_data == 1:
+        if options.generate_test_data == True:
             train_or_test = 'test_'
 
         #=== Prior Properties ===#
-        if options.prior_type_AC == 1:
+        if options.prior_type_AC == True:
             prior_string = prior_string_AC('AC',
                     options.prior_mean_AC,
                     options.prior_variance_AC,
                     options.prior_corr_AC)
-        if options.prior_type_matern == 1:
+        if options.prior_type_matern == True:
             prior_string = prior_string_matern('matern',
                     options.prior_kern_type,
                     options.prior_cov_length)
+        if options.prior_type_blp == True:
+            prior_string = prior_string_blp('blp',
+                                            options.prior_mean_blp,
+                                            options.prior_gamma_blp,
+                                            options.prior_delta_blp)
 
         #=== Mesh ===#
         mesh_name = 'mesh_square_2D_n%d' %(options.num_nodes)

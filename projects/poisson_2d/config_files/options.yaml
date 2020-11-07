@@ -18,14 +18,20 @@ num_data : 5
 construct_prior : 1
 draw_and_save_parameters : 1
 
+#=== BiLaplacian Prior Properties ===#
+prior_type_blp : True
+prior_mean_blp : 2
+prior_gamma_blp : 1
+prior_delta_blp : 8
+
 #=== Autocorrelation Prior Properties ===#
-prior_type_AC : 1
+prior_type_AC : False
 prior_mean_AC : 2
 prior_variance_AC : 2.0
 prior_corr_AC : 0.5
 
 #=== Matern Prior Properties ===#
-prior_type_matern : 0
+prior_type_matern : False
 prior_kern_type : 'm32'
 prior_cov_length : 0.08
 

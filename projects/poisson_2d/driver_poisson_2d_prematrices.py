@@ -16,6 +16,7 @@ import scipy.sparse as sparse
 # Import src code
 from utils_mesh.construct_mesh_rectangular import construct_mesh
 from utils_mesh.plot_mesh import plot_mesh
+from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
 from utils_prior.gaussian_field import construct_matern_covariance
 from utils_io.load_prior import load_prior
@@ -72,6 +73,11 @@ if __name__ == "__main__":
     ############################
     #=== Construct Prior ===#
     if options.construct_prior == 1:
+        if options.prior_type_blp == 1:
+            prior = construct_bilaplacian_prior(filepaths,
+                                                meta_space, options.prior_mean_blp,
+                                                options.prior_gamma_blp,
+                                                options.prior_delta_blp)
         if options.prior_type_AC == 1:
             smoothness_prior_autocorr(filepaths,
                     nodes,
