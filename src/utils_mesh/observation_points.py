@@ -30,3 +30,20 @@ def form_interior_observation_points(options, filepaths, function_space):
     df_obs_indices.to_csv(filepaths.obs_indices + '.csv', index=False)
 
     return obs_indices, obs_coords
+
+def load_observation_points(filepath, function_space):
+
+    #=== Extract mesh and triangulate ===#
+    mesh = function_space.mesh()
+    coords = mesh.coordinates()
+
+    #=== Load Observation Indicies ===#
+    df_obs_indices = pd.read_csv(filepath + '.csv')
+    obs_indices = df_obs_indices.to_numpy()
+
+    #=== Form Observation Coordinates ===#
+    obs_coords = np.zeros((len(obs_indices), 2))
+    for ind in range(0, len(obs_indices)):
+        obs_coords[ind,:] = coords[obs_indices[ind],:]
+
+    return obs_indices, obs_coords

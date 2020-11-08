@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid GridType="Uniform" Name="Point cloud">
+      <Topology NumberOfElements="10" TopologyType="PolyVertex" NodesPerElement="1" />
+      <Geometry GeometryType="XYZ">
+        <DataItem Dimensions="10 3" Format="HDF">poisson_observation.h5:/Points/coordinates</DataItem>
+      </Geometry>
+      <Attribute Name="Point values" AttributeType="Scalar" Center="Node">
+        <DataItem Dimensions="10 1" Format="HDF">poisson_observation.h5:/Points/values</DataItem>
+      </Attribute>
+    </Grid>
+  </Domain>
+</Xdmf>

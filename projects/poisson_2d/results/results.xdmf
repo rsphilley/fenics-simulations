@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="mesh" GridType="Uniform">
+        <Topology NumberOfElements="450" TopologyType="Triangle" NodesPerElement="3">
+          <DataItem Dimensions="450 3" NumberType="UInt" Format="HDF">results.h5:/Mesh/0/mesh/topology</DataItem>
+        </Topology>
+        <Geometry GeometryType="XY">
+          <DataItem Dimensions="256 2" Format="HDF">results.h5:/Mesh/0/mesh/geometry</DataItem>
+        </Geometry>
+        <Time Value="0" />
+        <Attribute Name="state" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="256 1" Format="HDF">results.h5:/VisualisationVector/0</DataItem>
+        </Attribute>
+        <Attribute Name="true state" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="256 1" Format="HDF">results.h5:/VisualisationVector/1</DataItem>
+        </Attribute>
+        <Attribute Name="parameter" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="256 1" Format="HDF">results.h5:/VisualisationVector/2</DataItem>
+        </Attribute>
+        <Attribute Name="true parameter" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="256 1" Format="HDF">results.h5:/VisualisationVector/3</DataItem>
+        </Attribute>
+        <Attribute Name="prior mean" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="256 1" Format="HDF">results.h5:/VisualisationVector/4</DataItem>
+        </Attribute>
+        <Attribute Name="adjoint" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="256 1" Format="HDF">results.h5:/VisualisationVector/5</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+  </Domain>
+</Xdmf>

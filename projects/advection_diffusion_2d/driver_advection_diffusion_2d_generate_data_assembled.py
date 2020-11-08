@@ -19,7 +19,7 @@ import dolfin as dl
 
 # Import src code
 from utils_mesh.construct_mesh_rectangular_with_hole import construct_mesh
-from utils_mesh.form_observation_points import form_interior_observation_points
+from utils_mesh.observation_points import form_interior_observation_points
 from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
@@ -214,9 +214,3 @@ if __name__ == "__main__":
                     'Time = %.2f' %(observation_times[time_step]),
                     filepaths.directory_figures + 'state_test_t%s.png' %(time_step),
                     (5,5), 'none')
-
-        #=== Save State ===#
-        if not os.path.exists(filepaths.directory_dataset):
-            os.makedirs(filepaths.directory_dataset)
-        df_samples= pd.DataFrame({'parameter_blob': true_initial_condition.flatten()})
-        df_samples.to_csv(filepaths.parameter_blob + '.csv', index=False)
