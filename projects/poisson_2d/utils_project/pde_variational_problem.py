@@ -65,7 +65,6 @@ class PDEVariationalProblem(PDEProblem):
             A, b = dl.assemble_system(A_form, b_form, bcs=self.bc)
             self.solver.set_operator(A)
             self.solver.solve(state, b)
-            pdb.set_trace()
         else:
             u = vector2Function(x[STATE], self.Vh[STATE])
             m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])

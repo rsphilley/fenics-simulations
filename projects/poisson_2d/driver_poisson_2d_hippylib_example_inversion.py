@@ -46,13 +46,10 @@ def true_model(prior):
     return mtrue
 
 ###############################################################################
-#                                    Driver                                   #
+#                                  Setting Up                                 #
 ###############################################################################
 if __name__ == "__main__":
 
-    ##################
-    #   Setting Up   #
-    ##################
     #=== Seperation for Print Statements ===#
     sep = "\n"+"#"*80+"\n"
 
@@ -99,9 +96,9 @@ if __name__ == "__main__":
     bc = dl.DirichletBC(Vh[STATE], u_bdr, u_boundary)
     bc0 = dl.DirichletBC(Vh[STATE], u_bdr0, u_boundary)
 
-    ###################
-    #   PDE Problem   #
-    ###################
+###############################################################################
+#                                  PDE Problem                                #
+###############################################################################
     #=== Variational Form ===#
     def pde_varf(u,m,p):
         return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx - f*p*ufl.dx
@@ -117,15 +114,14 @@ if __name__ == "__main__":
     pde.solver_fwd_inc.parameters = pde.solver.parameters
     pde.solver_adj_inc.parameters = pde.solver.parameters
 
-    ################################################
-    #   Observation Points and Misfit Functional   #
-    ################################################
+    #=== Observation Points and Misfit Functional ===#
     _, targets = load_observation_points(filepaths.obs_indices, Vh1)
     misfit = PointwiseStateObservation(Vh[STATE], targets)
 
-    #############
-    #   Prior   #
-    #############
+###############################################################################
+#                            Prior and True Parameter                         #
+###############################################################################
+    #=== Prior ===#
     gamma = .1
     delta = .5
 
@@ -138,34 +134,60 @@ if __name__ == "__main__":
 
     prior = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, anis_diff, robin_bc=True )
 
-    #############################
-    #   True Parameter Values   #
-    #############################
+    #=== True Parameter ===#
     mtrue = true_model(prior)
 
-    #######################################
-    #   Generate Synthetic Observations   #
-    #######################################
+    #=== Plot Prior and True Parameter ===#
+    vmax = max(mtrue.max(), misfit.d.max())
+    vmin = min(mtrue.min(), misfit.d.min())
+    plt.figure(figsize=(9,3))
+    nb.plot(dl.Function(Vh[PARAMETER], mtrue),
+            mytitle="True Parameter", subplot_loc=121, vmin=vmin, vmax=vmax)
+    nb.plot(dl.Function(Vh[PARAMETER], prior.mean),
+            mytitle="Prior Mean", subplot_loc=122, vmin=vmin, vmax=vmax)
+    plt.show()
+
+###############################################################################
+#                        Generate Synthetic Observations                      #
+###############################################################################
+    #=== Generate True State and Observations ===#
     utrue = pde.generate_state()
     x = [utrue, mtrue, None]
     pde.solveFwd(x[STATE], x)
-    pdb.set_trace()
     misfit.B.mult(x[STATE], misfit.d)
 
+    #=== Noise Model ===#
     rel_noise = 0.01
     MAX = misfit.d.norm("linf")
     noise_std_dev = rel_noise * MAX
     parRandom.normal_perturb(noise_std_dev, misfit.d)
     misfit.noise_variance = noise_std_dev*noise_std_dev
 
+    #=== Plot True State and Observation Points ===#
+    vmax = max(utrue.max(), misfit.d.max())
+    vmin = min(utrue.min(), misfit.d.min())
+    plt.figure(figsize=(9,3))
+    nb.plot(dl.Function(Vh[STATE], utrue),
+            mytitle="True State", subplot_loc=121, vmin=vmin, vmax=vmax)
+    nb.plot_pts(targets, misfit.d, mytitle="Observations", subplot_loc=122, vmin=vmin, vmax=vmax)
+    print("Number of observation points: {0}".format(len(targets)))
+
+###############################################################################
+#                                Model and Solver                             #
+###############################################################################
+    #=== Form Model ===#
     model = Model(pde,prior, misfit)
 
+    #=== Test Gradient ===#
     if rank == 0:
         print( sep, "Test the gradient and the Hessian of the model", sep )
 
-    m0 = dl.interpolate(dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
+    #=== Initial Guess ===#
+    m0 = dl.interpolate(
+            dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
     modelVerify(model, m0.vector(), is_quadratic = False, verbose = (rank == 0) )
 
+    #=== Solver Parameters ===#
     if rank == 0:
         print( sep, "Find the MAP point", sep)
     m = prior.mean.copy()
@@ -178,12 +200,14 @@ if __name__ == "__main__":
     if rank != 0:
         parameters["print_level"] = -1
 
+    #=== Solve ===#
     if rank == 0:
         parameters.showMe()
     solver = ReducedSpaceNewtonCG(model, parameters)
 
     x = solver.solve([None, m, None])
 
+    #=== Print Solver Information ===#
     if rank == 0:
         if solver.converged:
             print( "\nConverged in ", solver.it, " iterations.")
@@ -194,6 +218,15 @@ if __name__ == "__main__":
         print ("Final gradient norm: ", solver.final_grad_norm)
         print ("Final cost: ", solver.final_cost)
 
+    #=== Print Estimation ===#
+    plt.figure(figsize=(9,3))
+    nb.plot(dl.Function(Vh[STATE], x[STATE]), subplot_loc=121,mytitle="State")
+    nb.plot(dl.Function(Vh[PARAMETER], x[PARAMETER]), subplot_loc=122,mytitle="Parameter")
+    plt.show()
+
+###############################################################################
+#                           Uncertainty Quantification                        #
+###############################################################################
     if rank == 0:
         print (sep, "Compute the low rank Gaussian Approximation of the posterior", sep)
 
@@ -214,7 +247,8 @@ if __name__ == "__main__":
 
     post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)
     if rank == 0:
-        print ("Posterior trace {0:5e}; Prior trace {1:5e}; Correction trace {2:5e}".format(post_tr, prior_tr, corr_tr))
+        print ("Posterior trace {0:5e}; Prior trace {1:5e}; Correction trace {2:5e}"\
+                .format(post_tr, prior_tr, corr_tr))
 
     post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Randomized", r=200)
 
@@ -267,8 +301,7 @@ if __name__ == "__main__":
             fid.write(s_prior, i)
             fid.write(s_post, i)
 
-    #Save eigenvalues for printing:
-
+    #=== Save eigenvalues for printing ===#
     U.export(Vh[PARAMETER], "results/evect.xdmf", varname = "gen_evects", normalize = True)
     if rank == 0:
         np.savetxt("results/eigevalues.dat", d)
@@ -278,3 +311,21 @@ if __name__ == "__main__":
         plt.plot(range(0,k), d, 'b*', range(0,k), np.ones(k), '-r')
         plt.yscale('log')
         plt.show()
+
+    #=== Plot Variance ===#
+    compute_trace = True
+    if compute_trace:
+        post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)
+        print("Posterior trace {0:5e}; Prior trace {1:5e}; Correction trace {2:5e}"\
+                .format(post_tr, prior_tr, corr_tr) )
+    post_pw_variance, pr_pw_variance, corr_pw_variance =\
+            posterior.pointwise_variance(method="Randomized", r=200)
+
+    vmin = 0
+    vmax = 0.5
+    plt.figure(figsize=(9,3))
+    nb.plot(dl.Function(Vh[PARAMETER], pr_pw_variance),
+            mytitle="Prior Variance", subplot_loc=121, vmin=vmin, vmax=vmax)
+    nb.plot(dl.Function(Vh[PARAMETER], post_pw_variance),
+            mytitle="Posterior Variance", subplot_loc=122, vmin=vmin, vmax=vmax)
+    plt.show()
