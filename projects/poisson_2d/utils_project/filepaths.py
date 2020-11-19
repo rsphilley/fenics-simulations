@@ -97,8 +97,8 @@ class FilePaths():
         self.parameter = self.directory_dataset +\
                 project_name + 'parameter_' + train_or_test +\
                 'd%d_'%(options.num_data) + data_options + '_' + prior_string
-        self.gaussian_blobs = self.directory_dataset +\
-            project_name + 'gaussian_blobs_test'
+        self.input_specific = self.directory_dataset +\
+                project_name + 'parameter_specific_' + data_options
 
         #=== Solution ===#
         self.obs_indices = self.directory_dataset +\
