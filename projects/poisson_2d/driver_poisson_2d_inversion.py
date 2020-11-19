@@ -23,7 +23,7 @@ from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_mesh.observation_points import load_observation_points
-from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+# from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
@@ -32,7 +32,39 @@ from utils_project.pde_variational_problem_heat import PDEVariationalProblemHeat
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
+###############################################################################
+#                                  Utilities                                  #
+###############################################################################
+def true_model(prior):
+    noise = dl.Vector()
+    prior.init_vector(noise,"noise")
+    parRandom.normal(1., noise)
+    mtrue = dl.Vector()
+    prior.init_vector(mtrue, 0)
+    prior.sample(noise,mtrue)
+    return mtrue
+
 if __name__ == "__main__":
+
+###############################################################################
+#                              Inversion Options                              #
+###############################################################################
+    #=== True Parameter Options ===#
+    true_parameter_prior = True
+    true_parameter_specific = False
+
+    #=== Prior Options ===#
+    prior_scalar_yaml = False
+    prior_scalar_set = True
+    prior_scalar_value = 0
+
+    #=== Plotting Options ===#
+    use_hippylib_plotting = True
+    use_my_plotting = False
+    colourbar_limit_parameter = 6
+    colourbar_limit_state = 2
+    colourbar_limit_prior_variance = 0.5
+    colourbar_limit_posterior_variance = 0.5
 
 ###############################################################################
 #                                  Setting Up                                 #
@@ -98,8 +130,10 @@ if __name__ == "__main__":
 #                            Prior and True Parameter                         #
 ###############################################################################
     #=== Prior ===#
-    # mean_array = options.prior_mean_blp*np.ones(Vh[PARAMETER].dim())
-    mean_array = 1*np.ones(Vh[PARAMETER].dim())
+    if prior_scalar_yaml == True:
+        mean_array = options.prior_mean_blp*np.ones(Vh[PARAMETER].dim())
+    if prior_scalar_set == True:
+        mean_array = prior_scalar_value*np.ones(Vh[PARAMETER].dim())
     mean_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mean_array)
     mean = mean_dl.vector()
     prior = BiLaplacianPrior(Vh[PARAMETER],
@@ -108,16 +142,31 @@ if __name__ == "__main__":
                              mean = mean,
                              robin_bc=True)
     #=== True Parameter ===#
-    df_mtrue = pd.read_csv(filepaths.input_specific + '.csv')
-    mtrue_array = np.log(df_mtrue.to_numpy())
-    mtrue_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mtrue_array)
-    mtrue = mtrue_dl.vector()
+    if true_parameter_prior == True:
+        mtrue = true_model(prior)
+    if true_parameter_specific == True:
+        df_mtrue = pd.read_csv(filepaths.input_specific + '.csv')
+        mtrue_array = np.log(df_mtrue.to_numpy())
+        mtrue_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mtrue_array)
+        mtrue = mtrue_dl.vector()
 
     #=== Plot Prior and True Parameter ===#
-    plot_fem_function_fenics_2d(Vh[PARAMETER], np.exp(np.array(mtrue)),
-                                '',
-                                filepaths.directory_figures + 'parameter_test.png',
-                                (5,5), (0,6))
+    if use_my_plotting == True:
+        plot_fem_function_fenics_2d(Vh[PARAMETER], np.exp(np.array(mtrue)),
+                                    '',
+                                    filepaths.directory_figures + 'parameter_test.png',
+                                    (5,5), (0,colourbar_limit_parameter))
+    if use_hippylib_plotting == True:
+        vmax_parameter = max(mtrue.max(), misfit.d.max())
+        vmin_parameter = min(mtrue.min(), misfit.d.min())
+        plt.figure(figsize=(9,3))
+        nb.plot(dl.Function(Vh[PARAMETER], mtrue),
+                mytitle="True Parameter", subplot_loc=121,
+                vmin=vmin_parameter, vmax=vmax_parameter)
+        nb.plot(dl.Function(Vh[PARAMETER], prior.mean),
+                mytitle="Prior Mean", subplot_loc=122,
+                vmin=vmin_parameter, vmax=vmax_parameter)
+        plt.show()
 
 ###############################################################################
 #                        Generate Synthetic Observations                      #
@@ -136,10 +185,20 @@ if __name__ == "__main__":
     misfit.noise_variance = noise_std_dev*noise_std_dev
 
     #=== Plot True State and Observation Points ===#
-    plot_fem_function_fenics_2d(Vh[STATE], np.array(utrue),
-                                '',
-                                filepaths.directory_figures + 'state_test.png',
-                                (5,5), (0,1.2))
+    if use_my_plotting == True:
+        plot_fem_function_fenics_2d(Vh[STATE], np.array(utrue),
+                                    '',
+                                    filepaths.directory_figures + 'state_test.png',
+                                    (5,5), (0,1.2))
+    if use_hippylib_plotting == True:
+        vmax_state = max(utrue.max(), misfit.d.max())
+        vmin_state = min(utrue.min(), misfit.d.min())
+        plt.figure(figsize=(9,3))
+        nb.plot(dl.Function(Vh[STATE], utrue),
+                mytitle="True State", subplot_loc=121,
+                vmin=vmin_state, vmax=vmax_state)
+        nb.plot_pts(targets, misfit.d, mytitle="Observations", subplot_loc=122,
+                vmin=vmin_state, vmax=vmax_state)
     print("Number of observation points: {0}".format(len(targets)))
 
 ###############################################################################
@@ -188,15 +247,25 @@ if __name__ == "__main__":
         print ("Final gradient norm: ", solver.final_grad_norm)
         print ("Final cost: ", solver.final_cost)
 
-    #=== Print Estimation ===#
-    plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(np.exp(x[PARAMETER])),
-                                '',
-                                filepaths.directory_figures + 'parameter_pred.png',
-                                (5,5), (0,6))
-    plot_fem_function_fenics_2d(Vh[STATE], np.array(x[STATE]),
-                                '',
-                                filepaths.directory_figures + 'state_pred.png',
-                                (5,5), (0,1.2))
+    #=== Plot Estimation ===#
+    if use_my_plotting == True:
+        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(np.exp(x[PARAMETER])),
+                                    '',
+                                    filepaths.directory_figures + 'parameter_pred.png',
+                                    (5,5), (0,colourbar_limit_parameter))
+        plot_fem_function_fenics_2d(Vh[STATE], np.array(x[STATE]),
+                                    '',
+                                    filepaths.directory_figures + 'state_pred.png',
+                                    (5,5), (0,colourbar_limit_state))
+    if use_hippylib_plotting == True:
+        plt.figure(figsize=(9,3))
+        nb.plot(dl.Function(Vh[PARAMETER], x[PARAMETER]),
+                subplot_loc=122,mytitle="Parameter Pred",
+                vmin=vmin_parameter, vmax=vmax_parameter)
+        nb.plot(dl.Function(Vh[STATE], x[STATE]),
+                subplot_loc=121,mytitle="State Pred",
+                vmin=vmin_state, vmax=vmax_state)
+        plt.show()
 
 ###############################################################################
 #                           Uncertainty Quantification                        #
@@ -295,11 +364,21 @@ if __name__ == "__main__":
                 .format(post_tr, prior_tr, corr_tr) )
     post_pw_variance, pr_pw_variance, corr_pw_variance =\
             posterior.pointwise_variance(method="Randomized", r=200)
-    plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(pr_pw_variance),
-                                '',
-                                filepaths.directory_figures + 'prior_variance.png',
-                                (5,5), (0,0.5))
-    plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(post_pw_variance),
-                                '',
-                                filepaths.directory_figures + 'posterior_covariance.png',
-                                (5,5), (0,0.5))
+    if use_my_plotting == True:
+        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(pr_pw_variance),
+                                    '',
+                                    filepaths.directory_figures + 'prior_variance.png',
+                                    (5,5), (0,colourbar_limit_prior_variance))
+        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(post_pw_variance),
+                                    '',
+                                    filepaths.directory_figures + 'posterior_covariance.png',
+                                    (5,5), (0,colourbar_limit_posterior_variance))
+    if use_hippylib_plotting == True:
+        vmin = 0
+        vmax = 0.5
+        plt.figure(figsize=(9,3))
+        nb.plot(dl.Function(Vh[PARAMETER], pr_pw_variance),
+                mytitle="Prior Variance", subplot_loc=121, vmin=vmin, vmax=vmax)
+        nb.plot(dl.Function(Vh[PARAMETER], post_pw_variance),
+                mytitle="Posterior Variance", subplot_loc=122, vmin=vmin, vmax=vmax)
+        plt.show()
