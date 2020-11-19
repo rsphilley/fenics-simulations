@@ -32,13 +32,13 @@ construct_prior : True
 draw_and_save_parameters : True
 
 #=== BiLaplacian Prior Properties ===#
-prior_type_blp : False
+prior_type_blp : True
 prior_mean_blp : 0.25
 prior_gamma_blp : 1
 prior_delta_blp : 8
 
 #=== Autocorrelation Prior Properties ===#
-prior_type_ac : True
+prior_type_ac : False
 prior_mean_ac : 0
 prior_variance_ac : 2.0
 prior_corr_ac : 0.2
@@ -64,7 +64,7 @@ time_cfl : 0.5
 
 #=== Plotting ===#
 plot_mesh : False
-plot_parameters : False
+plot_parameters : True
 plot_solutions : False
 
 #=== Random Seed ===#

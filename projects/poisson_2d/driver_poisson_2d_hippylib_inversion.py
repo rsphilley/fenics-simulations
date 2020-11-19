@@ -23,14 +23,19 @@ from utils_mesh.observation_points import load_observation_points
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.pde_varf_heat import pde_varf_heat
-from utils_project.pde_variational_problem_heat import PDEVariationalProblemHeat
+from utils_project.pde_variational_problem import PDEVariationalProblem
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                                  Utilities                                  #
 ###############################################################################
+def u_boundary(x, on_boundary):
+    return on_boundary and ( x[1] < dl.DOLFIN_EPS or x[1] > 1.0 - dl.DOLFIN_EPS)
+
+def v_boundary(x, on_boundary):
+    return on_boundary and ( x[0] < dl.DOLFIN_EPS or x[0] > 1.0 - dl.DOLFIN_EPS)
+
 def true_model(prior):
     noise = dl.Vector()
     prior.init_vector(noise,"noise")
@@ -85,11 +90,22 @@ if __name__ == "__main__":
         print (sep, "Set up the mesh and finite element spaces", sep)
         print ("Number of dofs: STATE={0}, PARAMETER={1}, ADJOINT={2}".format(*ndofs))
 
+    #=== Forcing Term ===#
+    f = dl.Constant(0.0)
+
+    #=== Boundary Conditions ===#
+    u_bdr = dl.Expression("x[1]", element = Vh[STATE].ufl_element() )
+    u_bdr0 = dl.Constant(0.0)
+    bc = dl.DirichletBC(Vh[STATE], u_bdr, u_boundary)
+    bc0 = dl.DirichletBC(Vh[STATE], u_bdr0, u_boundary)
+
     ###################
     #   PDE Problem   #
     ###################
     #=== Variational Form ===#
-    pde = PDEVariationalProblemHeat(options, Vh, pde_varf_heat, is_fwd_linear=True)
+    def pde_varf(u,m,p):
+        return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx - f*p*ufl.dx
+    pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)
 
     #=== PDE Solver ===#
     pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
@@ -110,10 +126,17 @@ if __name__ == "__main__":
     #############
     #   Prior   #
     #############
-    prior = BiLaplacianPrior(Vh[PARAMETER],
-                             options.prior_gamma_blp,
-                             options.prior_delta_blp,
-                             robin_bc=True)
+    gamma = .1
+    delta = .5
+
+    theta0 = 2.
+    theta1 = .5
+    alpha  = math.pi/4
+
+    anis_diff = dl.CompiledExpression(ExpressionModule.AnisTensor2D(), degree = 1)
+    anis_diff.set(theta0, theta1, alpha)
+
+    prior = BiLaplacianPrior(Vh[PARAMETER], gamma, delta, anis_diff, robin_bc=True )
 
     #############################
     #   True Parameter Values   #
@@ -126,6 +149,7 @@ if __name__ == "__main__":
     utrue = pde.generate_state()
     x = [utrue, mtrue, None]
     pde.solveFwd(x[STATE], x)
+    pdb.set_trace()
     misfit.B.mult(x[STATE], misfit.d)
 
     rel_noise = 0.01
@@ -139,8 +163,7 @@ if __name__ == "__main__":
     if rank == 0:
         print( sep, "Test the gradient and the Hessian of the model", sep )
 
-    m0 = dl.interpolate(
-            dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
+    m0 = dl.interpolate(dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
     modelVerify(model, m0.vector(), is_quadratic = False, verbose = (rank == 0) )
 
     if rank == 0:

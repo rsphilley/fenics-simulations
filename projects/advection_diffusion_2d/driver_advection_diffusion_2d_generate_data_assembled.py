@@ -73,11 +73,11 @@ if __name__ == "__main__":
 #                             Prior and Parameters                            #
 ###############################################################################
     #=== Construct Prior ===#
-    # if options.prior_type_blp == 1:
-    prior = construct_bilaplacian_prior(filepaths,
-                                        Vh, options.prior_mean_blp,
-                                        options.prior_gamma_blp,
-                                        options.prior_delta_blp)
+    if options.prior_type_blp == 1:
+        prior = construct_bilaplacian_prior(filepaths,
+                                            Vh, options.prior_mean_blp,
+                                            options.prior_gamma_blp,
+                                            options.prior_delta_blp)
     if options.prior_type_ac == 1:
         smoothness_prior_autocorr(filepaths,
                                   nodes,
