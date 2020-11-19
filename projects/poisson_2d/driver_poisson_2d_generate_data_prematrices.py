@@ -78,6 +78,7 @@ if __name__ == "__main__":
                                                 meta_space, options.prior_mean_blp,
                                                 options.prior_gamma_blp,
                                                 options.prior_delta_blp)
+            pdb.set_trace()
         if options.prior_type_AC == 1:
             smoothness_prior_autocorr(filepaths,
                     nodes,

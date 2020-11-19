@@ -23,7 +23,8 @@ from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_mesh.observation_points import load_observation_points
-# from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_project.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
@@ -50,17 +51,20 @@ if __name__ == "__main__":
 #                              Inversion Options                              #
 ###############################################################################
     #=== True Parameter Options ===#
-    true_parameter_prior = True
-    true_parameter_specific = False
+    true_parameter_prior = False
+    true_parameter_specific = True
 
     #=== Prior Options ===#
-    prior_scalar_yaml = False
-    prior_scalar_set = True
+    prior_scalar_yaml = True
+    prior_scalar_set = False
     prior_scalar_value = 0
 
+    #=== Noise Options ===#
+    noise_level = 0.01
+
     #=== Plotting Options ===#
-    use_hippylib_plotting = True
-    use_my_plotting = False
+    use_hippylib_plotting = False
+    use_my_plotting = True
     colourbar_limit_parameter = 6
     colourbar_limit_state = 2
     colourbar_limit_prior_variance = 0.5
@@ -69,7 +73,7 @@ if __name__ == "__main__":
 ###############################################################################
 #                                  Setting Up                                 #
 ###############################################################################
-    #=== Seperation for Print Statements ===#
+    #=== Separation for Print Statements ===#
     sep = "\n"+"#"*80+"\n"
 
     #=== Options ===#
@@ -131,9 +135,9 @@ if __name__ == "__main__":
 ###############################################################################
     #=== Prior ===#
     if prior_scalar_yaml == True:
-        mean_array = options.prior_mean_blp*np.ones(Vh[PARAMETER].dim())
+        mean_array = np.log(options.prior_mean_blp)*np.ones(Vh[PARAMETER].dim())
     if prior_scalar_set == True:
-        mean_array = prior_scalar_value*np.ones(Vh[PARAMETER].dim())
+        mean_array = np.log(prior_scalar_value)*np.ones(Vh[PARAMETER].dim())
     mean_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mean_array)
     mean = mean_dl.vector()
     prior = BiLaplacianPrior(Vh[PARAMETER],
@@ -141,6 +145,7 @@ if __name__ == "__main__":
                              options.prior_delta_blp,
                              mean = mean,
                              robin_bc=True)
+
     #=== True Parameter ===#
     if true_parameter_prior == True:
         mtrue = true_model(prior)
@@ -178,7 +183,7 @@ if __name__ == "__main__":
     misfit.B.mult(x[STATE], misfit.d)
 
     #=== Noise Model ===#
-    rel_noise = 0.01
+    rel_noise = noise_level
     MAX = misfit.d.norm("linf")
     noise_std_dev = rel_noise * MAX
     parRandom.normal_perturb(noise_std_dev, misfit.d)
@@ -189,7 +194,7 @@ if __name__ == "__main__":
         plot_fem_function_fenics_2d(Vh[STATE], np.array(utrue),
                                     '',
                                     filepaths.directory_figures + 'state_test.png',
-                                    (5,5), (0,1.2))
+                                    (5,5), (0,colourbar_limit_state))
     if use_hippylib_plotting == True:
         vmax_state = max(utrue.max(), misfit.d.max())
         vmin_state = min(utrue.min(), misfit.d.min())
@@ -249,7 +254,7 @@ if __name__ == "__main__":
 
     #=== Plot Estimation ===#
     if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(np.exp(x[PARAMETER])),
+        plot_fem_function_fenics_2d(Vh[PARAMETER], np.exp(np.array(x[PARAMETER])),
                                     '',
                                     filepaths.directory_figures + 'parameter_pred.png',
                                     (5,5), (0,colourbar_limit_parameter))
@@ -262,9 +267,12 @@ if __name__ == "__main__":
         nb.plot(dl.Function(Vh[PARAMETER], x[PARAMETER]),
                 subplot_loc=122,mytitle="Parameter Pred",
                 vmin=vmin_parameter, vmax=vmax_parameter)
-        nb.plot(dl.Function(Vh[STATE], x[STATE]),
-                subplot_loc=121,mytitle="State Pred",
-                vmin=vmin_state, vmax=vmax_state)
+        nb.plot(dl.Function(Vh[PARAMETER], mtrue),
+                mytitle="True Parameter", subplot_loc=121,
+                vmin=vmin_parameter, vmax=vmax_parameter)
+        # nb.plot(dl.Function(Vh[STATE], x[STATE]),
+        #         subplot_loc=121,mytitle="State Pred",
+        #         vmin=vmin_state, vmax=vmax_state)
         plt.show()
 
 ###############################################################################
@@ -382,3 +390,19 @@ if __name__ == "__main__":
         nb.plot(dl.Function(Vh[PARAMETER], post_pw_variance),
                 mytitle="Posterior Variance", subplot_loc=122, vmin=vmin, vmax=vmax)
         plt.show()
+
+    #=== Plot Cross-Section with Error Bounds ===#
+    cross_section_y = 0.5
+    plot_cross_section(Vh[PARAMETER],
+                       np.exp(np.array(mtrue)),
+                       np.exp(np.array(x[PARAMETER])), np.array(post_pw_variance),
+                       (-1,1), cross_section_y,
+                       '',
+                       filepaths.directory_figures + 'parameter_cross_section.png',
+                       (1.5,5.5))
+
+    #=== Relative Error ===#
+    relative_error = np.linalg.norm(
+            np.exp(np.array(mtrue)) - np.exp(np.array(x[PARAMETER])), ord=2)/\
+                    np.linalg.norm(np.exp(np.array(mtrue)), ord=2)
+    print('Relative Error: %4f' %(relative_error))

@@ -21,6 +21,7 @@ from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_mesh.observation_points import load_observation_points
 # from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_project.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
@@ -46,23 +47,25 @@ def true_model(prior):
     prior.sample(noise,mtrue)
     return mtrue
 
+if __name__ == "__main__":
 ###############################################################################
 #                              Inversion Options                              #
 ###############################################################################
+    #=== Noise Options ===#
+    noise_level = 0.01
+
     #=== Plotting Options ===#
     use_hippylib_plotting = True
     use_my_plotting = False
     colourbar_limit_parameter = 6
     colourbar_limit_state = 2
-    colourbar_limit_prior_variance = 0.5
-    colourbar_limit_posterior_variance = 0.5
+    colourbar_limit_prior_variance = 1.16
+    colourbar_limit_posterior_variance = 1.16
 
 ###############################################################################
 #                                  Setting Up                                 #
 ###############################################################################
-if __name__ == "__main__":
-
-    #=== Seperation for Print Statements ===#
+    #=== Separation for Print Statements ===#
     sep = "\n"+"#"*80+"\n"
 
     #=== Options ===#
@@ -177,7 +180,7 @@ if __name__ == "__main__":
     misfit.B.mult(x[STATE], misfit.d)
 
     #=== Noise Model ===#
-    rel_noise = 0.01
+    rel_noise = noise_level
     MAX = misfit.d.norm("linf")
     noise_std_dev = rel_noise * MAX
     parRandom.normal_perturb(noise_std_dev, misfit.d)
@@ -261,9 +264,12 @@ if __name__ == "__main__":
         nb.plot(dl.Function(Vh[PARAMETER], x[PARAMETER]),
                 subplot_loc=122,mytitle="Parameter Pred",
                 vmin=vmin_parameter, vmax=vmax_parameter)
-        nb.plot(dl.Function(Vh[STATE], x[STATE]),
-                subplot_loc=121,mytitle="State Pred",
-                vmin=vmin_state, vmax=vmax_state)
+        nb.plot(dl.Function(Vh[PARAMETER], mtrue),
+                mytitle="True Parameter", subplot_loc=121,
+                vmin=vmin_parameter, vmax=vmax_parameter)
+        # nb.plot(dl.Function(Vh[STATE], x[STATE]),
+        #         subplot_loc=121,mytitle="State Pred",
+        #         vmin=vmin_state, vmax=vmax_state)
         plt.show()
 
 ###############################################################################
@@ -292,7 +298,8 @@ if __name__ == "__main__":
         print ("Posterior trace {0:5e}; Prior trace {1:5e}; Correction trace {2:5e}"\
                 .format(post_tr, prior_tr, corr_tr))
 
-    post_pw_variance, pr_pw_variance, corr_pw_variance = posterior.pointwise_variance(method="Randomized", r=200)
+    post_pw_variance, pr_pw_variance, corr_pw_variance =\
+            posterior.pointwise_variance(method="Randomized", r=200)
 
     kl_dist = posterior.klDistanceFromPrior()
     if rank == 0:
@@ -373,10 +380,26 @@ if __name__ == "__main__":
                                     (5,5), (0,colourbar_limit_posterior_variance))
     if use_hippylib_plotting == True:
         vmin = 0
-        vmax = 0.5
+        vmax = colourbar_limit_posterior_variance
         plt.figure(figsize=(9,3))
         nb.plot(dl.Function(Vh[PARAMETER], pr_pw_variance),
                 mytitle="Prior Variance", subplot_loc=121, vmin=vmin, vmax=vmax)
         nb.plot(dl.Function(Vh[PARAMETER], post_pw_variance),
                 mytitle="Posterior Variance", subplot_loc=122, vmin=vmin, vmax=vmax)
         plt.show()
+
+    #=== Plot Cross-Section with Error Bounds ===#
+    cross_section_y = 0.5
+    plot_cross_section(Vh[PARAMETER],
+                       np.exp(np.array(mtrue)),
+                       np.exp(np.array(x[PARAMETER])), np.array(post_pw_variance),
+                       (-1,1), cross_section_y,
+                       '',
+                       filepaths.directory_figures + 'parameter_cross_section.png',
+                       (0,5.5))
+
+    #=== Relative Error ===#
+    relative_error = np.linalg.norm(
+            np.exp(np.array(mtrue)) - np.exp(np.array(x[PARAMETER])), ord=2)/\
+                    np.linalg.norm(np.exp(np.array(mtrue)), ord=2)
+    print('Relative Error: %4f' %(relative_error))
