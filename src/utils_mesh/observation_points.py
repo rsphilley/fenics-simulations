@@ -47,3 +47,9 @@ def load_observation_points(filepath, function_space):
         obs_coords[ind,:] = coords[obs_indices[ind],:]
 
     return obs_indices, obs_coords
+
+def form_observation_data(filepaths, state, obs_indices):
+
+    state_obs = state[:,obs_indices]
+    df_state_obs = pd.DataFrame({'state_obs': state_obs.flatten()})
+    df_state_obs.to_csv(filepaths.state_obs + '.csv', index=False)

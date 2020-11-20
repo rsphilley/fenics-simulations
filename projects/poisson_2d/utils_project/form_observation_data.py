@@ -6,6 +6,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def form_observation_data(options, filepaths, fe_space, state):
 
+    # WARNING: DOESN'T ACTUALLY FORM POINTS ON THE BOUNDARY, NEED TO FIX!
+
     #=== Get boundary indices ==#
     exterior_domain = CompiledSubDomain("!near(x[1], 0.0) && on_boundary")
     exterior_bc = DirichletBC(fe_space, 1, exterior_domain)

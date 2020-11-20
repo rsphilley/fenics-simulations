@@ -51,8 +51,8 @@ if __name__ == "__main__":
 #                              Inversion Options                              #
 ###############################################################################
     #=== True Parameter Options ===#
-    true_parameter_prior = False
-    true_parameter_specific = True
+    true_parameter_prior = True
+    true_parameter_specific = False
 
     #=== Prior Options ===#
     prior_scalar_yaml = True
@@ -65,10 +65,12 @@ if __name__ == "__main__":
     #=== Plotting Options ===#
     use_hippylib_plotting = False
     use_my_plotting = True
-    colourbar_limit_parameter = 6
+    colourbar_limit_parameter = 4
     colourbar_limit_state = 2
-    colourbar_limit_prior_variance = 0.5
-    colourbar_limit_posterior_variance = 0.5
+    colourbar_limit_prior_variance = 1.0
+    colourbar_limit_posterior_variance = 1.0
+    cross_section_y_limit_min = 0.1
+    cross_section_y_limit_max = 5.0
 
 ###############################################################################
 #                                  Setting Up                                 #
@@ -135,9 +137,15 @@ if __name__ == "__main__":
 ###############################################################################
     #=== Prior ===#
     if prior_scalar_yaml == True:
-        mean_array = np.log(options.prior_mean_blp)*np.ones(Vh[PARAMETER].dim())
+        if options.prior_mean_blp == 0:
+            mean_array = 0*np.ones(Vh[PARAMETER].dim())
+        else:
+            mean_array = np.log(options.prior_mean_blp)*np.ones(Vh[PARAMETER].dim())
     if prior_scalar_set == True:
-        mean_array = np.log(prior_scalar_value)*np.ones(Vh[PARAMETER].dim())
+        if prior_scalar_value == 0:
+            mean_array = 0*np.ones(Vh[PARAMETER].dim())
+        else:
+            mean_array = np.log(prior_scalar_value)*np.ones(Vh[PARAMETER].dim())
     mean_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mean_array)
     mean = mean_dl.vector()
     prior = BiLaplacianPrior(Vh[PARAMETER],
@@ -399,7 +407,7 @@ if __name__ == "__main__":
                        (-1,1), cross_section_y,
                        '',
                        filepaths.directory_figures + 'parameter_cross_section.png',
-                       (1.5,5.5))
+                       (cross_section_y_limit_min,cross_section_y_limit_max))
 
     #=== Relative Error ===#
     relative_error = np.linalg.norm(

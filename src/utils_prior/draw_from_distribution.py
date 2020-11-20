@@ -21,7 +21,8 @@ def draw_from_distribution(filepaths,
             #=== Draw Sample from Prior Distribution ===#
             normal_draw = np.random.normal(0, 1, num_nodes)
             samples[n,:] = np.matmul(L, normal_draw) + mean.T
-            samples[n,:] = (1/k)*np.log(np.exp(k*samples[n,:])+1);
+            # samples[n,:] = (1/k)*np.log(np.exp(k*samples[n,:])+1);
+            samples[n,:] = np.exp(samples[n,:])
             # samples[samples<0] = 0 #Positivity constraint
             print('Drawn: %d of %d' %(n, num_samples))
         print('Samples drawn')

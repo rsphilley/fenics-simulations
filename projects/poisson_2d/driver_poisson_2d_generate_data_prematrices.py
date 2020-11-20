@@ -27,12 +27,13 @@ from prematrices.construct_prematrix import construct_prematrix
 from utils_fenics.construct_boundary_matrices_and_load_vector import\
         construct_boundary_matrices_and_load_vector
 from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
+from utils_mesh.observation_points import form_interior_observation_points,\
+                                          form_observation_data
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
 from utils_project.weak_forms import stiffness
 from utils_project.solve_poisson_2d import solve_pde_prematrices
-from utils_project.form_observation_data import form_observation_data
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -78,7 +79,6 @@ if __name__ == "__main__":
                                                 meta_space, options.prior_mean_blp,
                                                 options.prior_gamma_blp,
                                                 options.prior_delta_blp)
-            pdb.set_trace()
         if options.prior_type_AC == 1:
             smoothness_prior_autocorr(filepaths,
                     nodes,
@@ -145,7 +145,8 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(meta_space, state[n,:],
                                         '',
                                         filepaths.directory_figures + 'state_%d.png' %(n),
-                                        (5,5), (0,1))
+                                        (5,5), (0,1.5))
 
     #=== Form Observation Data ===#
-    form_observation_data(options, filepaths, fe_space, state)
+    obs_indices, _ = form_interior_observation_points(options, filepaths, meta_space)
+    form_observation_data(filepaths, state, obs_indices)

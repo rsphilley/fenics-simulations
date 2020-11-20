@@ -20,7 +20,7 @@ from utils_mesh.construct_mesh_rectangular import construct_mesh
 from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_mesh.observation_points import load_observation_points
-# from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 from utils_project.plot_cross_section import plot_cross_section
 
 # Import project utilities
@@ -55,12 +55,14 @@ if __name__ == "__main__":
     noise_level = 0.01
 
     #=== Plotting Options ===#
-    use_hippylib_plotting = True
-    use_my_plotting = False
-    colourbar_limit_parameter = 6
+    use_hippylib_plotting = False
+    use_my_plotting = True
+    colourbar_limit_parameter = 4
     colourbar_limit_state = 2
     colourbar_limit_prior_variance = 1.16
     colourbar_limit_posterior_variance = 1.16
+    cross_section_y_limit_min = 0.0
+    cross_section_y_limit_max = 5.0
 
 ###############################################################################
 #                                  Setting Up                                 #
@@ -88,6 +90,10 @@ if __name__ == "__main__":
                   (5,5), '',
                   (-1,1), (-1,1),
                   mesh.coordinates(), mesh.cells())
+    ndim = 2
+    nx = 64
+    ny = 64
+    mesh = dl.UnitSquareMesh(nx, ny)
 
     #=== MPI ===#
     rank = dl.MPI.rank(mesh.mpi_comm())
@@ -130,7 +136,17 @@ if __name__ == "__main__":
     pde.solver_adj_inc.parameters = pde.solver.parameters
 
     #=== Observation Points and Misfit Functional ===#
-    _, targets = load_observation_points(filepaths.obs_indices, Vh1)
+    # _, targets = load_observation_points(filepaths.obs_indices, Vh1)
+
+    ntargets = 50
+    ndim = 2
+    targets_x = np.random.uniform(0.1,0.9, [ntargets] )
+    targets_y = np.random.uniform(0.1,0.5, [ntargets] )
+    targets = np.zeros([ntargets, ndim])
+    targets[:,0] = targets_x
+    targets[:,1] = targets_y
+    print( "Number of observation points: {0}".format(ntargets) )
+
     misfit = PointwiseStateObservation(Vh[STATE], targets)
 
 ###############################################################################
@@ -154,7 +170,7 @@ if __name__ == "__main__":
 
     #=== Plot Prior and True Parameter ===#
     if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh[PARAMETER], np.exp(np.array(mtrue)),
+        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(mtrue),
                                     '',
                                     filepaths.directory_figures + 'parameter_test.png',
                                     (5,5), (0,colourbar_limit_parameter))
@@ -251,7 +267,7 @@ if __name__ == "__main__":
 
     #=== Print Estimation ===#
     if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(np.exp(x[PARAMETER])),
+        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(x[PARAMETER]),
                                     '',
                                     filepaths.directory_figures + 'parameter_pred.png',
                                     (5,5), (0,colourbar_limit_parameter))
@@ -379,7 +395,7 @@ if __name__ == "__main__":
                                     filepaths.directory_figures + 'posterior_covariance.png',
                                     (5,5), (0,colourbar_limit_posterior_variance))
     if use_hippylib_plotting == True:
-        vmin = 0
+        vmin = 0.74
         vmax = colourbar_limit_posterior_variance
         plt.figure(figsize=(9,3))
         nb.plot(dl.Function(Vh[PARAMETER], pr_pw_variance),
@@ -396,7 +412,7 @@ if __name__ == "__main__":
                        (-1,1), cross_section_y,
                        '',
                        filepaths.directory_figures + 'parameter_cross_section.png',
-                       (0,5.5))
+                       (cross_section_y_limit_min,cross_section_y_limit_max))
 
     #=== Relative Error ===#
     relative_error = np.linalg.norm(
