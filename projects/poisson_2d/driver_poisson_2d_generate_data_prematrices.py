@@ -27,6 +27,8 @@ from prematrices.construct_prematrix import construct_prematrix
 from utils_fenics.construct_boundary_matrices_and_load_vector import\
         construct_boundary_matrices_and_load_vector
 from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
+from utils_misc.positivity_constraints import positivity_constraint_exp,\
+                                             positivity_constraint_log_exp
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
 
@@ -109,7 +111,7 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(meta_space, parameters[n,:],
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
-                                        (5,5), (0,4))
+                                        (5,5), (-3,3))
 
     ###################
     #   FEM Objects   #
@@ -136,7 +138,7 @@ if __name__ == "__main__":
     ##########################
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_prematrices(options, filepaths,
-                                  parameters,
+                                  positivity_constraint_exp(parameters),
                                   prestiffness, boundary_matrix, load_vector)
 
     #=== Plot Solution ===#
@@ -145,7 +147,7 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(meta_space, state[n,:],
                                         '',
                                         filepaths.directory_figures + 'state_%d.png' %(n),
-                                        (5,5), (0,1.5))
+                                        (5,5), (0,2))
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, meta_space)

@@ -18,9 +18,11 @@ def construct_bilaplacian_prior(filepaths,
                              robin_bc=True)
 
     #=== Discretized Forms ===#
-    inv_sqrtM = np.linalg.inv(np.linalg.cholesky(prior.M.array()))
     mean_vec = mean*np.ones(Vh.dim())
-    inv_L = np.matmul(prior.A.array(), inv_sqrtM)
+
+    inv_sqrtM = np.linalg.inv(np.linalg.cholesky(prior.M.array()))
+    inv_L = np.matmul(inv_sqrtM, prior.A.array())
+
     L = np.linalg.inv(inv_L)
     cov = np.matmul(L, L)
 

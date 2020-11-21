@@ -30,12 +30,15 @@ from utils_fenics.construct_boundary_matrices_and_load_vector import\
 from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
 from utils_fenics.convert_array_to_dolfin_function import\
         convert_array_to_dolfin_function
+from utils_misc.positivity_constraints import positivity_constraint_exp,\
+                                             positivity_constraint_log_exp
+from utils_mesh.observation_points import form_interior_observation_points,\
+                                          form_observation_data
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
 from utils_project.weak_forms import stiffness
 from utils_project.solve_poisson_3d import solve_pde_prematrices
-from utils_project.form_observation_data import form_observation_data
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -127,7 +130,7 @@ if __name__ == "__main__":
     ##########################
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_prematrices(options, filepaths,
-                                  parameters,
+                                  positivity_constraint_exp(parameters),
                                   prestiffness, boundary_matrix, load_vector)
 
     #=== Plot Solution ===#
@@ -140,7 +143,8 @@ if __name__ == "__main__":
                                         (5,5))
 
     #=== Form Observation Data ===#
-    form_observation_data(options, filepaths, fe_space, state)
+    obs_indices, _ = form_interior_observation_points(options, filepaths, meta_space)
+    form_observation_data(filepaths, state, obs_indices)
 
     ######################
     #   Paraview Plots   #
