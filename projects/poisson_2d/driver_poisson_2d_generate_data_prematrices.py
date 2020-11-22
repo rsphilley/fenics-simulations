@@ -47,6 +47,12 @@ if __name__ == "__main__":
     ##################
     #   Setting Up   #
     ##################
+    #=== Plotting Options ===#
+    use_hippylib_plotting = False
+    use_my_plotting = True
+    colourbar_limit_parameter = 7
+    colourbar_limit_state = 2
+
     #=== Options ===#
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
@@ -111,7 +117,7 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(meta_space, parameters[n,:],
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
-                                        (5,5), (-3,3))
+                                        (5,5), (0,colourbar_limit_parameter))
 
     ###################
     #   FEM Objects   #
@@ -138,7 +144,7 @@ if __name__ == "__main__":
     ##########################
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_prematrices(options, filepaths,
-                                  positivity_constraint_exp(parameters),
+                                  parameters,
                                   prestiffness, boundary_matrix, load_vector)
 
     #=== Plot Solution ===#
@@ -147,7 +153,7 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(meta_space, state[n,:],
                                         '',
                                         filepaths.directory_figures + 'state_%d.png' %(n),
-                                        (5,5), (0,2))
+                                        (5,5), (0,colourbar_limit_state))
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, meta_space)

@@ -16,7 +16,6 @@ def draw_from_distribution(filepaths,
         samples=[]
     else:
         samples = np.zeros((num_samples, num_nodes))
-        k = 0.5;
         for n in range(0, num_samples):
             #=== Draw Sample from Prior Distribution ===#
             normal_draw = np.random.normal(0, 1, num_nodes)
