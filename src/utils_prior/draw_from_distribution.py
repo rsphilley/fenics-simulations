@@ -10,8 +10,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def draw_from_distribution(filepaths,
                            mean, L, num_nodes,
+                           positivity_constraint, k,
                            num_samples = 0):
-
     if num_samples == 0:
         samples=[]
     else:
@@ -20,6 +20,7 @@ def draw_from_distribution(filepaths,
             #=== Draw Sample from Prior Distribution ===#
             normal_draw = np.random.normal(0, 1, num_nodes)
             samples[n,:] = np.matmul(L, normal_draw) + mean.T
+            samples[n,:] = positivity_constraint(samples[n,:],k)
             print('Drawn: %d of %d' %(n, num_samples))
         print('Samples drawn')
 

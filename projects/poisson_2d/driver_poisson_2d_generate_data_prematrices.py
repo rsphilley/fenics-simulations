@@ -106,6 +106,7 @@ if __name__ == "__main__":
     if options.draw_and_save_parameters == 1:
         draw_from_distribution(filepaths,
                                prior_mean, prior_covariance_cholesky, dof_meta,
+                               positivity_constraint_log_exp, 0.5,
                                num_samples = options.num_data)
 
     #=== Load Parameters ===#
