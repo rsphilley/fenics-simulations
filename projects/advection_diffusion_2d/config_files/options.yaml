@@ -25,23 +25,23 @@ generate_train_data : True
 generate_test_data : False
 
 #=== Number of Data ===#
-num_data : 20
+num_data : 1
 
 #=== Parameter Options ===#
 construct_prior : True
 draw_and_save_parameters : True
 
 #=== BiLaplacian Prior Properties ===#
-prior_type_blp : True
-prior_mean_blp : 0.25
-prior_gamma_blp : 1
-prior_delta_blp : 8
+prior_type_blp : False
+prior_mean_blp : 2
+prior_gamma_blp : 0.1
+prior_delta_blp : 0.5
 
 #=== Autocorrelation Prior Properties ===#
-prior_type_ac : False
-prior_mean_ac : 0
+prior_type_ac : True
+prior_mean_ac : 2
 prior_variance_ac : 2.0
-prior_corr_ac : 0.2
+prior_corr_ac : 0.25
 
 #=== Construct and Save Matrices ===#
 construct_and_save_matrices : True
@@ -63,9 +63,9 @@ time_obs_exp_scalar : 1e2
 time_cfl : 0.5
 
 #=== Plotting ===#
-plot_mesh : False
+plot_mesh : True
 plot_parameters : True
-plot_solutions : False
+plot_solutions : True
 
 #=== Random Seed ===#
 random_seed : 4

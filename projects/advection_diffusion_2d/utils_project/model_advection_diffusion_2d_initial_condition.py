@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import argparse
 from hippylib import *
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 class TimeDependentAdvectionDiffusionInitialCondition:
     def __init__(self, options,
                  mesh, Vh,
@@ -100,6 +102,12 @@ class TimeDependentAdvectionDiffusionInitialCondition:
         self.Lt_rhs_varf = ufl.inner(p_trial, p_test) * ufl.dx
         self.Lt_rhs = dl.assemble(self.Lt_rhs_varf)
 
+        # Solvers
+        self.solver = PETScLUSolver(self.mesh.mpi_comm())
+        self.solver.set_operator(dl.as_backend_type(self.L))
+        self.solvert = PETScLUSolver(self.mesh.mpi_comm())
+        self.solvert.set_operator(dl.as_backend_type(self.Lt))
+
         # Part of model public API for hippylib
         self.gauss_newton_approx = False
 
@@ -152,17 +160,18 @@ class TimeDependentAdvectionDiffusionInitialCondition:
 
     def solveFwd(self, out, x):
         '''Perform implicit time-stepping and solve the forward problem '''
-
         out.zero()
-
-        u = dl.Function(self.Vh[STATE])
-        u.assign(x[PARAMETER])
-
-        out.store(self.u.vector(), 0.)
-
+        uold = x[PARAMETER]
+        u = dl.Vector()
+        rhs = dl.Vector()
+        self.M.init_vector(rhs, 0)
+        self.M.init_vector(u, 0)
         for t in self.simulation_times[1::]:
-            dl.solve(self.L_varf == self.L_rhs_varf, u)
-            out.store(u.vector(), t)
+            pdb.set_trace()
+            self.M_stab.mult(uold, rhs)
+            self.solver.solve(u, rhs)
+            out.store(u,t)
+            uold = u
 
     def solveAdj(self, out, x):
         '''Solve adjoint problem backwards in time and store in out '''

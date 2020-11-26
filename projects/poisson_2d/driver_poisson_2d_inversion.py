@@ -1,17 +1,18 @@
-import numpy as np
-import pandas as pd
-
-import dolfin as dl
-import ufl
-import matplotlib.pyplot as plt
-import argparse
-
 import sys
 import os
 sys.path.insert(0, os.path.realpath('../../src'))
 sys.path.append('../')
 import yaml
 from attrdict import AttrDict
+
+import numpy as np
+import pandas as pd
+import time
+
+import dolfin as dl
+import ufl
+import matplotlib.pyplot as plt
+import argparse
 
 sys.path.append( os.environ.get('HIPPYLIB_BASE_DIR', "../../") )
 from hippylib import *
@@ -51,8 +52,8 @@ if __name__ == "__main__":
 #                              Inversion Options                              #
 ###############################################################################
     #=== True Parameter Options ===#
-    true_parameter_prior = True
-    true_parameter_specific = False
+    true_parameter_prior = False
+    true_parameter_specific = True
 
     #=== Prior Options ===#
     prior_scalar_yaml = True
@@ -60,17 +61,18 @@ if __name__ == "__main__":
     prior_scalar_value = 0
 
     #=== Noise Options ===#
-    noise_level = 0.01
+    noise_level = 0.0001
 
     #=== Plotting Options ===#
-    use_hippylib_plotting = False
+    use_hippylib_plotting = False # to display, comment out import of my plotting script
     use_my_plotting = True
-    colourbar_limit_parameter = 7
+    colourbar_limit_parameter_min = 0
+    colourbar_limit_parameter_max = 6
     colourbar_limit_state = 2
-    colourbar_limit_prior_variance = 2
-    colourbar_limit_posterior_variance = 2
-    cross_section_y_limit_min = 1
-    cross_section_y_limit_max = 7.5
+    colourbar_limit_prior_variance = 0.5
+    colourbar_limit_posterior_variance = 0.5
+    cross_section_y_limit_min = 0
+    cross_section_y_limit_max = 6
 
 ###############################################################################
 #                                  Setting Up                                 #
@@ -161,7 +163,7 @@ if __name__ == "__main__":
         mtrue = mtrue_dl.vector()
     if true_parameter_specific == True:
         df_mtrue = pd.read_csv(filepaths.input_specific + '.csv')
-        mtrue_array = np.log(df_mtrue.to_numpy())
+        mtrue_array = df_mtrue.to_numpy()
         mtrue_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mtrue_array)
         mtrue = mtrue_dl.vector()
 
@@ -170,7 +172,8 @@ if __name__ == "__main__":
         plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(mtrue),
                                     '',
                                     filepaths.directory_figures + 'parameter_test.png',
-                                    (5,5), (0,colourbar_limit_parameter))
+                                    (5,5),
+                                    (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
     if use_hippylib_plotting == True:
         vmax_parameter = max(mtrue.max(), misfit.d.max())
         vmin_parameter = min(mtrue.min(), misfit.d.min())
@@ -227,8 +230,6 @@ if __name__ == "__main__":
         print( sep, "Test the gradient and the Hessian of the model", sep )
 
     #=== Initial Guess ===#
-    # m0 = dl.interpolate(
-    #         dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
     m0_array = options.prior_mean_blp*np.ones(Vh[PARAMETER].dim())
     m0 = convert_array_to_dolfin_function(Vh[PARAMETER], m0_array)
     modelVerify(model, m0.vector(), is_quadratic = False, verbose = (rank == 0) )
@@ -251,7 +252,10 @@ if __name__ == "__main__":
         parameters.showMe()
     solver = ReducedSpaceNewtonCG(model, parameters)
 
+    start_time_solver = time.time()
     x = solver.solve([None, m, None])
+    elapsed_time_solver = time.time() - start_time_solver
+    print('Time taken to solve: %.4f' %(elapsed_time_solver))
 
     #=== Print Solver Information ===#
     if rank == 0:
@@ -269,7 +273,8 @@ if __name__ == "__main__":
         plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(x[PARAMETER]),
                                     '',
                                     filepaths.directory_figures + 'parameter_pred.png',
-                                    (5,5), (0,colourbar_limit_parameter))
+                                    (5,5),
+                                    (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
         plot_fem_function_fenics_2d(Vh[STATE], np.array(x[STATE]),
                                     '',
                                     filepaths.directory_figures + 'state_pred.png',
@@ -303,10 +308,12 @@ if __name__ == "__main__":
     Omega = MultiVector(x[PARAMETER], k+p)
     parRandom.normal(1., Omega)
 
+    start_time_laplace = time.time()
     d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)
     posterior = GaussianLRPosterior(prior, d, U)
     posterior.mean = x[PARAMETER]
-
+    elapsed_time_laplace = time.time() - start_time_laplace
+    print('Time taken to form Laplacian approximation: %.4f' %(elapsed_time_laplace))
 
     post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)
     if rank == 0:

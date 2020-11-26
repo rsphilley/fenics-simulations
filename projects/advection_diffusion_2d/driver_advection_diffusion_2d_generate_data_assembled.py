@@ -24,6 +24,8 @@ from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
 from utils_io.load_prior import load_prior
+from utils_misc.positivity_constraints import positivity_constraint_exp,\
+                                             positivity_constraint_log_exp
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_hippylib.space_time_pointwise_state_observation\
@@ -73,11 +75,10 @@ if __name__ == "__main__":
 #                             Prior and Parameters                            #
 ###############################################################################
     #=== Construct Prior ===#
-    if options.prior_type_blp == 1:
-        prior = construct_bilaplacian_prior(filepaths,
-                                            Vh, options.prior_mean_blp,
-                                            options.prior_gamma_blp,
-                                            options.prior_delta_blp)
+    prior = construct_bilaplacian_prior(filepaths,
+                                        Vh, options.prior_mean_blp,
+                                        options.prior_gamma_blp,
+                                        options.prior_delta_blp)
     if options.prior_type_ac == 1:
         smoothness_prior_autocorr(filepaths,
                                   nodes,
@@ -92,6 +93,7 @@ if __name__ == "__main__":
     if options.draw_and_save_parameters == True:
         draw_from_distribution(filepaths,
                                prior_mean, prior_covariance_cholesky, dof,
+                               positivity_constraint_log_exp, 0.5,
                                num_samples = options.num_data)
 
     #=== Load Parameters ===#
@@ -157,7 +159,7 @@ if __name__ == "__main__":
     #   Computing Solution   #
     ##########################
     #=== Solve PDE ===#
-    sample_number = 2
+    sample_number = 0
     state_sample = solve_pde(options, filepaths,
                              parameters,
                              obs_indices,
@@ -176,9 +178,18 @@ if __name__ == "__main__":
                     filepaths.directory_figures + 'state_%d_t%s.png' %(sample_number, time_step),
                     (5,5), 'none')
 
-    #################
-    #   Test Case   #
-    #################
+    #=== Save Specific Parameter and State ===#
+    if not os.path.exists(filepaths.directory_dataset):
+        os.makedirs(filepaths.directory_dataset)
+    input_specific = parameters[sample_number,:]
+    df_input_specific = pd.DataFrame({'input_specific': input_specific.flatten()})
+    df_input_specific.to_csv(filepaths.input_specific + '.csv', index=False)
+    df_output_specific = pd.DataFrame({'output_specific': state_sample.flatten()})
+    df_output_specific.to_csv(filepaths.output_specific + '.csv', index=False)
+
+###############################################################################
+#                                Blob Test Case                               #
+###############################################################################
     if options.compute_test_case == True:
         #=== Parameter ===#
         ic_expr = dl.Expression(

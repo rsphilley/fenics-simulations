@@ -51,8 +51,9 @@ def plot_cross_section(function_space,
         std_cross[i] = np.sqrt(interp_cov(x[i], cross_section_y))
 
     #=== Plotting ===#
-    plt.plot(x, parameter_cross, 'r-', label='True Parameter')
-    plt.plot(x, mean_cross, 'k-', label='Posterior Mean')
+    fig, ax = plt.subplots()
+    ax.plot(x, parameter_cross, 'r-', label='True Parameter')
+    ax.plot(x, mean_cross, 'k-', label='Posterior Mean')
     plt.fill_between(x, mean_cross - 3*std_cross, mean_cross + 3*std_cross)
     plt.xlim(x_axis_limits)
     plt.ylim(y_axis_limits)

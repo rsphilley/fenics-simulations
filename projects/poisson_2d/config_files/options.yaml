@@ -20,7 +20,7 @@ draw_and_save_parameters : 1
 
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp : True
-prior_mean_blp : 4
+prior_mean_blp : 2
 prior_gamma_blp : 0.1
 prior_delta_blp : 0.5
 

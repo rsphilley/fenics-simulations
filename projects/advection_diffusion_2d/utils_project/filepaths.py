@@ -93,6 +93,8 @@ class FilePaths():
         self.parameter = self.directory_dataset +\
                 project_name + 'parameter_' + train_or_test +\
                 'd%d_'%(options.num_data) + num_nodes_string + '_' + prior_string
+        self.input_specific = self.directory_dataset +\
+                project_name + 'parameter_specific_' + data_options
         self.parameter_blob = self.directory_dataset +\
                 project_name + 'parameter_blob_' + num_nodes_string
 
@@ -107,10 +109,14 @@ class FilePaths():
                 project_name + 'state_obs_' + train_or_test +\
                 'o%d_d%d_'%(options.num_obs_points, options.num_data) +\
                 data_options + '_' + prior_string
-        self.state_obs_blob = self.directory_dataset +\
-                project_name + 'state_obs_blob_' +\
+        self.output_specific = self.directory_dataset +\
+                project_name + 'state_obs_specific_' +\
                 'o%d_'%(options.num_obs_points) +\
                 data_options
+        self.state_obs_blob = self.directory_dataset +\
+                        project_name + 'state_obs_blob_' +\
+                        'o%d_'%(options.num_obs_points) +\
+                        data_options
 
         #=== Figures ==#
         self.directory_figures = 'Figures/'
