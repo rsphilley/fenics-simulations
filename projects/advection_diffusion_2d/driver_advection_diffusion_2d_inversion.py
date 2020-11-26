@@ -56,20 +56,19 @@ if __name__ == "__main__":
     prior_scalar_value = 0
 
     #=== Noise Options ===#
-    noise_level = 0.01
+    noise_level = 0.05
 
     #=== Uncertainty Quantification Options ===#
     compute_trace = True
 
     #=== Plotting Options ===#
-    use_hippylib_plotting = False
-    use_my_plotting = True
-    colourbar_limit_parameter = 7
+    colourbar_limit_parameter_min = 1
+    colourbar_limit_parameter_max = 5.5
     colourbar_limit_state = 2
-    colourbar_limit_prior_variance = 2
-    colourbar_limit_posterior_variance = 2
+    colourbar_limit_prior_variance = 0.5
+    colourbar_limit_posterior_variance = 0.5
     cross_section_y_limit_min = 1
-    cross_section_y_limit_max = 7.5
+    cross_section_y_limit_max = 6
 
 ###############################################################################
 #                                  Setting Up                                 #
@@ -124,14 +123,19 @@ if __name__ == "__main__":
         ic_expr = dl.Expression(
             'std::min(0.5,std::exp(-100*(std::pow(x[0]-0.35,2) +  std::pow(x[1]-0.7,2))))',
             element=Vh.ufl_element())
-        true_initial_condition = np.expand_dims(
-                dl.interpolate(ic_expr, Vh).vector().get_local(), axis=0)
-        true_initial_condition = true_initial_condition
+        true_initial_condition = np.expand_dims(dl.interpolate(ic_expr, Vh).vector(), axis=0)
     if true_parameter_specific == True:
         df_mtrue = pd.read_csv(filepaths.input_specific + '.csv')
         mtrue_array = df_mtrue.to_numpy()
         mtrue_dl = convert_array_to_dolfin_function(Vh, mtrue_array)
         true_initial_condition = mtrue_dl.vector()
+
+    #=== True Parameter ===#
+    plot_fem_function_fenics_2d(Vh, np.array(true_initial_condition),
+                                '',
+                                filepaths.directory_figures + 'parameter_test.png',
+                                (5,5),
+                                (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
 
 ###############################################################################
 #                                  PDE Problem                                #
@@ -194,7 +198,8 @@ if __name__ == "__main__":
 ###############################################################################
     #=== Initial Guess ===#
     m0_array = options.prior_mean_blp*np.ones(Vh.dim())
-    m0 = convert_array_to_dolfin_function(Vh, m0_array)
+    m0_dl = convert_array_to_dolfin_function(Vh, m0_array)
+    m0 = m0_dl.vector()
 
     #=== Perform Gradient and Hessian Test ===#
     _ = modelVerify(pde_problem, m0, is_quadratic=True)
@@ -231,6 +236,15 @@ if __name__ == "__main__":
     print("Total cost {0:5g}; Reg Cost {1:5g}; Misfit {2:5g}"\
                     .format(total_cost, reg_cost, misfit_cost))
 
+    posterior.mean = m
+
+    #=== Plot Estimation ===#
+    plot_fem_function_fenics_2d(Vh, np.array(m),
+                                '',
+                                filepaths.directory_figures + 'parameter_pred.png',
+                                (5,5),
+                                (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
+
 ###############################################################################
 #                          Uncertainty Quantification                         #
 ###############################################################################
@@ -245,39 +259,26 @@ if __name__ == "__main__":
             posterior.pointwise_variance(method="Randomized", r=300)
 
     #=== Plot Variances ===#
-    if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh,
-                                    np.array(pr_pw_variance),
-                                    '',
-                                    filepaths.directory_figures + 'prior_variance.png',
-                                    (5,5), (0,colourbar_limit_prior_variance))
-        plot_fem_function_fenics_2d(Vh,
-                                    np.array(post_pw_variance),
-                                    '',
-                                    filepaths.directory_figures + 'posterior_covariance.png',
-                                    (5,5), (0,colourbar_limit_posterior_variance))
-    if use_hippylib_plotting == True:
-        vmin = 0
-        vmax = 0.5
-        plt.figure(figsize=(9,3))
-        nb.plot(dl.Function(Vh, pr_pw_variance),
-                mytitle="Prior Variance", subplot_loc=121, vmin=vmin, vmax=vmax)
-        nb.plot(dl.Function(Vh, post_pw_variance),
-                mytitle="Posterior Variance", subplot_loc=122, vmin=vmin, vmax=vmax)
-        plt.show()
+    plot_fem_function_fenics_2d(Vh, np.array(pr_pw_variance),
+                                '',
+                                filepaths.directory_figures + 'prior_variance.png',
+                                (5,5), (0,colourbar_limit_prior_variance))
+    plot_fem_function_fenics_2d(Vh, np.array(post_pw_variance),
+                                '',
+                                filepaths.directory_figures + 'posterior_covariance.png',
+                                (5,5), (0,colourbar_limit_posterior_variance))
 
     #=== Plot Cross-Section with Error Bounds ===#
-    cross_section_y = 0.5
-    plot_cross_section(Vh,
-                       np.array(true_initial_condition),
-                       np.array(x[PARAMETER]), np.array(post_pw_variance),
-                       (-1,1), cross_section_y,
+    cross_section_y = 0.7
+    plot_cross_section(Vh, np.array(true_initial_condition),
+                       np.array(m), np.array(post_pw_variance),
+                       (0,1), cross_section_y,
                        '',
                        filepaths.directory_figures + 'parameter_cross_section.png',
                        (cross_section_y_limit_min,cross_section_y_limit_max))
 
     #=== Relative Error ===#
     relative_error = np.linalg.norm(
-            np.array(true_initial_condition) - np.array(x[PARAMETER]), ord=2)/\
+            np.array(true_initial_condition) - np.array(m), ord=2)/\
                     np.linalg.norm(np.array(true_initial_condition), ord=2)
     print('Relative Error: %4f' %(relative_error))

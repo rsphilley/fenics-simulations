@@ -48,9 +48,7 @@ if __name__ == "__main__":
     #   Setting Up   #
     ##################
     #=== Plotting Options ===#
-    use_hippylib_plotting = False
-    use_my_plotting = True
-    colourbar_limit_parameter = 7
+    colourbar_limit_parameter = 6
     colourbar_limit_state = 2
 
     #=== Options ===#

@@ -61,9 +61,6 @@ if __name__ == "__main__":
     #=== File Paths ===#
     filepaths = FilePaths(options)
 
-    #=== Define Observation Points ===#
-    obs_indices, obs_coords = form_interior_observation_points(options, filepaths, Vh)
-
     #=== Plot Mesh ===#
     if options.plot_mesh == True:
         plot_mesh(filepaths,
@@ -107,6 +104,14 @@ if __name__ == "__main__":
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
                                         (5,5), 'none')
 
+    #=== Specific Parameter for Plotting Time Evolution ===#
+    sample_number = 8
+    if not os.path.exists(filepaths.directory_dataset):
+        os.makedirs(filepaths.directory_dataset)
+    input_specific = parameters[sample_number,:]
+    df_input_specific = pd.DataFrame({'input_specific': input_specific.flatten()})
+    df_input_specific.to_csv(filepaths.input_specific + '.csv', index=False)
+
 ###############################################################################
 #                                  Solve PDE                                  #
 ###############################################################################
@@ -140,6 +145,9 @@ if __name__ == "__main__":
                                   options.time_final+.5*time_dt,
                                   time_dt_obs)
 
+    #=== Define Observation Points ===#
+    obs_indices, obs_coords = form_interior_observation_points(options, filepaths, Vh)
+
     #=== Construct or Load FEM Operators ===#
     if options.construct_and_save_matrices == True:
         if not os.path.exists(filepaths.directory_dataset):
@@ -159,7 +167,6 @@ if __name__ == "__main__":
     #   Computing Solution   #
     ##########################
     #=== Solve PDE ===#
-    sample_number = 0
     state_sample = solve_pde(options, filepaths,
                              parameters,
                              obs_indices,
@@ -178,12 +185,7 @@ if __name__ == "__main__":
                     filepaths.directory_figures + 'state_%d_t%s.png' %(sample_number, time_step),
                     (5,5), 'none')
 
-    #=== Save Specific Parameter and State ===#
-    if not os.path.exists(filepaths.directory_dataset):
-        os.makedirs(filepaths.directory_dataset)
-    input_specific = parameters[sample_number,:]
-    df_input_specific = pd.DataFrame({'input_specific': input_specific.flatten()})
-    df_input_specific.to_csv(filepaths.input_specific + '.csv', index=False)
+    #=== Save State Evolution for Specific Parameter ===#
     df_output_specific = pd.DataFrame({'output_specific': state_sample.flatten()})
     df_output_specific.to_csv(filepaths.output_specific + '.csv', index=False)
 
