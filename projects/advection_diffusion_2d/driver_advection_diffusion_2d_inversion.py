@@ -31,6 +31,7 @@ from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfi
 from utils_hippylib.space_time_pointwise_state_observation\
         import SpaceTimePointwiseStateObservation
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_fenics.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
@@ -57,6 +58,9 @@ if __name__ == "__main__":
     #=== Noise Options ===#
     noise_level = 0.01
 
+    #=== Uncertainty Quantification Options ===#
+    compute_trace = True
+
     #=== Plotting Options ===#
     use_hippylib_plotting = False
     use_my_plotting = True
@@ -66,7 +70,6 @@ if __name__ == "__main__":
     colourbar_limit_posterior_variance = 2
     cross_section_y_limit_min = 1
     cross_section_y_limit_max = 7.5
-
 
 ###############################################################################
 #                                  Setting Up                                 #
@@ -160,21 +163,23 @@ if __name__ == "__main__":
                                   options.time_final+.5*time_dt,
                                   time_dt_obs)
 
-    #=== PDE Problem ===#
+    #=== Misfit Functional ===#
     misfit = SpaceTimePointwiseStateObservation(Vh, observation_times, obs_coords)
-    pde = TimeDependentAdvectionDiffusionInitialCondition(options,
-                                                          Vh.mesh(), [Vh,Vh,Vh],
-                                                          prior, misfit,
-                                                          simulation_times,
-                                                          velocity, True)
+
+    #=== PDE Problem ===#
+    pde_problem = TimeDependentAdvectionDiffusionInitialCondition(options,
+                                                                  Vh.mesh(), [Vh,Vh,Vh],
+                                                                  prior, misfit,
+                                                                  simulation_times,
+                                                                  velocity, True)
 
 ###############################################################################
 #                        Generate Synthetic Observations                      #
 ###############################################################################
     #=== Generate True State and Observations ===#
-    utrue = pde.generate_vector(STATE)
+    utrue = pde_problem.generate_vector(STATE)
     x = [utrue, true_initial_condition, None]
-    pde.solveFwd(x[STATE], x)
+    pde_problem.solveFwd(x[STATE], x)
     misfit.observe(x, misfit.d)
 
     #=== Noise Model ===#
@@ -183,3 +188,96 @@ if __name__ == "__main__":
     noise_std_dev = rel_noise * MAX
     parRandom.normal_perturb(noise_std_dev,misfit.d)
     misfit.noise_variance = noise_std_dev*noise_std_dev
+
+###############################################################################
+#                               Model and Solver                              #
+###############################################################################
+    #=== Initial Guess ===#
+    m0_array = options.prior_mean_blp*np.ones(Vh.dim())
+    m0 = convert_array_to_dolfin_function(Vh, m0_array)
+
+    #=== Perform Gradient and Hessian Test ===#
+    _ = modelVerify(pde_problem, m0, is_quadratic=True)
+
+    #=== Evaluate Gradient ===#
+    [u,m,p] = pde_problem.generate_vector()
+    pde_problem.solveFwd(u, [u,m,p])
+    pde_problem.solveAdj(p, [u,m,p])
+    mg = pde_problem.generate_vector(PARAMETER)
+    grad_norm = pde_problem.evalGradientParameter([u,m,p], mg)
+
+    #=== Compute Gaussian Posterior ===#
+    H = ReducedHessian(pde_problem, misfit_only=True)
+    k = 80
+    p = 20
+    print( "Single Pass Algorithm. Requested eigenvectors: {0}; Oversampling {1}.".format(k,p) )
+    Omega = MultiVector(x[PARAMETER], k+p)
+    parRandom.normal(1., Omega)
+    lmbda, V = singlePassG(H, prior.R, prior.Rsolver, Omega, k)
+    posterior = GaussianLRPosterior( prior, lmbda, V )
+
+    #=== Compute MAP Point ===#
+    H.misfit_only = False
+
+    solver = CGSolverSteihaug()
+    solver.set_operator(H)
+    solver.set_preconditioner( posterior.Hlr )
+    solver.parameters["print_level"] = 1
+    solver.parameters["rel_tolerance"] = 1e-6
+    solver.solve(m, -mg)
+    pde_problem.solveFwd(u, [u,m,p])
+
+    total_cost, reg_cost, misfit_cost = pde_problem.cost([u,m,p])
+    print("Total cost {0:5g}; Reg Cost {1:5g}; Misfit {2:5g}"\
+                    .format(total_cost, reg_cost, misfit_cost))
+
+###############################################################################
+#                          Uncertainty Quantification                         #
+###############################################################################
+    #=== Compute Trace ===#
+    if compute_trace:
+        post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=300)
+        print("Posterior trace {0:5g}; Prior trace {1:5g}; Correction trace {2:5g}"\
+                        .format(post_tr, prior_tr, corr_tr))
+
+    #=== Compute Variances ===#
+    post_pw_variance, pr_pw_variance, corr_pw_variance =\
+            posterior.pointwise_variance(method="Randomized", r=300)
+
+    #=== Plot Variances ===#
+    if use_my_plotting == True:
+        plot_fem_function_fenics_2d(Vh,
+                                    np.array(pr_pw_variance),
+                                    '',
+                                    filepaths.directory_figures + 'prior_variance.png',
+                                    (5,5), (0,colourbar_limit_prior_variance))
+        plot_fem_function_fenics_2d(Vh,
+                                    np.array(post_pw_variance),
+                                    '',
+                                    filepaths.directory_figures + 'posterior_covariance.png',
+                                    (5,5), (0,colourbar_limit_posterior_variance))
+    if use_hippylib_plotting == True:
+        vmin = 0
+        vmax = 0.5
+        plt.figure(figsize=(9,3))
+        nb.plot(dl.Function(Vh, pr_pw_variance),
+                mytitle="Prior Variance", subplot_loc=121, vmin=vmin, vmax=vmax)
+        nb.plot(dl.Function(Vh, post_pw_variance),
+                mytitle="Posterior Variance", subplot_loc=122, vmin=vmin, vmax=vmax)
+        plt.show()
+
+    #=== Plot Cross-Section with Error Bounds ===#
+    cross_section_y = 0.5
+    plot_cross_section(Vh,
+                       np.array(true_initial_condition),
+                       np.array(x[PARAMETER]), np.array(post_pw_variance),
+                       (-1,1), cross_section_y,
+                       '',
+                       filepaths.directory_figures + 'parameter_cross_section.png',
+                       (cross_section_y_limit_min,cross_section_y_limit_max))
+
+    #=== Relative Error ===#
+    relative_error = np.linalg.norm(
+            np.array(true_initial_condition) - np.array(x[PARAMETER]), ord=2)/\
+                    np.linalg.norm(np.array(true_initial_condition), ord=2)
+    print('Relative Error: %4f' %(relative_error))

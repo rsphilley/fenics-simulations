@@ -21,7 +21,7 @@ from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_mesh.observation_points import load_observation_points
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
-from utils_project.plot_cross_section import plot_cross_section
+from utils_fenics.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
@@ -53,6 +53,9 @@ if __name__ == "__main__":
 ###############################################################################
     #=== Noise Options ===#
     noise_level = 0.01
+
+    #=== Uncertainty Quantification Options ===#
+    compute_trace = True
 
     #=== Plotting Options ===#
     use_hippylib_plotting = False
@@ -174,9 +177,10 @@ if __name__ == "__main__":
     pde.solver_fwd_inc.parameters = pde.solver.parameters
     pde.solver_adj_inc.parameters = pde.solver.parameters
 
-    #=== Observation Points and Misfit Functional ===#
+    #=== Observation Points ===#
     # _, targets = load_observation_points(filepaths.obs_indices, Vh1)
 
+    #=== Observation Points hIPPYLib ===#
     ntargets = 50
     ndim = 2
     targets_x = np.random.uniform(0.1,0.9, [ntargets] )
@@ -186,6 +190,7 @@ if __name__ == "__main__":
     targets[:,1] = targets_y
     print( "Number of observation points: {0}".format(ntargets) )
 
+    #=== Misfit Functional ===#
     misfit = PointwiseStateObservation(Vh[STATE], targets)
 
 ###############################################################################
@@ -230,11 +235,11 @@ if __name__ == "__main__":
     #=== Test Gradient ===#
     if rank == 0:
         print( sep, "Test the gradient and the Hessian of the model", sep )
+    modelVerify(model, m0.vector(), is_quadratic = False, verbose = (rank == 0) )
 
     #=== Initial Guess ===#
     m0 = dl.interpolate(
             dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
-    modelVerify(model, m0.vector(), is_quadratic = False, verbose = (rank == 0) )
 
     #=== Solver Parameters ===#
     if rank == 0:
@@ -379,14 +384,17 @@ if __name__ == "__main__":
         plt.yscale('log')
         plt.show()
 
-    #=== Plot Variance ===#
-    compute_trace = True
+    #=== Compute Trace ===#
     if compute_trace:
         post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)
         print("Posterior trace {0:5e}; Prior trace {1:5e}; Correction trace {2:5e}"\
                 .format(post_tr, prior_tr, corr_tr) )
+
+    #=== Compute Variances ===#
     post_pw_variance, pr_pw_variance, corr_pw_variance =\
             posterior.pointwise_variance(method="Randomized", r=200)
+
+    #=== Plot Variance ===#
     if use_my_plotting == True:
         plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(pr_pw_variance),
                                     '',
