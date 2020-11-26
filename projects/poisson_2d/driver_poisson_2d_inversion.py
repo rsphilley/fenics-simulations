@@ -115,26 +115,6 @@ if __name__ == "__main__":
         print ("Number of dofs: STATE={0}, PARAMETER={1}, ADJOINT={2}".format(*ndofs))
 
 ###############################################################################
-#                                  PDE Problem                                #
-###############################################################################
-    #=== Variational Form ===#
-    pde = PDEVariationalProblemHeat(options, Vh, pde_varf_heat, is_fwd_linear=True)
-
-    #=== PDE Solver ===#
-    pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
-    pde.solver_fwd_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
-    pde.solver_adj_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
-
-    pde.solver.parameters["relative_tolerance"] = 1e-15
-    pde.solver.parameters["absolute_tolerance"] = 1e-20
-    pde.solver_fwd_inc.parameters = pde.solver.parameters
-    pde.solver_adj_inc.parameters = pde.solver.parameters
-
-    #=== Observation Points and Misfit Functional ===#
-    _, targets = load_observation_points(filepaths.obs_indices, Vh1)
-    misfit = PointwiseStateObservation(Vh[STATE], targets)
-
-###############################################################################
 #                            Prior and True Parameter                         #
 ###############################################################################
     #=== Prior ===#
@@ -187,6 +167,26 @@ if __name__ == "__main__":
         plt.show()
 
 ###############################################################################
+#                                  PDE Problem                                #
+###############################################################################
+    #=== Variational Form ===#
+    pde = PDEVariationalProblemHeat(options, Vh, pde_varf_heat, is_fwd_linear=True)
+
+    #=== PDE Solver ===#
+    pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
+    pde.solver_fwd_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
+    pde.solver_adj_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
+
+    pde.solver.parameters["relative_tolerance"] = 1e-15
+    pde.solver.parameters["absolute_tolerance"] = 1e-20
+    pde.solver_fwd_inc.parameters = pde.solver.parameters
+    pde.solver_adj_inc.parameters = pde.solver.parameters
+
+    #=== Observation Points and Misfit Functional ===#
+    _, targets = load_observation_points(filepaths.obs_indices, Vh1)
+    misfit = PointwiseStateObservation(Vh[STATE], targets)
+
+###############################################################################
 #                        Generate Synthetic Observations                      #
 ###############################################################################
     #=== Generate True State and Observations ===#
@@ -223,7 +223,7 @@ if __name__ == "__main__":
 #                                Model and Solver                             #
 ###############################################################################
     #=== Form Model ===#
-    model = Model(pde,prior, misfit)
+    model = Model(pde, prior, misfit)
 
     #=== Test Gradient ===#
     if rank == 0:

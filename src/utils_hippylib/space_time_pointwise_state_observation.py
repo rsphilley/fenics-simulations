@@ -20,7 +20,7 @@ class SpaceTimePointwiseStateObservation(Misfit):
     def __init__(self, Vh,
                  observation_times,
                  targets,
-                 data = None,
+                 d = None,
                  noise_variance=None):
 
         self.Vh = Vh
@@ -30,11 +30,11 @@ class SpaceTimePointwiseStateObservation(Misfit):
         self.B = assemblePointwiseObservation(self.Vh, targets)
         self.ntargets = targets
 
-        if data is None:
-            self.data = TimeDependentVector(observation_times)
-            self.data.initialize(self.B, 0)
+        if d is None:
+            self.d = TimeDependentVector(observation_times)
+            self.d.initialize(self.B, 0)
         else:
-            self.data = data
+            self.d = d
 
         self.noise_variance = noise_variance
 

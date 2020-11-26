@@ -27,13 +27,9 @@ from utils_mesh.observation_points import form_interior_observation_points
 from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_io.load_prior import load_prior
-from utils_misc.positivity_constraints import positivity_constraint_exp,\
-                                             positivity_constraint_log_exp
-from utils_io.load_parameters import load_parameters
+from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_hippylib.space_time_pointwise_state_observation\
         import SpaceTimePointwiseStateObservation
-from utils_io.io_fem_operators import save_fem_operators, load_fem_operators
-from utils_io.value_to_string import value_to_string
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
 # Import project utilities
@@ -50,8 +46,8 @@ if __name__ == "__main__":
 #                              Inversion Options                              #
 ###############################################################################
     #=== True Parameter Options ===#
-    true_parameter_blob = True
-    true_parameter_specific = False
+    true_parameter_blob = False
+    true_parameter_specific = True
 
     #=== Prior Options ===#
     prior_scalar_yaml = True
@@ -71,8 +67,9 @@ if __name__ == "__main__":
     cross_section_y_limit_min = 1
     cross_section_y_limit_max = 7.5
 
+
 ###############################################################################
-#                                Setup and Mesh                               #
+#                                  Setting Up                                 #
 ###############################################################################
     #=== Options ===#
     with open('config_files/options.yaml') as f:
@@ -100,11 +97,25 @@ if __name__ == "__main__":
 ###############################################################################
 #                           Prior and True Parameter                          #
 ###############################################################################
-    #=== Construct Prior ===#
-    prior = construct_bilaplacian_prior(filepaths,
-                                        Vh, options.prior_mean_blp,
-                                        options.prior_gamma_blp,
-                                        options.prior_delta_blp)
+    #=== Prior ===#
+    if prior_scalar_yaml == True:
+        if options.prior_mean_blp == 0:
+            mean_array = 0*np.ones(Vh.dim())
+        else:
+            mean_array = options.prior_mean_blp*np.ones(Vh.dim())
+    if prior_scalar_set == True:
+        if prior_scalar_value == 0:
+            mean_array = 0*np.ones(Vh.dim())
+        else:
+            mean_array = np.log(prior_scalar_value)*np.ones(Vh.dim())
+    mean_dl = convert_array_to_dolfin_function(Vh, mean_array)
+    mean = mean_dl.vector()
+    prior = BiLaplacianPrior(Vh,
+                             options.prior_gamma_blp,
+                             options.prior_delta_blp,
+                             mean = mean,
+                             robin_bc=True)
+
     #=== True Parameter ===#
     if true_parameter_blob == True:
         ic_expr = dl.Expression(
@@ -112,7 +123,7 @@ if __name__ == "__main__":
             element=Vh.ufl_element())
         true_initial_condition = np.expand_dims(
                 dl.interpolate(ic_expr, Vh).vector().get_local(), axis=0)
-        true_initial_condition = 10*true_initial_condition
+        true_initial_condition = true_initial_condition
     if true_parameter_specific == True:
         df_mtrue = pd.read_csv(filepaths.input_specific + '.csv')
         mtrue_array = df_mtrue.to_numpy()
@@ -120,18 +131,15 @@ if __name__ == "__main__":
         true_initial_condition = mtrue_dl.vector()
 
 ###############################################################################
-#                                  Solve PDE                                  #
+#                                  PDE Problem                                #
 ###############################################################################
-    ##################
-    #   Setting Up   #
-    ##################
     #=== Velocity Field ===#
     if options.flow_navier_stokes == True:
         velocity = compute_velocity_field_navier_stokes(
                 filepaths.directory_figures + 'velocity_field.png',
                 Vh.mesh())
 
-    #=== Time Objects ===#
+    #=== Temporal Observation Objects ===#
     if options.time_stepping_implicit == True:
         time_dt = options.time_dt_imp
         time_obs_scalar = options.time_obs_imp_scalar
@@ -152,22 +160,25 @@ if __name__ == "__main__":
                                   options.time_final+.5*time_dt,
                                   time_dt_obs)
 
-    #=== Construct or Load FEM Operators ===#
+    #=== PDE Problem ===#
     misfit = SpaceTimePointwiseStateObservation(Vh, observation_times, obs_coords)
-    pde_opt_problem = TimeDependentAdvectionDiffusionInitialCondition(options,
-                                                                        Vh.mesh(), [Vh,Vh,Vh],
-                                                                        prior, misfit,
-                                                                        simulation_times,
-                                                                        velocity, True)
+    pde = TimeDependentAdvectionDiffusionInitialCondition(options,
+                                                          Vh.mesh(), [Vh,Vh,Vh],
+                                                          prior, misfit,
+                                                          simulation_times,
+                                                          velocity, True)
 
-    ##########################
-    #   Computing Solution   #
-    ##########################
-    rel_noise = noise_level
-    utrue = pde_opt_problem.generate_vector(STATE)
+###############################################################################
+#                        Generate Synthetic Observations                      #
+###############################################################################
+    #=== Generate True State and Observations ===#
+    utrue = pde.generate_vector(STATE)
     x = [utrue, true_initial_condition, None]
-    pde_opt_problem.solveFwd(x[STATE], x)
+    pde.solveFwd(x[STATE], x)
     misfit.observe(x, misfit.d)
+
+    #=== Noise Model ===#
+    rel_noise = noise_level
     MAX = misfit.d.norm("linf", "linf")
     noise_std_dev = rel_noise * MAX
     parRandom.normal_perturb(noise_std_dev,misfit.d)

@@ -36,6 +36,8 @@ from utils_mesh.observation_points import form_interior_observation_points
 # Import project utilities
 from utils_project.filepaths import FilePaths
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 class SpaceTimePointwiseStateObservation(Misfit):
     def __init__(self, Vh,
                  observation_times,

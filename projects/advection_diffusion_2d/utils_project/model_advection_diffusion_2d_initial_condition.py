@@ -167,7 +167,6 @@ class TimeDependentAdvectionDiffusionInitialCondition:
         self.M.init_vector(rhs, 0)
         self.M.init_vector(u, 0)
         for t in self.simulation_times[1::]:
-            pdb.set_trace()
             self.M_stab.mult(uold, rhs)
             self.solver.solve(u, rhs)
             out.store(u,t)

@@ -90,6 +90,8 @@ if __name__ == "__main__":
                   (5,5), '',
                   (-1,1), (-1,1),
                   mesh.coordinates(), mesh.cells())
+
+    #=== Hippylib Example Mesh ===#
     ndim = 2
     nx = 64
     ny = 64
@@ -116,38 +118,6 @@ if __name__ == "__main__":
     u_bdr0 = dl.Constant(0.0)
     bc = dl.DirichletBC(Vh[STATE], u_bdr, u_boundary)
     bc0 = dl.DirichletBC(Vh[STATE], u_bdr0, u_boundary)
-
-###############################################################################
-#                                  PDE Problem                                #
-###############################################################################
-    #=== Variational Form ===#
-    def pde_varf(u,m,p):
-        return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx - f*p*ufl.dx
-    pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)
-
-    #=== PDE Solver ===#
-    pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
-    pde.solver_fwd_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
-    pde.solver_adj_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
-
-    pde.solver.parameters["relative_tolerance"] = 1e-15
-    pde.solver.parameters["absolute_tolerance"] = 1e-20
-    pde.solver_fwd_inc.parameters = pde.solver.parameters
-    pde.solver_adj_inc.parameters = pde.solver.parameters
-
-    #=== Observation Points and Misfit Functional ===#
-    # _, targets = load_observation_points(filepaths.obs_indices, Vh1)
-
-    ntargets = 50
-    ndim = 2
-    targets_x = np.random.uniform(0.1,0.9, [ntargets] )
-    targets_y = np.random.uniform(0.1,0.5, [ntargets] )
-    targets = np.zeros([ntargets, ndim])
-    targets[:,0] = targets_x
-    targets[:,1] = targets_y
-    print( "Number of observation points: {0}".format(ntargets) )
-
-    misfit = PointwiseStateObservation(Vh[STATE], targets)
 
 ###############################################################################
 #                            Prior and True Parameter                         #
@@ -185,6 +155,38 @@ if __name__ == "__main__":
                 mytitle="Prior Mean", subplot_loc=122,
                 vmin=vmin_parameter, vmax=vmax_parameter)
         plt.show()
+
+###############################################################################
+#                                  PDE Problem                                #
+###############################################################################
+    #=== Variational Form ===#
+    def pde_varf(u,m,p):
+        return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx - f*p*ufl.dx
+    pde = PDEVariationalProblem(Vh, pde_varf, bc, bc0, is_fwd_linear=True)
+
+    #=== PDE Solver ===#
+    pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
+    pde.solver_fwd_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
+    pde.solver_adj_inc = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())
+
+    pde.solver.parameters["relative_tolerance"] = 1e-15
+    pde.solver.parameters["absolute_tolerance"] = 1e-20
+    pde.solver_fwd_inc.parameters = pde.solver.parameters
+    pde.solver_adj_inc.parameters = pde.solver.parameters
+
+    #=== Observation Points and Misfit Functional ===#
+    # _, targets = load_observation_points(filepaths.obs_indices, Vh1)
+
+    ntargets = 50
+    ndim = 2
+    targets_x = np.random.uniform(0.1,0.9, [ntargets] )
+    targets_y = np.random.uniform(0.1,0.5, [ntargets] )
+    targets = np.zeros([ntargets, ndim])
+    targets[:,0] = targets_x
+    targets[:,1] = targets_y
+    print( "Number of observation points: {0}".format(ntargets) )
+
+    misfit = PointwiseStateObservation(Vh[STATE], targets)
 
 ###############################################################################
 #                        Generate Synthetic Observations                      #
