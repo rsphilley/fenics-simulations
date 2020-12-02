@@ -61,10 +61,10 @@ if __name__ == "__main__":
     prior_scalar_value = 0
 
     #=== Noise Options ===#
-    noise_level = 0.0001
+    noise_level = 0.01
 
     #=== Uncertainty Quantification Options ===#
-    compute_trace = True
+    compute_trace = False
 
     #=== Plotting Options ===#
     use_hippylib_plotting = False # to display, comment out import of my plotting script
@@ -72,8 +72,9 @@ if __name__ == "__main__":
     colourbar_limit_parameter_min = 0
     colourbar_limit_parameter_max = 6
     colourbar_limit_state = 2
-    colourbar_limit_prior_variance = 0.5
-    colourbar_limit_posterior_variance = 0.5
+    colourbar_limit_prior_variance = 1.2
+    colourbar_limit_posterior_variance = 1.2
+    cross_section_y = 0.0
     cross_section_y_limit_min = 0
     cross_section_y_limit_max = 6
 
@@ -97,8 +98,8 @@ if __name__ == "__main__":
     nodes, dof_fe, dof_meta = construct_mesh(options)
 
     #=== Plot Mesh ===#
+    mesh = fe_space.mesh()
     if options.plot_mesh == True:
-        mesh = fe_space.mesh()
         plot_mesh(filepaths,
                   (5,5), '',
                   (-1,1), (-1,1),
@@ -419,7 +420,6 @@ if __name__ == "__main__":
         plt.show()
 
     #=== Plot Cross-Section with Error Bounds ===#
-    cross_section_y = 0.5
     plot_cross_section(Vh[PARAMETER],
                        np.array(mtrue),
                        np.array(x[PARAMETER]), np.array(post_pw_variance),

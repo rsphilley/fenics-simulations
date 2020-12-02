@@ -42,7 +42,7 @@ def plot_fem_function_fenics_2d(function_space, nodal_values,
         figure = ax.tricontourf(triangulation, nodal_values, 40)
     else:
         v = np.linspace(colorbar_limits[0], colorbar_limits[1], 40, endpoint=True)
-        figure = ax.tricontourf(triangulation, nodal_values, v, extend='both')
+        figure = ax.tricontourf(triangulation, nodal_values, v, extend='max')
 
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
