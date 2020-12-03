@@ -30,7 +30,7 @@ class FilePaths():
         #=== Key Strings ===#
         project_name = 'poisson_1d_'
         data_options = 'n%d'%(options.num_nodes)
-        self.directory_dataset = '../../../datasets/fenics/poisson_1d/' +\
+        self.directory_dataset = '../../../datasets/fenics/elliptic_linear_1d/' +\
             data_options + '/'
 
         #=== File Name Properties ===#
@@ -52,15 +52,9 @@ class FilePaths():
         self.mesh_nodes = mesh_directory + mesh_name + '_nodes.csv'
         self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
 
-        #=== Pre-Matrices ===#
-        self.premass = self.directory_dataset +\
-                'premass_' + data_options
-        self.prestiffness = self.directory_dataset +\
-                'prestiffness_' + data_options
-        self.boundary_matrix = self.directory_dataset +\
-                'boundary_matrix_' + data_options
-        self.load_vector = self.directory_dataset +\
-                'load_vector_' + data_options
+        #=== Forward Operator ===#
+        self.forward_operator = self.directory_dataset +\
+                'forward_operator_' + data_options
 
         #=== Prior ===#
         self.prior_mean = self.directory_dataset +\

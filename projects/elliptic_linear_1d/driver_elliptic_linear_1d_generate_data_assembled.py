@@ -22,17 +22,15 @@ from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
-from utils_fenics.construct_system_matrices_dirichlet import construct_system_matrices
-from utils_fenics.construct_boundary_matrices_and_load_vector import\
-        construct_boundary_matrices_and_load_vector
-from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
 from utils_misc.positivity_constraints import positivity_constraint_identity
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.solve_poisson_1d import solve_pde_prematrices
+from utils_project.construct_system_matrices_elliptic_linear_dirichlet import\
+        construct_system_matrices, load_system_matrices
+from utils_project.solve_elliptic_linear_1d import solve_pde_assembled
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -99,24 +97,17 @@ if __name__ == "__main__":
     if options.construct_and_save_matrices == 1:
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
-        construct_system_matrices(Vh)
-        sparse.save_npz(filepaths.prestiffness + '.npz', prestiffness)
-    prestiffness = sparse.load_npz(filepaths.prestiffness + '.npz')
-
-    #=== Construct or Load Boundary Matrix and Load Vector ===#
-    if options.construct_and_save_boundary_matrices == 1:
-        construct_boundary_matrices_and_load_vector(filepaths,
-                fe_space, options.boundary_matrix_constant, options.load_vector_constant)
-    boundary_matrix, load_vector = load_boundary_matrices_and_load_vector(filepaths, dof_fe)
+        construct_system_matrices(filepaths, Vh)
+    forward_operator = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
     ##########################
     #=== Solve PDE with Prematrices ===#
-    state = solve_pde_prematrices(options, filepaths,
-                                  parameters,
-                                  prestiffness, boundary_matrix, load_vector)
-
+    state = solve_pde_assembled(options, filepaths,
+                                parameters,
+                                forward_operator)
+    pdb.set_trace()
     #=== Plot Solution ===#
     if options.plot_solutions == 1:
         for n in range(0, options.num_data):

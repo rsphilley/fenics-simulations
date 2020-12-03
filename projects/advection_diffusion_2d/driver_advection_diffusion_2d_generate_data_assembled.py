@@ -30,7 +30,6 @@ from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_hippylib.space_time_pointwise_state_observation\
         import SpaceTimePointwiseStateObservation
-from utils_io.io_fem_operators import save_fem_operators, load_fem_operators
 from utils_io.value_to_string import value_to_string
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
@@ -39,6 +38,7 @@ from utils_project.filepaths import FilePaths
 from utils_project.velocity_field import compute_velocity_field_navier_stokes
 from utils_project.model_advection_diffusion_2d_initial_condition\
         import TimeDependentAdvectionDiffusionInitialCondition
+from utils_project.io_fem_operators import save_fem_operators, load_fem_operators
 from utils_project.solve_advection_diffusion_2d import solve_pde
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"

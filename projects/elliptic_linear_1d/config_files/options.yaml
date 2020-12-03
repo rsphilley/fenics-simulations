@@ -1,7 +1,7 @@
 #=== Mesh Properties ===#
 left_boundary : 0
 right_boundary : 1
-num_nodes : 64
+num_nodes : 10
 num_obs_points : 10
 order_fe_space : 1
 order_meta_space : 1
