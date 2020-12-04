@@ -1,13 +1,11 @@
 import numpy as np
 import pandas as pd
 import time
-import warnings
-warnings.filterwarnings('ignore')
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                               Using Prematrices                             #
+#                            Using Assembled Matrix                           #
 ###############################################################################
 def solve_pde_assembled(options, filepaths,
                         parameters,

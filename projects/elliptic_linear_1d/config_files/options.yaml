@@ -1,7 +1,7 @@
 #=== Mesh Properties ===#
 left_boundary : 0
 right_boundary : 1
-num_nodes : 10
+nx : 10
 num_obs_points : 10
 order_fe_space : 1
 order_meta_space : 1
@@ -11,7 +11,7 @@ generate_train_data : 1
 generate_test_data : 0
 
 #=== Number of Data ===#
-num_data : 2
+num_data : 5
 
 #=== Parameter Options ===#
 construct_prior : 1

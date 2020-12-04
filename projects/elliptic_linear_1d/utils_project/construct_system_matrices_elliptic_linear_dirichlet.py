@@ -41,4 +41,4 @@ def load_system_matrices(options, filepaths):
     df_forward_operator = pd.read_csv(filepaths.forward_operator + '.csv')
     forward_operator = df_forward_operator.to_numpy()
 
-    return forward_operator.reshape((options.num_nodes+1, options.num_nodes+1))
+    return forward_operator.reshape((options.num_nodes, options.num_nodes))

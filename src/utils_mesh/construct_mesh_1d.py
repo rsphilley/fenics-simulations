@@ -6,7 +6,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def construct_mesh(options):
 
     # construct mesh
-    mesh = dl.IntervalMesh(options.num_nodes,
+    mesh = dl.IntervalMesh(options.nx,
                            options.left_boundary, options.right_boundary)
 
     # finite element space

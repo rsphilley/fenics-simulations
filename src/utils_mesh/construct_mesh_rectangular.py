@@ -8,13 +8,13 @@ def construct_mesh(options):
     if len(options.mesh_point_1) == 2:
         mesh = RectangleMesh(Point(options.mesh_point_1[0], options.mesh_point_1[1]),
                              Point(options.mesh_point_2[0], options.mesh_point_2[1]),
-                             options.num_nodes_x, options.num_nodes_y)
+                             options.nx, options.ny)
     if len(options.mesh_point_1) == 3:
         mesh = BoxMesh(Point(options.mesh_point_1[0], options.mesh_point_1[1],
                              options.mesh_point_1[2]),
                        Point(options.mesh_point_2[0], options.mesh_point_2[1],
                              options.mesh_point_2[2]),
-                       options.num_nodes_x, options.num_nodes_y, options.num_nodes_z)
+                       options.nx, options.ny, options.nz)
 
     # finite element space
     fe_space = FunctionSpace(mesh, 'P', options.order_fe_space)

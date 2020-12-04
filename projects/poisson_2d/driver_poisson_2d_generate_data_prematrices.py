@@ -55,7 +55,7 @@ if __name__ == "__main__":
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
     options = AttrDict(options)
-    options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)
+    options.num_nodes = (options.nx + 1) * (options.ny + 1)
 
     #=== File Paths ===#
     filepaths = FilePaths(options)

@@ -30,7 +30,8 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 from utils_project.filepaths import FilePaths
 from utils_project.construct_system_matrices_elliptic_linear_dirichlet import\
         construct_system_matrices, load_system_matrices
-from utils_project.solve_elliptic_linear_1d import solve_pde_assembled
+from utils_project.solve_elliptic_linear_1d_assembled import solve_pde_assembled
+from utils_project.solve_elliptic_linear_1d_fenics import solve_pde_fenics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -50,6 +51,7 @@ if __name__ == "__main__":
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
     options = AttrDict(options)
+    options.num_nodes = options.nx + 1
 
     #=== File Paths ===#
     filepaths = FilePaths(options)
@@ -107,6 +109,9 @@ if __name__ == "__main__":
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
                                 forward_operator)
+    state_fenics = solve_pde_fenics(options, filepaths,
+                                    parameters,
+                                    Vh)
     pdb.set_trace()
     #=== Plot Solution ===#
     if options.plot_solutions == 1:
