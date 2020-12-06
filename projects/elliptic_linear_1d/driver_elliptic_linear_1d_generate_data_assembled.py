@@ -17,12 +17,10 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_mesh.construct_mesh_1d import construct_mesh
-from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
-from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 from utils_misc.positivity_constraints import positivity_constraint_identity
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
@@ -86,14 +84,6 @@ if __name__ == "__main__":
     df_parameters = pd.DataFrame({'samples': parameters.flatten()})
     df_parameters.to_csv(filepaths.parameter + '.csv', index=False)
 
-    #=== Plot Parameters ===#
-    if options.plot_parameters == 1:
-        for n in range(0, options.num_data):
-            plot_fem_function_fenics_2d(meta_space, parameters[n,:],
-                                        '',
-                                        filepaths.directory_figures + 'parameter_%d.png' %(n),
-                                        (5,5), (0,colourbar_limit_parameter))
-
     ###################
     #   FEM Objects   #
     ###################
@@ -112,14 +102,6 @@ if __name__ == "__main__":
                                 parameters,
                                 invA, mass_matrix)
 
-    #=== Plot Solution ===#
-    if options.plot_solutions == 1:
-        for n in range(0, options.num_data):
-            plot_fem_function_fenics_2d(meta_space, state[n,:],
-                                        '',
-                                        filepaths.directory_figures + 'state_%d.png' %(n),
-                                        (5,5), (0,colourbar_limit_state))
-
     #=== Form Observation Data ===#
-    obs_indices, _ = form_interior_observation_points(options, filepaths, meta_space)
+    obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)
     form_observation_data(filepaths, state, obs_indices)

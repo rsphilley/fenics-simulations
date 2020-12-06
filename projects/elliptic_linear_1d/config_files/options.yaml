@@ -1,17 +1,17 @@
 #=== Mesh Properties ===#
 left_boundary : 0
 right_boundary : 1
-nx : 10
-num_obs_points : 10
+nx : 63
+num_obs_points : 15
 order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : 1
-generate_test_data : 0
+generate_train_data : 0
+generate_test_data : 1
 
 #=== Number of Data ===#
-num_data : 50
+num_data : 200
 
 #=== Parameter Options ===#
 construct_prior : 1
@@ -25,14 +25,6 @@ prior_delta_lp : 1.0
 
 #=== Construct and Save Matrices ===#
 construct_and_save_matrices : True
-
-#=== PDE Properties ===#
-boundary_matrix_constant : 0.5
-load_vector_constant : -1
-
-#=== Plotting ===#
-plot_parameters : 0
-plot_solutions : 0
 
 #=== Random Seed ===#
 random_seed : 4
