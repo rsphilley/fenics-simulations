@@ -61,7 +61,7 @@ if __name__ == "__main__":
     prior_scalar_value = 0
 
     #=== Noise Options ===#
-    noise_level = 0.01
+    noise_level = 0.05
 
     #=== Uncertainty Quantification Options ===#
     compute_trace = False
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
     options = AttrDict(options)
-    options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)
+    options.num_nodes = (options.nx + 1) * (options.ny + 1)
 
     #=== File Paths ===#
     filepaths = FilePaths(options)

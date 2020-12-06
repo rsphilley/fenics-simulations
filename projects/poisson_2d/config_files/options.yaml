@@ -1,8 +1,8 @@
 #=== Mesh Properties ===#
 mesh_point_1 : [-1,-1]
 mesh_point_2 : [1,1]
-nx : 15
-ny : 15
+nx : 50
+ny : 50
 num_obs_points : 10
 order_fe_space : 1
 order_meta_space : 1
@@ -20,7 +20,7 @@ draw_and_save_parameters : 1
 
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp : True
-prior_mean_blp : 2
+prior_mean_blp : 2.5
 prior_gamma_blp : 0.1
 prior_delta_blp : 0.5
 

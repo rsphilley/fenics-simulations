@@ -9,10 +9,11 @@ import os
 sys.path.insert(0, os.path.realpath('../../src'))
 sys.path.append('../')
 
+import numpy as np
+import pandas as pd
+
 import yaml
 from attrdict import AttrDict
-import scipy.sparse as sparse
-import numpy as np
 
 # Import src code
 from utils_mesh.construct_mesh_1d import construct_mesh
@@ -83,6 +84,8 @@ if __name__ == "__main__":
 
     #=== Load Parameters ===#
     parameters = load_parameters(filepaths, dof, options.num_data)
+    df_parameters = pd.DataFrame({'samples': parameters.flatten()})
+    df_parameters.to_csv(filepaths.parameter + '.csv', index=False)
 
     #=== Plot Parameters ===#
     if options.plot_parameters == 1:
@@ -100,7 +103,7 @@ if __name__ == "__main__":
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
         construct_system_matrices(filepaths, Vh)
-    forward_operator = load_system_matrices(options, filepaths)
+    invA, mass_matrix = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
@@ -108,11 +111,11 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                forward_operator)
+                                invA, mass_matrix)
     state_fenics = solve_pde_fenics(options, filepaths,
                                     parameters,
                                     Vh)
-    pdb.set_trace()
+
     #=== Plot Solution ===#
     if options.plot_solutions == 1:
         for n in range(0, options.num_data):

@@ -20,25 +20,30 @@ def construct_system_matrices(filepaths, Vh):
     p = dl.TestFunction(Vh)
 
     #=== Variational Form ===#
-    a = -dl.inner(dl.nabla_grad(u), dl.nabla_grad(p))*dl.dx + dl.inner(u,p)*dl.dx
-    L = dl.inner(u,p)*dl.dx
+    a = dl.inner(dl.nabla_grad(u), dl.nabla_grad(p))*dl.dx + dl.inner(u,p)*dl.dx
+    mass_varf = dl.inner(u,p)*dl.dx
 
     #=== Assemble ===#
     A = dl.assemble(a)
-    b = dl.assemble(L)
+    mass = dl.assemble(mass_varf)
     bc.apply(A)
-    bc.apply(b)
 
     #=== Forward Operator ===#
-    forward_operator = np.matmul(np.linalg.inv(A.array()),b.array())
+    invA = np.linalg.inv(A.array())
+    mass_matrix = mass.array()
 
     #=== Save Forward Operator ===#
-    df_forward_operator = pd.DataFrame({'forward_operator':forward_operator.flatten()})
-    df_forward_operator.to_csv(filepaths.forward_operator + '.csv', index=False)
+    df_invA = pd.DataFrame({'invA':invA.flatten()})
+    df_invA.to_csv(filepaths.invA + '.csv', index=False)
+    df_mass_matrix = pd.DataFrame({'mass_matrix':mass_matrix.flatten()})
+    df_mass_matrix.to_csv(filepaths.mass_matrix + '.csv', index=False)
 
 def load_system_matrices(options, filepaths):
     #=== Load Spatial Operator ===#
-    df_forward_operator = pd.read_csv(filepaths.forward_operator + '.csv')
-    forward_operator = df_forward_operator.to_numpy()
+    df_invA = pd.read_csv(filepaths.invA + '.csv')
+    invA = df_invA.to_numpy()
+    df_mass_matrix = pd.read_csv(filepaths.mass_matrix + '.csv')
+    mass_matrix = df_mass_matrix.to_numpy()
 
-    return forward_operator.reshape((options.num_nodes, options.num_nodes))
+    return invA.reshape((options.num_nodes, options.num_nodes)),\
+           mass_matrix.reshape((options.num_nodes, options.num_nodes))
