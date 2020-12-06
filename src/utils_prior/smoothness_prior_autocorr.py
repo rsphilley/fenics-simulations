@@ -1,8 +1,7 @@
-import os
-
 import numpy as np
-import pandas as pd
 from utils_prior.check_symmetry_and_positive_definite import check_symmetry_and_positive_definite
+
+from utils_prior.save_prior import save_prior
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -56,23 +55,4 @@ def smoothness_prior_autocorr(filepaths,
     inv_L = np.linalg.inv(L)
 
     #=== Save Prior ===#
-    if not os.path.exists(filepaths.directory_dataset):
-        os.makedirs(filepaths.directory_dataset)
-
-    df_prior_mean = pd.DataFrame({'prior_mean': mean_vec.flatten()})
-    df_prior_mean.to_csv(filepaths.prior_mean + '.csv', index=False)
-
-    df_prior_covariance = pd.DataFrame({'prior_covariance': cov.flatten()})
-    df_prior_covariance.to_csv(filepaths.prior_covariance + '.csv', index=False)
-
-    df_prior_covariance_cholesky = pd.DataFrame({'prior_covariance_cholesky': L.flatten()})
-    df_prior_covariance_cholesky.to_csv(
-            filepaths.prior_covariance_cholesky + '.csv', index=False)
-
-    df_prior_covariance_cholesky_inverse = pd.DataFrame(
-            {'prior_covariance_inverse': inv_L.flatten()})
-    df_prior_covariance_cholesky_inverse.to_csv(
-            filepaths.prior_covariance_cholesky_inverse + '.csv',
-            index=False)
-
-    print('Prior constructed and saved')
+    save_prior(filepaths, mean_vec, cov, inv_L, L)

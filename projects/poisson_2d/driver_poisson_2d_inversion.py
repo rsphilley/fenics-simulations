@@ -131,7 +131,7 @@ if __name__ == "__main__":
         if prior_scalar_value == 0:
             mean_array = 0*np.ones(Vh[PARAMETER].dim())
         else:
-            mean_array = np.log(prior_scalar_value)*np.ones(Vh[PARAMETER].dim())
+            mean_array = prior_scalar_value*np.ones(Vh[PARAMETER].dim())
     mean_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mean_array)
     mean = mean_dl.vector()
     prior = BiLaplacianPrior(Vh[PARAMETER],

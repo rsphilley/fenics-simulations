@@ -7,11 +7,11 @@ order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : 0
-generate_test_data : 1
+generate_train_data : 1
+generate_test_data : 0
 
 #=== Number of Data ===#
-num_data : 200
+num_data : 10
 
 #=== Parameter Options ===#
 construct_prior : 1
@@ -25,6 +25,11 @@ prior_delta_lp : 1.0
 
 #=== Construct and Save Matrices ===#
 construct_and_save_matrices : True
+
+#=== Plotting ===#
+plot_parameters : 1
+plot_solutions : 1
+plot_mesh : 1
 
 #=== Random Seed ===#
 random_seed : 4

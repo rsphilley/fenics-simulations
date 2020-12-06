@@ -20,7 +20,9 @@ from utils_mesh.construct_mesh_1d import construct_mesh
 from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
+from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fenics
 from utils_io.load_parameters import load_parameters
+from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
 from utils_misc.positivity_constraints import positivity_constraint_identity
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
@@ -41,10 +43,6 @@ if __name__ == "__main__":
     ##################
     #   Setting Up   #
     ##################
-    #=== Plotting Options ===#
-    colourbar_limit_parameter = 6
-    colourbar_limit_state = 2
-
     #=== Options ===#
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
@@ -84,6 +82,29 @@ if __name__ == "__main__":
     df_parameters = pd.DataFrame({'samples': parameters.flatten()})
     df_parameters.to_csv(filepaths.parameter + '.csv', index=False)
 
+    #=== Plot Parameters ===#
+    if options.plot_parameters == 1:
+        for n in range(0, options.num_data):
+            plot_fem_function_fenics_1d(Vh, parameters[n,:],
+                                        '',
+                                        filepaths.directory_figures + 'parameter_%d.png' %(n),
+                                        (5,5),
+                                        (options.left_boundary, options.right_boundary), (-4,4))
+
+    #=== Draw Parameters from Prior ===#
+    parameters_fenics = draw_from_distribution_fenics(filepaths,
+                                  Vh, prior, dof,
+                                  num_samples = options.num_data)
+
+    #=== Plot Parameters ===#
+    if options.plot_parameters == 1:
+        for n in range(0, options.num_data):
+            plot_fem_function_fenics_1d(Vh, parameters_fenics[n,:],
+                                        '',
+                                        filepaths.directory_figures + 'parameter_fenics_%d.png' %(n),
+                                        (5,5),
+                                        (options.left_boundary, options.right_boundary), (-4,4))
+
     ###################
     #   FEM Objects   #
     ###################
@@ -92,7 +113,7 @@ if __name__ == "__main__":
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
         construct_system_matrices(filepaths, Vh)
-    invA, mass_matrix = load_system_matrices(options, filepaths)
+    forward_operator, mass_matrix = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
@@ -100,7 +121,7 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                invA, mass_matrix)
+                                forward_operator, mass_matrix)
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)

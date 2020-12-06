@@ -1,10 +1,11 @@
-import os
-
 import numpy as np
-import pandas as pd
 
 from hippylib import *
 import dolfin as dl
+
+# Import src code
+from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
+from utils_prior.save_prior import save_prior
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -12,40 +13,27 @@ def construct_bilaplacian_prior(filepaths,
                                 Vh, mean,
                                 gamma, delta):
 
+    #=== Fenics Mean Vector ===#
+    mean_array = mean*np.ones(Vh.dim())
+    mean_dl = convert_array_to_dolfin_function(Vh, mean_array)
+    mean_dl_vec = mean_dl.vector()
+
     #=== Construct Prior ===#
     prior = BiLaplacianPrior(Vh,
                              gamma, delta,
+                             mean = mean_dl_vec,
                              robin_bc=True)
 
     #=== Discretized Forms ===#
     mean_vec = mean*np.ones(Vh.dim())
 
-    inv_sqrtM = np.linalg.inv(np.linalg.cholesky(prior.M.array()))
-    inv_L = np.matmul(inv_sqrtM, prior.A.array())
+    inv_sqrt_M = np.linalg.inv(np.linalg.cholesky(prior.M.array()))
+    inv_L = np.matmul(inv_sqrt_M, prior.A.array())
 
     L = np.linalg.inv(inv_L)
     cov = np.matmul(L, L)
 
     #=== Save Prior ===#
-    if not os.path.exists(filepaths.directory_dataset):
-        os.makedirs(filepaths.directory_dataset)
-
-    df_prior_mean = pd.DataFrame({'prior_mean': mean_vec.flatten()})
-    df_prior_mean.to_csv(filepaths.prior_mean + '.csv', index=False)
-
-    df_prior_covariance = pd.DataFrame({'prior_covariance': cov.flatten()})
-    df_prior_covariance.to_csv(filepaths.prior_covariance + '.csv', index=False)
-
-    df_prior_covariance_cholesky = pd.DataFrame({'prior_covariance_cholesky': L.flatten()})
-    df_prior_covariance_cholesky.to_csv(
-            filepaths.prior_covariance_cholesky + '.csv', index=False)
-
-    df_prior_covariance_cholesky_inverse = pd.DataFrame(
-            {'prior_covariance_inverse': inv_L.flatten()})
-    df_prior_covariance_cholesky_inverse.to_csv(
-            filepaths.prior_covariance_cholesky_inverse + '.csv',
-            index=False)
-
-    print('Prior constructed and saved')
+    save_prior(filepaths, mean_vec, cov, inv_L, L)
 
     return prior

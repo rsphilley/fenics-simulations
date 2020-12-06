@@ -12,6 +12,7 @@ def draw_from_distribution(filepaths,
                            mean, L, num_nodes,
                            positivity_constraint, k,
                            num_samples = 0):
+
     if num_samples == 0:
         samples=[]
     else:
