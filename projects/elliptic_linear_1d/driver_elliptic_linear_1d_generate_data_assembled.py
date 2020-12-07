@@ -20,7 +20,6 @@ from utils_mesh.construct_mesh_1d import construct_mesh
 from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
-from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fenics
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
 from utils_misc.positivity_constraints import positivity_constraint_identity
@@ -32,6 +31,7 @@ from utils_project.filepaths import FilePaths
 from utils_project.construct_system_matrices_elliptic_linear_dirichlet import\
         construct_system_matrices, load_system_matrices
 from utils_project.solve_elliptic_linear_1d_assembled import solve_pde_assembled
+from utils_project.solve_elliptic_linear_1d_fenics import solve_pde_fenics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -92,21 +92,6 @@ if __name__ == "__main__":
             plot_fem_function_fenics_1d(Vh, parameters[n,:],
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
-                                        (5,5),
-                                        (options.left_boundary, options.right_boundary),
-                                        (limit_min_parameter,limit_max_parameter))
-
-    #=== Draw Parameters from Prior ===#
-    parameters_fenics = draw_from_distribution_fenics(filepaths,
-                                  Vh, prior, dof,
-                                  num_samples = options.num_data)
-
-    #=== Plot Parameters ===#
-    if options.plot_parameters == 1:
-        for n in range(0, options.num_data):
-            plot_fem_function_fenics_1d(Vh, parameters_fenics[n,:],
-                                        '',
-                                        filepaths.directory_figures + 'parameter_fenics_%d.png' %(n),
                                         (5,5),
                                         (options.left_boundary, options.right_boundary),
                                         (limit_min_parameter,limit_max_parameter))

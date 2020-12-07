@@ -28,7 +28,7 @@ class FilePaths():
     def __init__(self, options):
 
         #=== Key Strings ===#
-        project_name = 'poisson_1d_'
+        project_name = 'elliptic_linear_1d_'
         data_options = 'n%d'%(options.num_nodes)
         self.directory_dataset = '../../../datasets/fenics/elliptic_linear_1d/' +\
             data_options + '/'
