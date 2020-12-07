@@ -43,6 +43,10 @@ if __name__ == "__main__":
     ##################
     #   Setting Up   #
     ##################
+    #=== Plotting Options ===#
+    limit_min_parameter = -4
+    limit_max_parameter = 4
+
     #=== Options ===#
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
@@ -89,7 +93,8 @@ if __name__ == "__main__":
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
                                         (5,5),
-                                        (options.left_boundary, options.right_boundary), (-4,4))
+                                        (options.left_boundary, options.right_boundary),
+                                        (limit_min_parameter,limit_max_parameter))
 
     #=== Draw Parameters from Prior ===#
     parameters_fenics = draw_from_distribution_fenics(filepaths,
@@ -103,7 +108,8 @@ if __name__ == "__main__":
                                         '',
                                         filepaths.directory_figures + 'parameter_fenics_%d.png' %(n),
                                         (5,5),
-                                        (options.left_boundary, options.right_boundary), (-4,4))
+                                        (options.left_boundary, options.right_boundary),
+                                        (limit_min_parameter,limit_max_parameter))
 
     ###################
     #   FEM Objects   #

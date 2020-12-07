@@ -16,7 +16,6 @@ def draw_from_distribution_fenics(filepaths,
     else:
         samples = np.zeros((num_samples, num_nodes))
         for n in range(0, num_samples):
-            #=== Draw Sample from Prior Distribution ===#
             noise = dl.Vector()
             prior.init_vector(noise,"noise")
             parRandom.normal(1., noise)

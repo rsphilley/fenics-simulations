@@ -26,10 +26,7 @@ def construct_laplacian_prior(filepaths,
     #=== Discretized Forms ===#
     mean_vec = mean*np.ones(Vh.dim())
 
-    inv_sqrt_C = np.linalg.cholesky(prior.R.array())
-
-    inv_sqrt_M = np.linalg.inv(np.linalg.cholesky(prior.M.array()))
-    inv_L = np.matmul(inv_sqrt_M, inv_sqrt_C)
+    inv_L = np.linalg.cholesky(prior.R.array())
     L = np.linalg.inv(inv_L)
     cov = np.matmul(L, L)
 
