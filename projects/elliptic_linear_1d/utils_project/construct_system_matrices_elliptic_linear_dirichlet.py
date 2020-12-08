@@ -29,21 +29,21 @@ def construct_system_matrices(filepaths, Vh):
     bc.apply(A)
 
     #=== Forward Operator ===#
-    forward_operator = np.linalg.inv(A.array())
+    forward_matrix = np.linalg.inv(A.array())
     mass_matrix = mass.array()
 
     #=== Save Forward Operator ===#
-    df_forward_operator = pd.DataFrame({'forward_operator':forward_operator.flatten()})
-    df_forward_operator.to_csv(filepaths.forward_operator + '.csv', index=False)
+    df_forward_matrix = pd.DataFrame({'forward_matrix':forward_matrix.flatten()})
+    df_forward_matrix.to_csv(filepaths.forward_matrix + '.csv', index=False)
     df_mass_matrix = pd.DataFrame({'mass_matrix':mass_matrix.flatten()})
     df_mass_matrix.to_csv(filepaths.mass_matrix + '.csv', index=False)
 
 def load_system_matrices(options, filepaths):
     #=== Load Spatial Operator ===#
-    df_forward_operator = pd.read_csv(filepaths.forward_operator + '.csv')
-    forward_operator = df_forward_operator.to_numpy()
+    df_forward_matrix = pd.read_csv(filepaths.forward_matrix + '.csv')
+    forward_matrix = df_forward_matrix.to_numpy()
     df_mass_matrix = pd.read_csv(filepaths.mass_matrix + '.csv')
     mass_matrix = df_mass_matrix.to_numpy()
 
-    return forward_operator.reshape((options.num_nodes, options.num_nodes)),\
+    return forward_matrix.reshape((options.num_nodes, options.num_nodes)),\
            mass_matrix.reshape((options.num_nodes, options.num_nodes))

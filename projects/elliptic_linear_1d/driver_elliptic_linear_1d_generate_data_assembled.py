@@ -104,7 +104,7 @@ if __name__ == "__main__":
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
         construct_system_matrices(filepaths, Vh)
-    forward_operator, mass_matrix = load_system_matrices(options, filepaths)
+    forward_matrix, mass_matrix = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                forward_operator, mass_matrix)
+                                forward_matrix, mass_matrix)
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)

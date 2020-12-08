@@ -53,8 +53,8 @@ class FilePaths():
         self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
 
         #=== Forward Operator ===#
-        self.forward_operator = self.directory_dataset +\
-                'forward_operator_' + data_options
+        self.forward_matrix = self.directory_dataset +\
+                'forward_matrix_' + data_options
         self.mass_matrix = self.directory_dataset +\
                 'mass_matrix_' + data_options
 
