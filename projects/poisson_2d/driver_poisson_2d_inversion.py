@@ -110,7 +110,7 @@ if __name__ == "__main__":
     nproc = dl.MPI.size(mesh.mpi_comm())
 
     #=== Function Spaces ===#
-    Vh2 = dl.FunctionSpace(mesh, 'Lagrange', 2)
+    Vh2 = dl.FunctionSpace(mesh, 'Lagrange', 1)
     Vh1 = dl.FunctionSpace(mesh, 'Lagrange', 1)
     Vh = [Vh2, Vh1, Vh2]
     ndofs = [Vh[STATE].dim(), Vh[PARAMETER].dim(), Vh[ADJOINT].dim()]

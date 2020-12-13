@@ -1,4 +1,7 @@
+import os
+
 import numpy as np
+import pandas as pd
 
 import dolfin as dl
 from hippylib import *
@@ -26,4 +29,10 @@ def draw_from_distribution_fenics(filepaths,
             print('Drawn: %d of %d' %(n, num_samples))
         print('Samples drawn')
 
-    return samples
+        #=== Save Samples ===#
+        if not os.path.exists(filepaths.directory_dataset):
+            os.makedirs(filepaths.directory_dataset)
+        df_samples= pd.DataFrame({'samples': samples.flatten()})
+        df_samples.to_csv(filepaths.parameter + '.csv', index=False)
+
+        print('Samples saved')

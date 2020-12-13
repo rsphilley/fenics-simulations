@@ -1,17 +1,17 @@
 #=== Mesh Properties ===#
 left_boundary : 0
 right_boundary : 1
-nx : 63
+nx : 255
 num_obs_points : 15
 order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : 0
-generate_test_data : 1
+generate_train_data : True
+generate_test_data : False
 
 #=== Number of Data ===#
-num_data : 200
+num_data : 2
 
 #=== Parameter Options ===#
 construct_prior : 1
@@ -27,9 +27,9 @@ prior_delta_lp : 1.0
 construct_and_save_matrices : True
 
 #=== Plotting ===#
-plot_parameters : 0
-plot_solutions : 0
-plot_mesh : 0
+plot_parameters : 1
+plot_solutions : 1
+plot_mesh : 1
 
 #=== Random Seed ===#
 random_seed : 4

@@ -19,7 +19,8 @@ from attrdict import AttrDict
 from utils_mesh.construct_mesh_1d import construct_mesh
 from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_io.load_prior import load_prior
-from utils_prior.draw_from_distribution import draw_from_distribution
+# from utils_prior.draw_from_distribution import draw_from_distribution
+from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fenics
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
 from utils_misc.positivity_constraints import positivity_constraint_identity
@@ -76,15 +77,16 @@ if __name__ == "__main__":
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == 1:
         prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
-        draw_from_distribution(filepaths,
-                               prior_mean, prior_covariance_cholesky, dof,
-                               positivity_constraint_identity, 0.5,
-                               num_samples = options.num_data)
+        # draw_from_distribution(filepaths,
+        #                        prior_mean, prior_covariance_cholesky, dof,
+        #                        positivity_constraint_identity, 0.5,
+        #                        num_samples = options.num_data)
+        draw_from_distribution_fenics(filepaths,
+                                      Vh, prior, dof,
+                                      num_samples = options.num_data)
 
     #=== Load Parameters ===#
     parameters = load_parameters(filepaths, dof, options.num_data)
-    df_parameters = pd.DataFrame({'samples': parameters.flatten()})
-    df_parameters.to_csv(filepaths.parameter + '.csv', index=False)
 
     #=== Plot Parameters ===#
     if options.plot_parameters == 1:
@@ -95,7 +97,6 @@ if __name__ == "__main__":
                                         (5,5),
                                         (options.left_boundary, options.right_boundary),
                                         (limit_min_parameter,limit_max_parameter))
-
     ###################
     #   FEM Objects   #
     ###################

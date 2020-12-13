@@ -53,7 +53,7 @@ def plot_cross_section(function_space,
     #=== Plotting ===#
     fig, ax = plt.subplots()
     ax.plot(x, parameter_cross, 'r-', label='True Parameter')
-    ax.plot(x, mean_cross, 'k-', label='Posterior Mean')
+    ax.plot(x, mean_cross, 'k-', label='MAP Estimate')
     plt.fill_between(x, mean_cross - 3*std_cross, mean_cross + 3*std_cross)
     plt.xlim(x_axis_limits)
     plt.ylim(y_axis_limits)
