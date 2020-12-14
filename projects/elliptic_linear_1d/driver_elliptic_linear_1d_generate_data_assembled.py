@@ -21,6 +21,7 @@ from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_io.load_prior import load_prior
 # from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fenics
+from utils_fenics.apply_mass_matrix import apply_mass_matrix
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
 from utils_misc.positivity_constraints import positivity_constraint_identity
@@ -45,8 +46,8 @@ if __name__ == "__main__":
     #   Setting Up   #
     ##################
     #=== Plotting Options ===#
-    limit_min_parameter = -4
-    limit_max_parameter = 4
+    limit_min_parameter = -0.02
+    limit_max_parameter = 0.02
 
     #=== Options ===#
     with open('config_files/options.yaml') as f:
@@ -84,6 +85,7 @@ if __name__ == "__main__":
         draw_from_distribution_fenics(filepaths,
                                       Vh, prior, dof,
                                       num_samples = options.num_data)
+        apply_mass_matrix(options, filepaths, Vh, dof)
 
     #=== Load Parameters ===#
     parameters = load_parameters(filepaths, dof, options.num_data)
@@ -106,7 +108,7 @@ if __name__ == "__main__":
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
         construct_system_matrices(filepaths, Vh)
-    forward_matrix, mass_matrix = load_system_matrices(options, filepaths)
+    forward_matrix, _ = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
@@ -114,7 +116,7 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                forward_matrix, mass_matrix)
+                                forward_matrix)
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)
