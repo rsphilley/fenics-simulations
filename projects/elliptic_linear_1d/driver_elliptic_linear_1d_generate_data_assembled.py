@@ -107,7 +107,7 @@ if __name__ == "__main__":
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
         construct_system_matrices(filepaths, Vh)
-    forward_matrix, _ = load_system_matrices(options, filepaths)
+    forward_matrix, mass_matrix = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
