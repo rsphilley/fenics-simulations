@@ -11,7 +11,7 @@ generate_train_data : True
 generate_test_data : False
 
 #=== Number of Data ===#
-num_data : 2
+num_data : 20
 
 #=== Parameter Options ===#
 construct_prior : 1

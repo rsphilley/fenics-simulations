@@ -21,16 +21,10 @@ def plot_fem_function_fenics_1d(function_space, nodal_values,
                                 fig_size,
                                 x_axis_limits, y_axis_limits):
 
-    #=== Convert array to dolfin function ===#
-    nodal_values_fe = convert_array_to_dolfin_function(function_space, nodal_values)
-
     #=== Extract mesh and triangulate ===#
-    mesh = nodal_values_fe.function_space().mesh()
+    mesh = function_space.mesh()
     coords = mesh.coordinates()
     elements = mesh.cells()
-
-    #=== Nodal Values ===#
-    nodal_values = nodal_values_fe.compute_vertex_values(mesh)
 
     #=== Plot figure ===#
     plt.figure(figsize = fig_size)
