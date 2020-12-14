@@ -115,7 +115,7 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                forward_matrix)
+                                forward_matrix, mass_matrix)
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)
