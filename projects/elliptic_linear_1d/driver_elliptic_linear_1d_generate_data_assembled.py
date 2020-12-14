@@ -46,8 +46,8 @@ if __name__ == "__main__":
     #   Setting Up   #
     ##################
     #=== Plotting Options ===#
-    limit_min_parameter = -0.02
-    limit_max_parameter = 0.02
+    limit_min_parameter = -4
+    limit_max_parameter = 4
 
     #=== Options ===#
     with open('config_files/options.yaml') as f:
@@ -85,7 +85,6 @@ if __name__ == "__main__":
         draw_from_distribution_fenics(filepaths,
                                       Vh, prior, dof,
                                       num_samples = options.num_data)
-        apply_mass_matrix(options, filepaths, Vh, dof)
 
     #=== Load Parameters ===#
     parameters = load_parameters(filepaths, dof, options.num_data)

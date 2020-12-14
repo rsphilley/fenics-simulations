@@ -9,7 +9,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def solve_pde_assembled(options, filepaths,
                         parameters,
-                        forward_matrix):
+                        forward_matrix, mass_matrix):
 
     state = np.zeros((options.num_data, options.num_nodes))
 
@@ -18,7 +18,7 @@ def solve_pde_assembled(options, filepaths,
 
     for n in range(0, options.num_data):
         start_time_sample = time.time()
-        rhs = parameters[n,:]
+        rhs = np.matmul(parameters[n,:], np.transpose(mass_matrix))
         rhs[0] = 0
         rhs[-1] = 1
         state[n,:] = np.matmul(rhs, np.transpose(forward_matrix))
