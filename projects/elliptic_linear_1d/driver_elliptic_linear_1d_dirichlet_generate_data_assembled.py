@@ -117,6 +117,16 @@ if __name__ == "__main__":
                                 parameters,
                                 forward_matrix, mass_matrix)
 
+    #=== Plot Solution ===#
+    if options.plot_solutions == 1:
+        for n in range(0, options.num_data):
+            plot_fem_function_fenics_1d(Vh, state[n,:],
+                                        '',
+                                        filepaths.directory_figures + 'state_%d.png' %(n),
+                                        (5,5),
+                                        (options.left_boundary, options.right_boundary),
+                                        (limit_min_parameter,limit_max_parameter))
+
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)
     form_observation_data(filepaths, state, obs_indices)

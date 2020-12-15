@@ -64,7 +64,7 @@ if __name__ == "__main__":
     prior_scalar_value = 0
 
     #=== Noise Options ===#
-    noise_level = 0.01
+    noise_level = 0.0000001
 
     #=== Uncertainty Quantification Options ===#
     compute_trace = False
@@ -188,6 +188,14 @@ if __name__ == "__main__":
     noise_std_dev = rel_noise * MAX
     parRandom.normal_perturb(noise_std_dev, misfit.d)
     misfit.noise_variance = noise_std_dev*noise_std_dev
+
+    #=== Plot True State ===#
+    plot_fem_function_fenics_1d(Vh[STATE], np.array(utrue),
+                                '',
+                                filepaths.directory_figures + 'state_test.png',
+                                (5,5),
+                                (options.left_boundary, options.right_boundary),
+                                (limit_min_parameter,limit_max_parameter))
 
 ###############################################################################
 #                               Model and Solver                              #
