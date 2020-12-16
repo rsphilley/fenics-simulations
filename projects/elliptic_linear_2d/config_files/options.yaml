@@ -37,11 +37,6 @@ prior_cov_length : 0.08
 
 #=== Construct and Save Matrices ===#
 construct_and_save_matrices : True
-construct_and_save_boundary_matrices : True
-
-#=== PDE Properties ===#
-boundary_matrix_constant : 0.5
-load_vector_constant : -1
 
 #=== Plotting ===#
 plot_parameters : True

@@ -28,15 +28,15 @@ class FilePaths():
     def __init__(self, options):
 
         #=== Key Strings ===#
-        project_name = 'elliptic_linear_1d_'
+        data_options = 'n%d'%(options.num_nodes)
         if options.boundary_conditions_dirichlet == True:
-            bc_string = 'dirichlet'
+            project_name = 'elliptic_linear_dirichlet_1d_'
+            self.directory_dataset =\
+                    '../../../datasets/fenics/elliptic_linear_dirichlet_1d/' + data_options + '/'
         if options.boundary_conditions_neumann == True:
-            bc_string = 'neumann'
-        num_nodes_string = 'n%d'%(options.num_nodes)
-        data_options = '%s_%s'%(bc_string, num_nodes_string)
-        self.directory_dataset = '../../../datasets/fenics/elliptic_linear_1d/' +\
-            num_nodes_string + '/'
+            project_name = 'elliptic_linear_neumann_1d_'
+            self.directory_dataset =\
+                    '../../../datasets/fenics/elliptic_linear_neumann_1d/' + data_options + '/'
 
         #=== File Name Properties ===#
         if options.generate_train_data == True:
@@ -65,13 +65,13 @@ class FilePaths():
 
         #=== Prior ===#
         self.prior_mean = self.directory_dataset +\
-                'prior_mean_' + num_nodes_string + '_' + prior_string
+                'prior_mean_' + data_options + '_' + prior_string
         self.prior_covariance = self.directory_dataset +\
-                'prior_covariance_' + num_nodes_string + '_' + prior_string
+                'prior_covariance_' + data_options + '_' + prior_string
         self.prior_covariance_cholesky = self.directory_dataset +\
-                'prior_covariance_cholesky_' + num_nodes_string + '_' + prior_string
+                'prior_covariance_cholesky_' + data_options + '_' + prior_string
         self.prior_covariance_cholesky_inverse = self.directory_dataset +\
-                'prior_covariance_cholesky_inverse_' + num_nodes_string + '_' + prior_string
+                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string
 
         #=== Parameters ===#
         self.parameter = self.directory_dataset +\

@@ -23,18 +23,16 @@ from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
-from utils_fenics.construct_boundary_matrices_and_load_vector import\
-        construct_boundary_matrices_and_load_vector
 from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
-from utils_misc.positivity_constraints import positivity_constraint_identity
+from utils_misc.positivity_constraints import positivity_constraint_log_exp
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.construct_system_matrices_elliptic_linear_not_dirichlet import\
+from utils_project.construct_system_matrices_elliptic_linear_neumann_2d import\
         construct_system_matrices, load_system_matrices
-from utils_project.solve_poisson_linear_2d_assembled import solve_pde_assembled
+from utils_project.solve_elliptic_linear_neumann_2d_assembled import solve_pde_assembled
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -49,7 +47,8 @@ if __name__ == "__main__":
     #=== Plotting Options ===#
     colourbar_limit_min_parameter = -4
     colourbar_limit_max_parameter = 4
-    colourbar_limit_state = 4
+    colourbar_limit_min_state = -10
+    colourbar_limit_max_state = 10
 
     #=== Options ===#
     with open('config_files/options.yaml') as f:
@@ -102,7 +101,7 @@ if __name__ == "__main__":
         prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof_meta)
         draw_from_distribution(filepaths,
                                prior_mean, prior_covariance_cholesky, dof_meta,
-                               positivity_constraint_identity, 0.5,
+                               positivity_constraint_log_exp, 0.5,
                                num_samples = options.num_data)
 
     #=== Load Parameters ===#
@@ -128,20 +127,13 @@ if __name__ == "__main__":
         construct_system_matrices(filepaths, meta_space)
     stiffness_matrix, mass_matrix = load_system_matrices(options, filepaths)
 
-    #=== Construct or Load Boundary Matrix and Load Vector ===#
-    if options.construct_and_save_boundary_matrices == 1:
-        construct_boundary_matrices_and_load_vector(filepaths, fe_space,
-                options.boundary_matrix_constant, options.load_vector_constant)
-    boundary_matrix, load_vector = load_boundary_matrices_and_load_vector(filepaths, dof_fe)
-
     ##########################
     #   Computing Solution   #
     ##########################
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                stiffness_matrix, mass_matrix,
-                                boundary_matrix, load_vector)
+                                stiffness_matrix, mass_matrix)
 
     #=== Plot Solution ===#
     if options.plot_solutions == 1:
@@ -149,7 +141,8 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(meta_space, state[n,:],
                                         '',
                                         filepaths.directory_figures + 'state_%d.png' %(n),
-                                        (5,5), (0,colourbar_limit_state))
+                                        (5,5),
+                                        (colourbar_limit_min_state,colourbar_limit_max_state))
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, meta_space)

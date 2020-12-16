@@ -5,18 +5,11 @@ import ufl
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-class PDEVariationalProblem(PDEProblem):
-    def __init__(self, Vh, varf_handler, bc, bc0, is_fwd_linear = False):
+class PDEVariationalProblemHeat(PDEProblem):
+    def __init__(self, options, Vh, varf_handler, is_fwd_linear = False):
+        self.options = options
         self.Vh = Vh
         self.varf_handler = varf_handler
-        if type(bc) is dl.DirichletBC:
-            self.bc = [bc]
-        else:
-            self.bc = bc
-        if type(bc0) is dl.DirichletBC:
-            self.bc0 = [bc0]
-        else:
-            self.bc0 = bc0
 
         self.A  = None
         self.At = None
@@ -59,26 +52,33 @@ class PDEVariationalProblem(PDEProblem):
             u = dl.TrialFunction(self.Vh[STATE])
             m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
             p = dl.TestFunction(self.Vh[ADJOINT])
-            res_form = self.varf_handler(u, m, p)
+            res_form = self.varf_handler(u, m, p,
+                                         self.Vh[STATE],
+                                         self.options.boundary_matrix_constant,
+                                         self.options.load_vector_constant)
             A_form = ufl.lhs(res_form)
             b_form = ufl.rhs(res_form)
-            A, b = dl.assemble_system(A_form, b_form, bcs=self.bc)
+            A, b = dl.assemble_system(A_form, b_form)
             self.solver.set_operator(A)
             self.solver.solve(state, b)
         else:
             u = vector2Function(x[STATE], self.Vh[STATE])
             m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
             p = dl.TestFunction(self.Vh[ADJOINT])
-            res_form = self.varf_handler(u, m, p)
-            dl.solve(res_form == 0, u, self.bc)
+            res_form = self.varf_handler(u, m, p,
+                                         self.Vh[STATE],
+                                         options.boundary_matrix_constant,
+                                         options.load_vector_constant)
+            dl.solve(res_form == 0, u)
             state.zero()
             state.axpy(1., u.vector())
 
     def solveAdj(self, adj, x, adj_rhs):
-        """ Solve the linear adjoint problem:
-            Given :math:`m, u`; find :math:`p` such that
+        """
+        Solve the linear adjoint problem:
+        Given :math:`m, u`; find :math:`p` such that
 
-                .. math:: \\delta_u F(u, m, p;\\hat{u}) = 0, \\quad \\forall \\hat{u}.
+             .. math:: \\delta_u F(u, m, p;\\hat{u}) = 0, \\quad \\forall \\hat{u}.
         """
         self.n_calls["adjoint"] += 1
         if self.solver is None:
@@ -89,38 +89,52 @@ class PDEVariationalProblem(PDEProblem):
         p = dl.Function(self.Vh[ADJOINT])
         du = dl.TestFunction(self.Vh[STATE])
         dp = dl.TrialFunction(self.Vh[ADJOINT])
-        varf = self.varf_handler(u, m, p)
+        varf = self.varf_handler(u, m, p,
+                                 self.Vh[STATE],
+                                 self.options.boundary_matrix_constant,
+                                 self.options.load_vector_constant)
         adj_form = dl.derivative( dl.derivative(varf, u, du), p, dp )
-        Aadj, dummy = dl.assemble_system(adj_form, ufl.inner(u,du)*ufl.dx, self.bc0)
+        Aadj, dummy = dl.assemble_system(adj_form, ufl.inner(u,du)*ufl.dx)
         self.solver.set_operator(Aadj)
         self.solver.solve(adj, adj_rhs)
 
     def evalGradientParameter(self, x, out):
-        """Given :math:`u, m, p`; evaluate :math:`\\delta_m F(u, m, p; \\hat{m}),\\, \\forall \\hat{m}.` """
+        """
+        Given :math:`u, m, p`;
+        evaluate :math:`\\delta_m F(u, m, p; \\hat{m}),\\, \\forall \\hat{m}.`
+        """
         u = vector2Function(x[STATE], self.Vh[STATE])
         m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
         p = vector2Function(x[ADJOINT], self.Vh[ADJOINT])
         dm = dl.TestFunction(self.Vh[PARAMETER])
-        res_form = self.varf_handler(u, m, p)
+        res_form = self.varf_handler(u, m, p,
+                                     self.Vh[STATE],
+                                     self.options.boundary_matrix_constant,
+                                     self.options.load_vector_constant)
         out.zero()
         dl.assemble( dl.derivative(res_form, m, dm), tensor=out)
 
     def setLinearizationPoint(self,x, gauss_newton_approx):
-        """ Set the values of the state and parameter
-            for the incremental forward and adjoint solvers. """
-
+        """
+        Set the values of the state and parameter
+        for the incremental forward and adjoint solvers.
+        """
         x_fun = [vector2Function(x[i], self.Vh[i]) for i in range(3)]
 
-        f_form = self.varf_handler(*x_fun)
+        f_form = self.varf_handler(*x_fun,
+                                   self.Vh[STATE],
+                                   self.options.boundary_matrix_constant,
+                                   self.options.load_vector_constant)
 
         g_form = [None,None,None]
         for i in range(3):
             g_form[i] = dl.derivative(f_form, x_fun[i])
 
-        self.A, dummy = dl.assemble_system(dl.derivative(g_form[ADJOINT],x_fun[STATE]), g_form[ADJOINT], self.bc0)
-        self.At, dummy = dl.assemble_system(dl.derivative(g_form[STATE],x_fun[ADJOINT]),  g_form[STATE], self.bc0)
+        self.A, dummy = dl.assemble_system(
+                dl.derivative(g_form[ADJOINT],x_fun[STATE]), g_form[ADJOINT])
+        self.At, dummy = dl.assemble_system(
+                dl.derivative(g_form[STATE],x_fun[ADJOINT]),  g_form[STATE])
         self.C = dl.assemble(dl.derivative(g_form[ADJOINT],x_fun[PARAMETER]))
-        [bc.zero(self.C) for bc in self.bc0]
 
         if self.solver_fwd_inc is None:
             self.solver_fwd_inc = self._createLUSolver()
@@ -135,28 +149,27 @@ class PDEVariationalProblem(PDEProblem):
             self.Wmm = None
         else:
             self.Wuu = dl.assemble(dl.derivative(g_form[STATE],x_fun[STATE]))
-            [bc.zero(self.Wuu) for bc in self.bc0]
             Wuu_t = Transpose(self.Wuu)
-            [bc.zero(Wuu_t) for bc in self.bc0]
             self.Wuu = Transpose(Wuu_t)
             self.Wmu = dl.assemble(dl.derivative(g_form[PARAMETER],x_fun[STATE]))
             Wmu_t = Transpose(self.Wmu)
-            [bc.zero(Wmu_t) for bc in self.bc0]
             self.Wmu = Transpose(Wmu_t)
             self.Wmm = dl.assemble(dl.derivative(g_form[PARAMETER],x_fun[PARAMETER]))
 
     def solveIncremental(self, out, rhs, is_adj):
-        """ If :code:`is_adj == False`:
+        """
+        If :code:`is_adj == False`:
             Solve the forward incremental system:
             Given :math:`u, m`, find :math:`\\tilde{u}` such that
-
-                .. math:: \\delta_{pu} F(u, m, p; \\hat{p}, \\tilde{u}) = \\mbox{rhs},\\quad \\forall \\hat{p}.
+                .. math::
+                \\delta_{pu} F(u, m, p; \\hat{p}, \\tilde{u}) = \\mbox{rhs},\\quad \\forall \\hat{p}.
 
             If :code:`is_adj == True`:
             Solve the adjoint incremental system:
             Given :math:`u, m`, find :math:`\\tilde{p}` such that
 
-                .. math:: \\delta_{up} F(u, m, p; \\hat{u}, \\tilde{p}) = \\mbox{rhs},\\quad \\forall \\hat{u}.
+                .. math::
+                \\delta_{up} F(u, m, p; \\hat{u}, \\tilde{p}) = \\mbox{rhs},\\quad \\forall \\hat{u}.
         """
         if is_adj:
             self.n_calls["incremental_adjoint"] += 1
@@ -168,7 +181,9 @@ class PDEVariationalProblem(PDEProblem):
     def apply_ij(self,i,j, dir, out):
         """
             Given :math:`u, m, p`; compute
-            :math:`\\delta_{ij} F(u, m, p; \\hat{i}, \\tilde{j})` in the direction :math:`\\tilde{j} =` :code:`dir`,
+            :math:
+            `\\delta_{ij} F(u, m, p; \\hat{i}, \\tilde{j})` in the direction
+            :math:`\\tilde{j} =` :code:`dir`,
             :math:`\\forall \\hat{i}`.
         """
         KKT = {}
@@ -204,9 +219,6 @@ class PDEVariationalProblem(PDEProblem):
 
         out.zero()
         dl.assemble(form, tensor=out)
-
-        if i in [STATE,ADJOINT]:
-            [bc.apply(out) for bc in self.bc0]
 
     def _createLUSolver(self):
         return PETScLUSolver(self.Vh[STATE].mesh().mpi_comm() )

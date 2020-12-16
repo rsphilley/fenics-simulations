@@ -40,10 +40,10 @@ class FilePaths():
     def __init__(self, options):
 
         #=== Key Strings ===#
-        project_name = 'poisson_linear_2d_'
+        project_name = 'elliptic_linear_neumann_2d_'
         data_options = 'n%d'%(options.num_nodes)
         self.directory_dataset =\
-                '../../../datasets/fenics/poisson_linear_2d/' + data_options + '/'
+                '../../../datasets/fenics/elliptic_linear_neumann_2d/' + data_options + '/'
 
         #=== File Name Properties ===#
         if options.generate_train_data == True:
