@@ -19,7 +19,7 @@ from attrdict import AttrDict
 from utils_mesh.construct_mesh_1d import construct_mesh
 from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_io.load_prior import load_prior
-# from utils_prior.draw_from_distribution import draw_from_distribution
+from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fenics
 from utils_fenics.apply_mass_matrix import apply_mass_matrix
 from utils_io.load_parameters import load_parameters
@@ -30,10 +30,9 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.construct_system_matrices_elliptic_linear_neumann import\
+from utils_project.construct_system_matrices_elliptic_linear_not_dirichlet import\
         construct_system_matrices, load_system_matrices
-from utils_project.solve_elliptic_linear_1d_assembled import solve_pde_assembled
-from utils_project.solve_elliptic_linear_1d_fenics import solve_pde_fenics
+from utils_project.solve_elliptic_linear_neumann_1d_assembled import solve_pde_assembled
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -78,13 +77,13 @@ if __name__ == "__main__":
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == 1:
         prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
-        # draw_from_distribution(filepaths,
-        #                        prior_mean, prior_covariance_cholesky, dof,
-        #                        positivity_constraint_identity, 0.5,
-        #                        num_samples = options.num_data)
-        draw_from_distribution_fenics(filepaths,
-                                      Vh, prior, dof,
-                                      num_samples = options.num_data)
+        draw_from_distribution(filepaths,
+                               prior_mean, prior_covariance_cholesky, dof,
+                               positivity_constraint_identity, 0.5,
+                               num_samples = options.num_data)
+        # draw_from_distribution_fenics(filepaths,
+        #                               Vh, prior, dof,
+        #                               num_samples = options.num_data)
 
     #=== Load Parameters ===#
     parameters = load_parameters(filepaths, dof, options.num_data)

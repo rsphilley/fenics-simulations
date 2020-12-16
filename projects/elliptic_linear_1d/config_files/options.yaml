@@ -7,11 +7,11 @@ order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : False
-generate_test_data : True
+generate_train_data : True
+generate_test_data : False
 
 #=== Number of Data ===#
-num_data : 200
+num_data : 10
 
 #=== Parameter Options ===#
 construct_prior : 1
@@ -31,9 +31,9 @@ boundary_conditions_neumann : True
 construct_and_save_matrices : True
 
 #=== Plotting ===#
-plot_parameters : False
-plot_solutions : False
-plot_mesh : False
+plot_parameters : True
+plot_solutions : True
+plot_mesh : True
 
 #=== Random Seed ===#
 random_seed : 4

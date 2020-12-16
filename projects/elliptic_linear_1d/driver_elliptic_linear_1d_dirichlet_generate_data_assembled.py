@@ -32,8 +32,8 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 from utils_project.filepaths import FilePaths
 from utils_project.construct_system_matrices_elliptic_linear_dirichlet import\
         construct_system_matrices, load_system_matrices
-from utils_project.solve_elliptic_linear_1d_assembled import solve_pde_assembled
-from utils_project.solve_elliptic_linear_1d_fenics import solve_pde_fenics
+from utils_project.solve_elliptic_linear_dirichlet_1d_assembled import solve_pde_assembled
+from utils_project.solve_elliptic_linear_dirichlet_1d_fenics import solve_pde_fenics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

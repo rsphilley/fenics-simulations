@@ -35,8 +35,8 @@ prior_type_matern : False
 prior_kern_type : 'm32'
 prior_cov_length : 0.08
 
-#=== Construct and Save Matrices ===#
-construct_and_save_matrices : True
+#=== Construct and Save Prematrices ===#
+construct_and_save_prematrices : 0
 construct_and_save_boundary_matrices : 0
 
 #=== PDE Properties ===#
