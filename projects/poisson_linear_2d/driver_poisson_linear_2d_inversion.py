@@ -52,8 +52,8 @@ if __name__ == "__main__":
 #                              Inversion Options                              #
 ###############################################################################
     #=== True Parameter Options ===#
-    true_parameter_prior = False
-    true_parameter_specific = True
+    true_parameter_prior = True
+    true_parameter_specific = False
 
     #=== Prior Options ===#
     prior_scalar_yaml = True
@@ -67,16 +67,14 @@ if __name__ == "__main__":
     compute_trace = False
 
     #=== Plotting Options ===#
-    use_hippylib_plotting = False # to display, comment out import of my plotting script
-    use_my_plotting = True
-    colourbar_limit_parameter_min = 0
-    colourbar_limit_parameter_max = 6
-    colourbar_limit_state = 2
+    colourbar_limit_parameter_min = -4
+    colourbar_limit_parameter_max = 4
+    colourbar_limit_state = 4
     colourbar_limit_prior_variance = 1.2
     colourbar_limit_posterior_variance = 1.2
     cross_section_y = 0.0
-    cross_section_y_limit_min = 0
-    cross_section_y_limit_max = 6
+    cross_section_y_limit_min = -4
+    cross_section_y_limit_max = 4
 
 ###############################################################################
 #                                  Setting Up                                 #
@@ -151,24 +149,12 @@ if __name__ == "__main__":
         mtrue_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mtrue_array)
         mtrue = mtrue_dl.vector()
 
-    #=== Plot Prior and True Parameter ===#
-    if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(mtrue),
-                                    '',
-                                    filepaths.directory_figures + 'parameter_test.png',
-                                    (5,5),
-                                    (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
-    if use_hippylib_plotting == True:
-        vmax_parameter = max(mtrue.max(), misfit.d.max())
-        vmin_parameter = min(mtrue.min(), misfit.d.min())
-        plt.figure(figsize=(9,3))
-        nb.plot(dl.Function(Vh[PARAMETER], mtrue),
-                mytitle="True Parameter", subplot_loc=121,
-                vmin=vmin_parameter, vmax=vmax_parameter)
-        nb.plot(dl.Function(Vh[PARAMETER], prior.mean),
-                mytitle="Prior Mean", subplot_loc=122,
-                vmin=vmin_parameter, vmax=vmax_parameter)
-        plt.show()
+    #=== Plot Estimation ===#
+    plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(mtrue),
+                                '',
+                                filepaths.directory_figures + 'parameter_test.png',
+                                (5,5),
+                                (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
 
 ###############################################################################
 #                                  PDE Problem                                #
@@ -208,22 +194,11 @@ if __name__ == "__main__":
     parRandom.normal_perturb(noise_std_dev, misfit.d)
     misfit.noise_variance = noise_std_dev*noise_std_dev
 
-    #=== Plot True State and Observation Points ===#
-    if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh[STATE], np.array(utrue),
-                                    '',
-                                    filepaths.directory_figures + 'state_test.png',
-                                    (5,5), (0,colourbar_limit_state))
-    if use_hippylib_plotting == True:
-        vmax_state = max(utrue.max(), misfit.d.max())
-        vmin_state = min(utrue.min(), misfit.d.min())
-        plt.figure(figsize=(9,3))
-        nb.plot(dl.Function(Vh[STATE], utrue),
-                mytitle="True State", subplot_loc=121,
-                vmin=vmin_state, vmax=vmax_state)
-        nb.plot_pts(targets, misfit.d, mytitle="Observations", subplot_loc=122,
-                vmin=vmin_state, vmax=vmax_state)
-    print("Number of observation points: {0}".format(len(targets)))
+    #=== Plot True State ===#
+    plot_fem_function_fenics_2d(Vh[STATE], np.array(utrue),
+                                '',
+                                filepaths.directory_figures + 'state_test.png',
+                                (5,5), (0,colourbar_limit_state))
 
 ###############################################################################
 #                               Model and Solver                              #
@@ -240,189 +215,74 @@ if __name__ == "__main__":
         print( sep, "Test the gradient and the Hessian of the model", sep )
     modelVerify(model, m0.vector(), is_quadratic = False, verbose = (rank == 0) )
 
-    #=== Solver Parameters ===#
-    if rank == 0:
-        print( sep, "Find the MAP point", sep)
-    m = prior.mean.copy()
-    parameters = ReducedSpaceNewtonCG_ParameterList()
-    parameters["rel_tolerance"] = 1e-9
-    parameters["abs_tolerance"] = 1e-12
-    parameters["max_iter"]      = 25
-    parameters["globalization"] = "LS"
-    parameters["GN_iter"] = 5
-    if rank != 0:
-        parameters["print_level"] = -1
+    #=== Evaluate Gradient ===#
+    [u,m,p] = model.generate_vector()
+    model.solveFwd(u, [u,m,p])
+    model.solveAdj(p, [u,m,p])
+    mg = model.generate_vector(PARAMETER)
+    grad_norm = model.evalGradientParameter([u,m,p], mg)
 
-    #=== Solve ===#
-    if rank == 0:
-        parameters.showMe()
-    solver = ReducedSpaceNewtonCG(model, parameters)
-
-    start_time_solver = time.time()
-    x = solver.solve([None, m, None])
-    elapsed_time_solver = time.time() - start_time_solver
-    print('Time taken to solve: %.4f' %(elapsed_time_solver))
-
-    #=== Print Solver Information ===#
-    if rank == 0:
-        if solver.converged:
-            print( "\nConverged in ", solver.it, " iterations.")
-        else:
-            print( "\nNot Converged")
-
-        print ("Termination reason: ", solver.termination_reasons[solver.reason])
-        print ("Final gradient norm: ", solver.final_grad_norm)
-        print ("Final cost: ", solver.final_cost)
-
-    #=== Plot Estimation ===#
-    if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(x[PARAMETER]),
-                                    '',
-                                    filepaths.directory_figures + 'parameter_pred.png',
-                                    (5,5),
-                                    (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
-        plot_fem_function_fenics_2d(Vh[STATE], np.array(x[STATE]),
-                                    '',
-                                    filepaths.directory_figures + 'state_pred.png',
-                                    (5,5), (0,colourbar_limit_state))
-    if use_hippylib_plotting == True:
-        plt.figure(figsize=(9,3))
-        nb.plot(dl.Function(Vh[PARAMETER], x[PARAMETER]),
-                subplot_loc=122,mytitle="Parameter Pred",
-                vmin=vmin_parameter, vmax=vmax_parameter)
-        nb.plot(dl.Function(Vh[PARAMETER], mtrue),
-                mytitle="True Parameter", subplot_loc=121,
-                vmin=vmin_parameter, vmax=vmax_parameter)
-        # nb.plot(dl.Function(Vh[STATE], x[STATE]),
-        #         subplot_loc=121,mytitle="State Pred",
-        #         vmin=vmin_state, vmax=vmax_state)
-        plt.show()
-
-###############################################################################
-#                           Uncertainty Quantification                        #
-###############################################################################
-    if rank == 0:
-        print (sep, "Compute the low rank Gaussian Approximation of the posterior", sep)
-
-    model.setPointForHessianEvaluations(x, gauss_newton_approx = False)
-    Hmisfit = ReducedHessian(model, misfit_only=True)
-    k = 50
+    #=== Compute Gaussian Posterior ===#
+    H = ReducedHessian(model, misfit_only=True)
+    k = 80
     p = 20
-    if rank == 0:
-        print ("Double Pass Algorithm. Requested eigenvectors: {0}; Oversampling {1}.".format(k,p) )
-
+    print( "Single Pass Algorithm. Requested eigenvectors: {0}; Oversampling {1}.".format(k,p) )
     Omega = MultiVector(x[PARAMETER], k+p)
     parRandom.normal(1., Omega)
+    lmbda, V = doublePassG(H, prior.R, prior.Rsolver, Omega, k)
+    posterior = GaussianLRPosterior(prior, lmbda, V)
 
-    start_time_laplace = time.time()
-    d, U = doublePassG(Hmisfit, prior.R, prior.Rsolver, Omega, k, s=1, check=False)
-    posterior = GaussianLRPosterior(prior, d, U)
-    posterior.mean = x[PARAMETER]
-    elapsed_time_laplace = time.time() - start_time_laplace
-    print('Time taken to form Laplacian approximation: %.4f' %(elapsed_time_laplace))
+    #=== Compute MAP Point ===#
+    H.misfit_only = False
 
-    post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)
-    if rank == 0:
-        print("Posterior trace {0:5e}; Prior trace {1:5e}; Correction trace {2:5e}"\
-                .format(post_tr, prior_tr, corr_tr))
+    solver = CGSolverSteihaug()
+    solver.set_operator(H)
+    solver.set_preconditioner( posterior.Hlr )
+    solver.parameters["print_level"] = 1
+    solver.parameters["rel_tolerance"] = 1e-6
+    solver.solve(m, -mg)
+    model.solveFwd(u, [u,m,p])
 
-    post_pw_variance, pr_pw_variance, corr_pw_variance =\
-            posterior.pointwise_variance(method="Randomized", r=200)
+    total_cost, reg_cost, misfit_cost = model.cost([u,m,p])
+    print("Total cost {0:5g}; Reg Cost {1:5g}; Misfit {2:5g}"\
+                    .format(total_cost, reg_cost, misfit_cost))
 
-    kl_dist = posterior.klDistanceFromPrior()
-    if rank == 0:
-        print ("KL-Distance from prior: ", kl_dist)
+    posterior.mean = m
 
-    with dl.XDMFFile(mesh.mpi_comm(), "results/pointwise_variance.xdmf") as fid:
-        fid.parameters["functions_share_mesh"] = True
-        fid.parameters["rewrite_function_mesh"] = False
+    #=== Plot Estimation ===#
+    plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(m),
+                                '',
+                                filepaths.directory_figures + 'parameter_pred.png',
+                                (5,5),
+                                (colourbar_limit_parameter_min,colourbar_limit_parameter_max))
 
-        fid.write(vector2Function(post_pw_variance, Vh[PARAMETER], name="Posterior"), 0)
-        fid.write(vector2Function(pr_pw_variance, Vh[PARAMETER], name="Prior"), 0)
-        fid.write(vector2Function(corr_pw_variance, Vh[PARAMETER], name="Correction"), 0)
-
-    if rank == 0:
-        print (sep, "Save State, Parameter, Adjoint, and observation in paraview", sep)
-    xxname = ["state", "parameter", "adjoint"]
-    xx = [vector2Function(x[i], Vh[i], name=xxname[i]) for i in range(len(Vh))]
-
-    with dl.XDMFFile(mesh.mpi_comm(), "results/results.xdmf") as fid:
-        fid.parameters["functions_share_mesh"] = True
-        fid.parameters["rewrite_function_mesh"] = False
-
-        fid.write(xx[STATE],0)
-        fid.write(vector2Function(utrue, Vh[STATE], name = "true state"), 0)
-        fid.write(xx[PARAMETER],0)
-        fid.write(vector2Function(mtrue, Vh[PARAMETER], name = "true parameter"), 0)
-        fid.write(vector2Function(prior.mean, Vh[PARAMETER], name = "prior mean"), 0)
-        fid.write(xx[ADJOINT],0)
-
-    exportPointwiseObservation(Vh[STATE], misfit.B, misfit.d, "results/poisson_observation")
-
-    if rank == 0:
-        print(sep,
-              "Generate samples from Prior and Posterior\n","Export generalized Eigenpairs",
-              sep)
-
-    nsamples = 50
-    noise = dl.Vector()
-    posterior.init_vector(noise,"noise")
-    s_prior = dl.Function(Vh[PARAMETER], name="sample_prior")
-    s_post = dl.Function(Vh[PARAMETER], name="sample_post")
-    with dl.XDMFFile(mesh.mpi_comm(), "results/samples.xdmf") as fid:
-        fid.parameters["functions_share_mesh"] = True
-        fid.parameters["rewrite_function_mesh"] = False
-        for i in range(nsamples):
-            parRandom.normal(1., noise)
-            posterior.sample(noise, s_prior.vector(), s_post.vector())
-            fid.write(s_prior, i)
-            fid.write(s_post, i)
-
-    #=== Save eigenvalues for printing ===#
-    U.export(Vh[PARAMETER], "results/evect.xdmf", varname = "gen_evects", normalize = True)
-    if rank == 0:
-        np.savetxt("results/eigevalues.dat", d)
-
-    if rank == 0:
-        plt.figure()
-        plt.plot(range(0,k), d, 'b*', range(0,k), np.ones(k), '-r')
-        plt.yscale('log')
-        plt.show()
-
+###############################################################################
+#                          Uncertainty Quantification                         #
+###############################################################################
     #=== Compute Trace ===#
     if compute_trace:
-        post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=200)
-        print("Posterior trace {0:5e}; Prior trace {1:5e}; Correction trace {2:5e}"\
-                .format(post_tr, prior_tr, corr_tr) )
+        post_tr, prior_tr, corr_tr = posterior.trace(method="Randomized", r=300)
+        print("Posterior trace {0:5g}; Prior trace {1:5g}; Correction trace {2:5g}"\
+                        .format(post_tr, prior_tr, corr_tr))
 
     #=== Compute Variances ===#
     post_pw_variance, pr_pw_variance, corr_pw_variance =\
-            posterior.pointwise_variance(method="Randomized", r=200)
+            posterior.pointwise_variance(method="Randomized", r=300)
 
     #=== Plot Variances ===#
-    if use_my_plotting == True:
-        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(pr_pw_variance),
-                                    '',
-                                    filepaths.directory_figures + 'prior_variance.png',
-                                    (5,5), (0,colourbar_limit_prior_variance))
-        plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(post_pw_variance),
-                                    '',
-                                    filepaths.directory_figures + 'posterior_covariance.png',
-                                    (5,5), (0,colourbar_limit_posterior_variance))
-    if use_hippylib_plotting == True:
-        vmin = 0
-        vmax = 0.5
-        plt.figure(figsize=(9,3))
-        nb.plot(dl.Function(Vh[PARAMETER], pr_pw_variance),
-                mytitle="Prior Variance", subplot_loc=121, vmin=vmin, vmax=vmax)
-        nb.plot(dl.Function(Vh[PARAMETER], post_pw_variance),
-                mytitle="Posterior Variance", subplot_loc=122, vmin=vmin, vmax=vmax)
-        plt.show()
+    plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(pr_pw_variance),
+                                '',
+                                filepaths.directory_figures + 'prior_variance.png',
+                                (5,5), (0,colourbar_limit_prior_variance))
+    plot_fem_function_fenics_2d(Vh[PARAMETER], np.array(post_pw_variance),
+                                '',
+                                filepaths.directory_figures + 'posterior_covariance.png',
+                                (5,5), (0,colourbar_limit_posterior_variance))
 
     #=== Plot Cross-Section with Error Bounds ===#
     plot_cross_section(Vh[PARAMETER],
                        np.array(mtrue),
-                       np.array(x[PARAMETER]), np.array(post_pw_variance),
+                       np.array(m), np.array(post_pw_variance),
                        (-1,1), cross_section_y,
                        '',
                        filepaths.directory_figures + 'parameter_cross_section.png',
@@ -430,6 +290,6 @@ if __name__ == "__main__":
 
     #=== Relative Error ===#
     relative_error = np.linalg.norm(
-            np.array(mtrue) - np.array(x[PARAMETER]), ord=2)/\
+            np.array(mtrue) - np.array(m), ord=2)/\
                     np.linalg.norm(np.array(mtrue), ord=2)
     print('Relative Error: %4f' %(relative_error))

@@ -24,6 +24,7 @@ def pde_varf_heat(u,m,p,
     dx = Measure('dx', domain=mesh, subdomain_data=domains)
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
-    return m*ufl.inner(ufl.grad(u), ufl.grad(p))*dx +\
+    return ufl.inner(ufl.grad(u), ufl.grad(p))*dx +\
            ufl.inner(boundary_matrix_constant*u,p)*ds(1) +\
-           load_vector_constant*p*ds(2)
+           load_vector_constant*p*ds(2) -\
+           ufl.inner(m,p)*dx

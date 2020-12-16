@@ -40,9 +40,9 @@ class FilePaths():
     def __init__(self, options):
 
         #=== Key Strings ===#
-        project_name = 'poisson_2D_'
+        project_name = 'poisson_linear_2d_'
         data_options = 'n%d'%(options.num_nodes)
-        self.directory_dataset = '../../../datasets/fenics/poisson_2d/' +\
+        self.directory_dataset = '../../../datasets/fenics/poisson_linear_2d/' +\
             data_options + '/'
 
         #=== File Name Properties ===#
@@ -73,11 +73,11 @@ class FilePaths():
         self.mesh_nodes = mesh_directory + mesh_name + '_nodes.csv'
         self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
 
-        #=== Pre-Matrices ===#
-        self.premass = self.directory_dataset +\
-                'premass_' + data_options
-        self.prestiffness = self.directory_dataset +\
-                'prestiffness_' + data_options
+        #=== FEM Matrices ===#
+        self.stiffness_matrix = self.directory_dataset +\
+                'stiffness_matrix_' + data_options
+        self.mass_matrix = self.directory_dataset +\
+                'mass_matrix_' + data_options
         self.boundary_matrix = self.directory_dataset +\
                 'boundary_matrix_' + data_options
         self.load_vector = self.directory_dataset +\

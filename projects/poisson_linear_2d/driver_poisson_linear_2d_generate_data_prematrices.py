@@ -26,8 +26,7 @@ from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 from utils_fenics.construct_boundary_matrices_and_load_vector import\
         construct_boundary_matrices_and_load_vector
 from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
-from utils_misc.positivity_constraints import positivity_constraint_exp,\
-                                             positivity_constraint_log_exp
+from utils_misc.positivity_constraints import positivity_constraint_identity
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
 
@@ -48,8 +47,9 @@ if __name__ == "__main__":
     #   Setting Up   #
     ##################
     #=== Plotting Options ===#
-    colourbar_limit_parameter = 6
-    colourbar_limit_state = 2
+    colourbar_limit_min_parameter = -4
+    colourbar_limit_max_parameter = 4
+    colourbar_limit_state = 4
 
     #=== Options ===#
     with open('config_files/options.yaml') as f:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof_meta)
         draw_from_distribution(filepaths,
                                prior_mean, prior_covariance_cholesky, dof_meta,
-                               positivity_constraint_log_exp, 0.5,
+                               positivity_constraint_identity, 0.5,
                                num_samples = options.num_data)
 
     #=== Load Parameters ===#
@@ -114,7 +114,9 @@ if __name__ == "__main__":
             plot_fem_function_fenics_2d(meta_space, parameters[n,:],
                                         '',
                                         filepaths.directory_figures + 'parameter_%d.png' %(n),
-                                        (5,5), (0,colourbar_limit_parameter))
+                                        (5,5),
+                                        (colourbar_limit_min_parameter,
+                                         colourbar_limit_max_parameter))
 
     ###################
     #   FEM Objects   #
@@ -124,7 +126,7 @@ if __name__ == "__main__":
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
         construct_system_matrices(filepaths, meta_space)
-    forward_matrix, mass_matrix = load_system_matrices(options, filepaths)
+    stiffness_matrix, mass_matrix = load_system_matrices(options, filepaths)
 
     #=== Construct or Load Boundary Matrix and Load Vector ===#
     if options.construct_and_save_boundary_matrices == 1:
@@ -138,7 +140,7 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                forward_matrix, mass_matrix,
+                                stiffness_matrix, mass_matrix,
                                 boundary_matrix, load_vector)
 
     #=== Plot Solution ===#
