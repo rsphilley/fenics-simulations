@@ -11,6 +11,7 @@ def solve_pde_assembled(options, filepaths,
                         parameters,
                         forward_matrix, mass_matrix):
 
+    forward_matrix = np.linalg.inv(forward_matrix)
     state = np.zeros((options.num_data, options.num_nodes))
 
     #=== Solving PDE ===#

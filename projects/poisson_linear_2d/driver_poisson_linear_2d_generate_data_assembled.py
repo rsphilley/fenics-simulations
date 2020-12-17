@@ -23,7 +23,7 @@ from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
-from utils_fenics.construct_system_matrices_poisson_linear import\
+from utils_fenics.construct_system_matrices_poisson_heat_linear import\
         construct_system_matrices, load_system_matrices
 from utils_fenics.construct_boundary_matrices_and_load_vector import\
         construct_boundary_matrices_and_load_vector
@@ -34,7 +34,7 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.solve_poisson_linear_2d_assembled import solve_pde_assembled
+from utils_project.solve_poisson_heat_linear_assembled import solve_pde_assembled
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -121,18 +121,18 @@ if __name__ == "__main__":
     ###################
     #   FEM Objects   #
     ###################
-    #=== Construct or Load Matrices ===#
-    if options.construct_and_save_matrices == 1:
-        if not os.path.exists(filepaths.directory_dataset):
-            os.makedirs(filepaths.directory_dataset)
-        construct_system_matrices(filepaths, meta_space)
-    stiffness_matrix, mass_matrix = load_system_matrices(options, filepaths)
-
     #=== Construct or Load Boundary Matrix and Load Vector ===#
     if options.construct_and_save_boundary_matrices == 1:
         construct_boundary_matrices_and_load_vector(filepaths, fe_space,
                 options.boundary_matrix_constant, options.load_vector_constant)
     boundary_matrix, load_vector = load_boundary_matrices_and_load_vector(filepaths, dof_fe)
+
+    #=== Construct or Load Matrices ===#
+    if options.construct_and_save_matrices == 1:
+        if not os.path.exists(filepaths.directory_dataset):
+            os.makedirs(filepaths.directory_dataset)
+        construct_system_matrices(filepaths, meta_space, boundary_matrix)
+    forward_matrix, mass_matrix = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
@@ -140,8 +140,8 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                stiffness_matrix, mass_matrix,
-                                boundary_matrix, load_vector)
+                                forward_matrix, mass_matrix,
+                                load_vector)
 
     #=== Plot Solution ===#
     if options.plot_solutions == 1:

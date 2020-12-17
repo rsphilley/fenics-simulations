@@ -23,7 +23,7 @@ from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
-from utils_fenics.construct_system_matrices_screened_poisson_linear_neumann import\
+from utils_fenics.construct_system_matrices_screened_poisson_linear import\
         construct_system_matrices, load_system_matrices
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 from utils_mesh.observation_points import form_interior_observation_points,\
@@ -44,10 +44,10 @@ if __name__ == "__main__":
     #   Setting Up   #
     ##################
     #=== Plotting Options ===#
-    colourbar_limit_min_parameter = -4
-    colourbar_limit_max_parameter = 4
-    colourbar_limit_min_state = -10
-    colourbar_limit_max_state = 10
+    colourbar_limit_min_parameter = 0
+    colourbar_limit_max_parameter = 6
+    colourbar_limit_min_state = 0
+    colourbar_limit_max_state = 4
 
     #=== Options ===#
     with open('config_files/options.yaml') as f:

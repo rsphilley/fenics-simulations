@@ -8,19 +8,19 @@ order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : 0
-generate_test_data : 1
+generate_train_data : True
+generate_test_data : False
 
 #=== Number of Data ===#
-num_data : 200
+num_data : 20
 
 #=== Parameter Options ===#
-construct_prior : 0
-draw_and_save_parameters : 0
+construct_prior : True
+draw_and_save_parameters : True
 
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp : True
-prior_mean_blp : 2.5
+prior_mean_blp : 2.0
 prior_gamma_blp : 0.1
 prior_delta_blp : 0.5
 
@@ -35,8 +35,8 @@ prior_type_matern : False
 prior_kern_type : 'm32'
 prior_cov_length : 0.08
 
-#=== Construct and Save Matrices ===#
-construct_and_save_matrices : True
+#=== Construct and Save Prematrices ===#
+construct_and_save_prematrices : 0
 construct_and_save_boundary_matrices : 0
 
 #=== PDE Properties ===#
@@ -44,9 +44,9 @@ boundary_matrix_constant : 0.5
 load_vector_constant : -1
 
 #=== Plotting ===#
-plot_parameters : 1
-plot_solutions : 1
-plot_mesh : 1
+plot_parameters : True
+plot_solutions : True
+plot_mesh : True
 
 #=== Random Seed ===#
 random_seed : 4

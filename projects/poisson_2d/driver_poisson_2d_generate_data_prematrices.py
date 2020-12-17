@@ -35,7 +35,7 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 # Import project utilities
 from utils_project.filepaths import FilePaths
 from utils_project.weak_forms import stiffness
-from utils_project.solve_poisson_2d import solve_pde_prematrices
+from utils_project.solve_poisson_heat import solve_pde_prematrices
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

@@ -30,7 +30,7 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.construct_system_matrices_screened_poisson_linear_dirichlet import\
+from utils_project.construct_system_matrices_screened_poisson_linear_dirichlet_1d import\
         construct_system_matrices, load_system_matrices
 from utils_project.solve_linear_dirichlet_1d_assembled import solve_pde_assembled
 from utils_project.solve_screened_poisson_linear_dirichlet_1d_fenics import solve_pde_fenics
