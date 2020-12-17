@@ -29,8 +29,8 @@ from utils_fenics.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.pde_varf_heat import pde_varf_heat
-from utils_project.pde_variational_problem_heat import PDEVariationalProblemHeat
+from utils_project.pde_varf_elliptic_neumann import pde_varf_elliptic_neumann
+from utils_project.pde_variational_problem_neumann import PDEVariationalProblemNeumann
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 #                                  PDE Problem                                #
 ###############################################################################
     #=== Variational Form ===#
-    pde = PDEVariationalProblemHeat(options, Vh, pde_varf_heat, is_fwd_linear=True)
+    pde = PDEVariationalProblemNeumann(Vh, pde_varf_elliptic_neumann, is_fwd_linear=True)
 
     #=== PDE Solver ===#
     pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())

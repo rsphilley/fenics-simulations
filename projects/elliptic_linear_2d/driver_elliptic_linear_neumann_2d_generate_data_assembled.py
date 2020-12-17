@@ -125,7 +125,7 @@ if __name__ == "__main__":
         if not os.path.exists(filepaths.directory_dataset):
             os.makedirs(filepaths.directory_dataset)
         construct_system_matrices(filepaths, meta_space)
-    stiffness_matrix, mass_matrix = load_system_matrices(options, filepaths)
+    forward_matrix, mass_matrix = load_system_matrices(options, filepaths)
 
     ##########################
     #   Computing Solution   #
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     #=== Solve PDE with Prematrices ===#
     state = solve_pde_assembled(options, filepaths,
                                 parameters,
-                                stiffness_matrix, mass_matrix)
+                                forward_matrix, mass_matrix)
 
     #=== Plot Solution ===#
     if options.plot_solutions == 1:

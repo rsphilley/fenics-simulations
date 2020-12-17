@@ -9,10 +9,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def solve_pde_assembled(options, filepaths,
                         parameters,
-                        stiffness_matrix, mass_matrix):
+                        forward_matrix, mass_matrix):
 
-
-    forward_matrix = np.linalg.inv(stiffness_matrix)
     state = np.zeros((options.num_data, options.num_nodes))
 
     #=== Solving PDE ===#
