@@ -30,12 +30,11 @@ def plot_fem_function_fenics_1d(function_space, nodal_values,
     plt.figure(figsize = fig_size)
     ax = plt.gca()
     plt.title(title)
-    plt.plot(coords, nodal_values, 'k-', label='Parameter')
+    plt.plot(coords, nodal_values, 'k-')
     plt.xlim(x_axis_limits)
     plt.ylim(y_axis_limits)
-    plt.legend(loc="upper left")
     plt.xlabel('x-coordinate')
-    plt.ylabel('Parameter Value')
+    plt.ylabel('Value')
 
     #=== Save figure ===#
     plt.savefig(filepath, dpi=100, bbox_inches = 'tight', pad_inches = 0)

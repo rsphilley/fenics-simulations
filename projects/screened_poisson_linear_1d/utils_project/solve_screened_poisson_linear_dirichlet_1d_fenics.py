@@ -8,9 +8,7 @@ from hippylib import *
 # Import src code
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_hippylib.pde_varf_screened_poisson_source import pde_varf
-
-# Import project utilities
-from utils_project.pde_variational_problem import PDEVariationalProblem
+from utils_hippylib.pde_variational_problem_dirichlet import PDEVariationalProblem
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

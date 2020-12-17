@@ -11,6 +11,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                 Draw Samples                                #
 ###############################################################################
+# NOTE: It seems that there is some implicit random seed that ensures the same
+# values are drawn
+
 def draw_from_distribution_fenics(filepaths,
                                   Vh, prior, num_nodes,
                                   num_samples = 0):

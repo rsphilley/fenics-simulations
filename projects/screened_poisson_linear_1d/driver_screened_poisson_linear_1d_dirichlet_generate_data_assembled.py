@@ -46,8 +46,10 @@ if __name__ == "__main__":
     #   Setting Up   #
     ##################
     #=== Plotting Options ===#
-    limit_min_parameter = -4
-    limit_max_parameter = 4
+    limit_min_parameter = 0
+    limit_max_parameter = 7
+    limit_min_state = 0
+    limit_max_state = 1.5
 
     #=== Options ===#
     with open('config_files/options.yaml') as f:
@@ -78,13 +80,13 @@ if __name__ == "__main__":
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == 1:
         prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
-        # draw_from_distribution(filepaths,
-        #                        prior_mean, prior_covariance_cholesky, dof,
-        #                        positivity_constraint_identity, 0.5,
-        #                        num_samples = options.num_data)
-        draw_from_distribution_fenics(filepaths,
-                                      Vh, prior, dof,
-                                      num_samples = options.num_data)
+        draw_from_distribution(filepaths,
+                               prior_mean, prior_covariance_cholesky, dof,
+                               positivity_constraint_identity, 0.5,
+                               num_samples = options.num_data)
+        # draw_from_distribution_fenics(filepaths,
+        #                               Vh, prior, dof,
+        #                               num_samples = options.num_data)
 
     #=== Load Parameters ===#
     parameters = load_parameters(filepaths, dof, options.num_data)
@@ -125,7 +127,7 @@ if __name__ == "__main__":
                                         filepaths.directory_figures + 'state_%d.png' %(n),
                                         (5,5),
                                         (options.left_boundary, options.right_boundary),
-                                        (limit_min_parameter,limit_max_parameter))
+                                        (limit_min_state,limit_max_state))
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)

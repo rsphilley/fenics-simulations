@@ -25,7 +25,8 @@ from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 from utils_fenics.construct_system_matrices_screened_poisson_linear import\
         construct_system_matrices, load_system_matrices
-from utils_misc.positivity_constraints import positivity_constraint_log_exp
+from utils_misc.positivity_constraints import\
+        positivity_constraint_log_exp, positivity_constraint_identity
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
 

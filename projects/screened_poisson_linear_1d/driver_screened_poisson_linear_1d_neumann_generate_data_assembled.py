@@ -24,7 +24,7 @@ from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fen
 from utils_fenics.apply_mass_matrix import apply_mass_matrix
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
-from utils_fenics.construct_system_matrices_screened_poisson_linear_neumann import\
+from utils_fenics.construct_system_matrices_screened_poisson_linear import\
         construct_system_matrices, load_system_matrices
 from utils_misc.positivity_constraints import positivity_constraint_identity
 from utils_mesh.observation_points import form_interior_observation_points,\
@@ -32,8 +32,7 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.solve_screened_poisson_linear_neumann_assembled import\
-        solve_pde_assembled
+from utils_project.solve_linear_neumann_assembled import solve_pde_assembled
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -46,8 +45,10 @@ if __name__ == "__main__":
     #   Setting Up   #
     ##################
     #=== Plotting Options ===#
-    limit_min_parameter = -4
-    limit_max_parameter = 4
+    limit_min_parameter = 0
+    limit_max_parameter = 7
+    limit_min_state = 0
+    limit_max_state = 10
 
     #=== Options ===#
     with open('config_files/options.yaml') as f:
@@ -125,7 +126,7 @@ if __name__ == "__main__":
                                         filepaths.directory_figures + 'state_%d.png' %(n),
                                         (5,5),
                                         (options.left_boundary, options.right_boundary),
-                                        (limit_min_parameter,limit_max_parameter))
+                                        (limit_min_state,limit_max_state))
 
     #=== Form Observation Data ===#
     obs_indices, _ = form_interior_observation_points(options, filepaths, Vh)

@@ -7,11 +7,11 @@ order_fe_space : 1
 order_meta_space : 1
 
 #=== Train or Test Set ===#
-generate_train_data : True
-generate_test_data : False
+generate_train_data : False
+generate_test_data : True
 
 #=== Number of Data ===#
-num_data : 10
+num_data : 200
 
 #=== Parameter Options ===#
 construct_prior : 1
@@ -19,7 +19,7 @@ draw_and_save_parameters : 1
 
 #=== Laplacian Prior Properties ===#
 prior_type_lp : True
-prior_mean_lp : 0.0
+prior_mean_lp : 4.0
 prior_gamma_lp : 0.1
 prior_delta_lp : 1.0
 
@@ -31,9 +31,8 @@ boundary_conditions_neumann : True
 construct_and_save_matrices : True
 
 #=== Plotting ===#
-plot_parameters : True
-plot_solutions : True
-plot_mesh : True
+plot_parameters : False
+plot_solutions : False
 
 #=== Random Seed ===#
 random_seed : 4
