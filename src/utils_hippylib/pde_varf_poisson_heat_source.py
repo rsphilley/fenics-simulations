@@ -4,9 +4,9 @@ import ufl
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def pde_varf_heat(u,m,p,
-                  Vh,
-                  boundary_matrix_constant, load_vector_constant):
+def pde_varf(u,m,p,
+             Vh,
+             boundary_matrix_constant, load_vector_constant):
     #=== Computational mesh ===#
     mesh = Vh.mesh()
     domains = MeshFunction("size_t", mesh, mesh.topology().dim())

@@ -23,6 +23,8 @@ from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_fenics.construct_system_matrices_poisson_linear import\
+        construct_system_matrices, load_system_matrices
 from utils_fenics.construct_boundary_matrices_and_load_vector import\
         construct_boundary_matrices_and_load_vector
 from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
@@ -32,8 +34,6 @@ from utils_mesh.observation_points import form_interior_observation_points,\
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.construct_system_matrices_poisson_linear_2d import\
-        construct_system_matrices, load_system_matrices
 from utils_project.solve_poisson_linear_2d_assembled import solve_pde_assembled
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"

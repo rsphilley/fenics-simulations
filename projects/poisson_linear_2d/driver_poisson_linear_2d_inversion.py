@@ -25,12 +25,12 @@ from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_mesh.observation_points import load_observation_points
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_hippylib.pde_varf_poisson_heat_source import pde_varf
+from utils_hippylib.pde_variational_problem_heat import PDEVariationalProblem
 from utils_fenics.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.pde_varf_heat import pde_varf_heat
-from utils_project.pde_variational_problem_heat import PDEVariationalProblemHeat
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 #                                  PDE Problem                                #
 ###############################################################################
     #=== Variational Form ===#
-    pde = PDEVariationalProblemHeat(options, Vh, pde_varf_heat, is_fwd_linear=True)
+    pde = PDEVariationalProblem(options, Vh, pde_varf, is_fwd_linear=True)
 
     #=== PDE Solver ===#
     pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())

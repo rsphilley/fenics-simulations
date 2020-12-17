@@ -7,6 +7,7 @@ from hippylib import *
 
 # Import src code
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
+from utils_hippylib.pde_varf_screened_poisson_source import pde_varf
 
 # Import project utilities
 from utils_project.pde_variational_problem import PDEVariationalProblem
@@ -18,9 +19,6 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def u_boundary(x, on_boundary):
     return on_boundary and (x[0] < dl.DOLFIN_EPS or x[0] > 1.0 - dl.DOLFIN_EPS )
-
-def pde_varf(u, m, p):
-    return dl.inner(dl.nabla_grad(u), dl.nabla_grad(p))*dl.dx + u*p*dl.dx - m*p*dl.dx
 
 def solve_pde_fenics(options, filepaths,
                      parameters,

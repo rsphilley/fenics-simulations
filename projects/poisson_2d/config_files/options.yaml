@@ -1,8 +1,8 @@
 #=== Mesh Properties ===#
 mesh_point_1 : [-1,-1]
 mesh_point_2 : [1,1]
-nx : 50
-ny : 50
+nx : 15
+ny : 15
 num_obs_points : 10
 order_fe_space : 1
 order_meta_space : 1

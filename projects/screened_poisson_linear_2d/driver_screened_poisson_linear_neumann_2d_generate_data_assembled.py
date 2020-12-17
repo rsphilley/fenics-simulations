@@ -23,16 +23,15 @@ from utils_io.load_prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
-from utils_io.load_fem_matrices import load_boundary_matrices_and_load_vector
+from utils_fenics.construct_system_matrices_screened_poisson_linear_neumann import\
+        construct_system_matrices, load_system_matrices
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 from utils_mesh.observation_points import form_interior_observation_points,\
                                           form_observation_data
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.construct_system_matrices_elliptic_linear_neumann_2d import\
-        construct_system_matrices, load_system_matrices
-from utils_project.solve_elliptic_linear_neumann_2d_assembled import solve_pde_assembled
+from utils_project.solve_linear_neumann_assembled import solve_pde_assembled
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

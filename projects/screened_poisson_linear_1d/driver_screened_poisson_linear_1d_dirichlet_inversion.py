@@ -24,6 +24,8 @@ from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_mesh.observation_points import load_observation_points
 from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
+from utils_hippylib.pde_varf_screened_poisson_source import pde_varf
+from utils_hippylib.pde_variational_problem_dirichlet import PDEVariationalProblem
 from utils_fenics.plot_cross_section import plot_cross_section
 
 # Import project utilities
@@ -36,9 +38,6 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def u_boundary(x, on_boundary):
     return on_boundary and (x[0] < dl.DOLFIN_EPS or x[0] > 1.0 - dl.DOLFIN_EPS)
-
-def pde_varf(u, m, p):
-    return dl.inner(dl.nabla_grad(u), dl.nabla_grad(p))*dl.dx + u*p*dl.dx - m*p*dl.dx
 
 def true_model(prior):
     noise = dl.Vector()

@@ -5,9 +5,8 @@ import ufl
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-class PDEVariationalProblemHeat(PDEProblem):
-    def __init__(self, options, Vh, varf_handler, is_fwd_linear = False):
-        self.options = options
+class PDEVariationalProblem(PDEProblem):
+    def __init__(self, Vh, varf_handler, is_fwd_linear = False):
         self.Vh = Vh
         self.varf_handler = varf_handler
 
@@ -52,10 +51,7 @@ class PDEVariationalProblemHeat(PDEProblem):
             u = dl.TrialFunction(self.Vh[STATE])
             m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
             p = dl.TestFunction(self.Vh[ADJOINT])
-            res_form = self.varf_handler(u, m, p,
-                                         self.Vh[STATE],
-                                         self.options.boundary_matrix_constant,
-                                         self.options.load_vector_constant)
+            res_form = self.varf_handler(u, m, p)
             A_form = ufl.lhs(res_form)
             b_form = ufl.rhs(res_form)
             A, b = dl.assemble_system(A_form, b_form)
@@ -65,10 +61,7 @@ class PDEVariationalProblemHeat(PDEProblem):
             u = vector2Function(x[STATE], self.Vh[STATE])
             m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
             p = dl.TestFunction(self.Vh[ADJOINT])
-            res_form = self.varf_handler(u, m, p,
-                                         self.Vh[STATE],
-                                         options.boundary_matrix_constant,
-                                         options.load_vector_constant)
+            res_form = self.varf_handler(u, m, p)
             dl.solve(res_form == 0, u)
             state.zero()
             state.axpy(1., u.vector())
@@ -89,10 +82,7 @@ class PDEVariationalProblemHeat(PDEProblem):
         p = dl.Function(self.Vh[ADJOINT])
         du = dl.TestFunction(self.Vh[STATE])
         dp = dl.TrialFunction(self.Vh[ADJOINT])
-        varf = self.varf_handler(u, m, p,
-                                 self.Vh[STATE],
-                                 self.options.boundary_matrix_constant,
-                                 self.options.load_vector_constant)
+        varf = self.varf_handler(u, m, p)
         adj_form = dl.derivative( dl.derivative(varf, u, du), p, dp )
         Aadj, dummy = dl.assemble_system(adj_form, ufl.inner(u,du)*ufl.dx)
         self.solver.set_operator(Aadj)
@@ -107,10 +97,7 @@ class PDEVariationalProblemHeat(PDEProblem):
         m = vector2Function(x[PARAMETER], self.Vh[PARAMETER])
         p = vector2Function(x[ADJOINT], self.Vh[ADJOINT])
         dm = dl.TestFunction(self.Vh[PARAMETER])
-        res_form = self.varf_handler(u, m, p,
-                                     self.Vh[STATE],
-                                     self.options.boundary_matrix_constant,
-                                     self.options.load_vector_constant)
+        res_form = self.varf_handler(u, m, p)
         out.zero()
         dl.assemble( dl.derivative(res_form, m, dm), tensor=out)
 
@@ -121,10 +108,7 @@ class PDEVariationalProblemHeat(PDEProblem):
         """
         x_fun = [vector2Function(x[i], self.Vh[i]) for i in range(3)]
 
-        f_form = self.varf_handler(*x_fun,
-                                   self.Vh[STATE],
-                                   self.options.boundary_matrix_constant,
-                                   self.options.load_vector_constant)
+        f_form = self.varf_handler(*x_fun)
 
         g_form = [None,None,None]
         for i in range(3):

@@ -24,20 +24,18 @@ from utils_prior.laplacian_prior import construct_laplacian_prior
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_mesh.observation_points import load_observation_points
 from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
+from utils_hippylib.pde_varf_screened_poisson_source import pde_varf
+from utils_hippylib.pde_variational_problem_neumann import PDEVariationalProblem
 from utils_fenics.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.pde_variational_problem_neumann import PDEVariationalProblemNeumann
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                                  Utilities                                  #
 ###############################################################################
-def pde_varf(u, m, p):
-    return dl.inner(dl.nabla_grad(u), dl.nabla_grad(p))*dl.dx + u*p*dl.dx - m*p*dl.dx
-
 def true_model(prior):
     noise = dl.Vector()
     prior.init_vector(noise,"noise")
@@ -149,7 +147,7 @@ if __name__ == "__main__":
 #                                  PDE Problem                                #
 ###############################################################################
     #=== Variational Form ===#
-    pde = PDEVariationalProblemNeumann(Vh, pde_varf, is_fwd_linear=True)
+    pde = PDEVariationalProblem(Vh, pde_varf, is_fwd_linear=True)
 
     #=== PDE Solver ===#
     pde.solver = PETScKrylovSolver(mesh.mpi_comm(), "cg", amg_method())

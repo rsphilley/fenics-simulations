@@ -21,11 +21,11 @@ from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_mesh.observation_points import load_observation_points
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_hippylib.pde_variational_problem_dirichlet import PDEVariationalProblem
 from utils_fenics.plot_cross_section import plot_cross_section
 
 # Import project utilities
 from utils_project.filepaths import FilePaths
-from utils_project.pde_variational_problem import PDEVariationalProblem
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     with open('config_files/options.yaml') as f:
         options = yaml.safe_load(f)
     options = AttrDict(options)
-    options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)
+    options.num_nodes = (options.nx + 1) * (options.ny + 1)
 
     #=== File Paths ===#
     filepaths = FilePaths(options)

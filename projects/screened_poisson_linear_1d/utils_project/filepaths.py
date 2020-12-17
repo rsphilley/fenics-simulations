@@ -30,13 +30,15 @@ class FilePaths():
         #=== Key Strings ===#
         data_options = 'n%d'%(options.num_nodes)
         if options.boundary_conditions_dirichlet == True:
-            project_name = 'elliptic_linear_dirichlet_1d_'
+            project_name = 'screened_poisson_linear_dirichlet_1d_'
             self.directory_dataset =\
-                    '../../../datasets/fenics/elliptic_linear_dirichlet_1d/' + data_options + '/'
+                    '../../../datasets/fenics/screened_poisson_linear_dirichlet_1d/' +\
+                    data_options + '/'
         if options.boundary_conditions_neumann == True:
-            project_name = 'elliptic_linear_neumann_1d_'
+            project_name = 'screened_poisson_linear_neumann_1d_'
             self.directory_dataset =\
-                    '../../../datasets/fenics/elliptic_linear_neumann_1d/' + data_options + '/'
+                    '../../../datasets/fenics/screened_poisson_linear_neumann_1d/' +\
+                    data_options + '/'
 
         #=== File Name Properties ===#
         if options.generate_train_data == True:

@@ -5,9 +5,6 @@ import dolfin as dl
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def u_boundary(x, on_boundary):
-    return on_boundary and (x[0] < dl.DOLFIN_EPS or x[0] > 1.0 - dl.DOLFIN_EPS )
-
 def construct_system_matrices(filepaths, Vh):
     #=== Set Variables ===#
     u = dl.TrialFunction(Vh)
