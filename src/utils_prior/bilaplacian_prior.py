@@ -3,9 +3,8 @@ import numpy as np
 from hippylib import *
 import dolfin as dl
 
-# Import src code
+from utils_io.prior import save_prior
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
-from utils_prior.save_prior import save_prior
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -31,9 +30,10 @@ def construct_bilaplacian_prior(filepaths,
     inv_L = np.matmul(inv_sqrt_M, prior.A.array())
 
     L = np.linalg.inv(inv_L)
-    cov = np.matmul(L, L)
+    cov = np.matmul(L, L.T)
+    inv_cov = np.matmul(inv_L, inv_L.T)
 
     #=== Save Prior ===#
-    save_prior(filepaths, mean_vec, cov, inv_L, L)
+    save_prior(filepaths, mean_vec, cov, inv_cov, L, inv_L)
 
     return prior

@@ -19,7 +19,7 @@ from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
 from utils_prior.gaussian_field import construct_matern_covariance
-from utils_io.load_prior import load_prior
+from utils_io.prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == 1:
-        prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof_meta)
+        prior_mean, _, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof_meta)
         draw_from_distribution(filepaths,
                                prior_mean, prior_covariance_cholesky, dof_meta,
                                positivity_constraint_log_exp, 0.5,

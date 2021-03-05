@@ -61,7 +61,7 @@ if __name__ == "__main__":
     prior_scalar_value = 0
 
     #=== Noise Options ===#
-    noise_level = 0.05
+    noise_level = 0.000001
 
     #=== Uncertainty Quantification Options ===#
     compute_trace = False
@@ -72,8 +72,8 @@ if __name__ == "__main__":
     colourbar_limit_parameter_min = 0
     colourbar_limit_parameter_max = 6
     colourbar_limit_state = 2
-    colourbar_limit_prior_variance = 1.2
-    colourbar_limit_posterior_variance = 1.2
+    colourbar_limit_prior_variance = 1.3
+    colourbar_limit_posterior_variance = 1.3
     cross_section_y = 0.0
     cross_section_y_limit_min = 0
     cross_section_y_limit_max = 6

@@ -1,8 +1,8 @@
 #=== Mesh Properties ===#
 left_boundary : 0
 right_boundary : 1
-nx : 63
-num_obs_points : 15
+nx : 10
+num_obs_points : 5
 order_fe_space : 1
 order_meta_space : 1
 
@@ -24,8 +24,8 @@ prior_gamma_lp : 0.1
 prior_delta_lp : 1.0
 
 #=== Boundary Conditions ===#
-boundary_conditions_dirichlet : False
-boundary_conditions_neumann : True
+boundary_conditions_dirichlet : True
+boundary_conditions_neumann : False
 
 #=== Construct and Save Matrices ===#
 construct_and_save_matrices : True

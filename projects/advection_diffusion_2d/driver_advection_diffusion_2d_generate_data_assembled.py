@@ -23,7 +23,7 @@ from utils_mesh.observation_points import form_interior_observation_points
 from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
-from utils_io.load_prior import load_prior
+from utils_io.prior import load_prior
 from utils_misc.positivity_constraints import positivity_constraint_exp,\
                                              positivity_constraint_log_exp
 from utils_prior.draw_from_distribution import draw_from_distribution
@@ -84,7 +84,7 @@ if __name__ == "__main__":
                                   options.prior_corr_ac)
 
     #=== Load Prior ===#
-    prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
+    prior_mean, _, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
 
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == True:

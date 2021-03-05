@@ -18,9 +18,9 @@ from attrdict import AttrDict
 # Import src code
 from utils_mesh.construct_mesh_1d import construct_mesh
 from utils_prior.laplacian_prior import construct_laplacian_prior
-from utils_io.load_prior import load_prior
-# from utils_prior.draw_from_distribution import draw_from_distribution
-from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fenics
+from utils_io.prior import load_prior
+from utils_prior.draw_from_distribution import draw_from_distribution
+# from utils_prior.draw_from_distribution_fenics import draw_from_distribution_fenics
 from utils_fenics.apply_mass_matrix import apply_mass_matrix
 from utils_io.load_parameters import load_parameters
 from utils_fenics.plot_fem_function_fenics_1d import plot_fem_function_fenics_1d
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == 1:
-        prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
+        prior_mean, _, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof)
         draw_from_distribution(filepaths,
                                prior_mean, prior_covariance_cholesky, dof,
                                positivity_constraint_identity, 0.5,

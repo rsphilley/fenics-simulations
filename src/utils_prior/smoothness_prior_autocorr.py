@@ -1,7 +1,7 @@
 import numpy as np
-from utils_prior.check_symmetry_and_positive_definite import check_symmetry_and_positive_definite
 
-from utils_prior.save_prior import save_prior
+from utils_io.prior import save_prior
+from utils_prior.check_symmetry_and_positive_definite import check_symmetry_and_positive_definite
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -53,6 +53,7 @@ def smoothness_prior_autocorr(filepaths,
     cov += 10**10*epsilon*np.identity(num_nodes)
     L = np.linalg.cholesky(cov)
     inv_L = np.linalg.inv(L)
+    inv_cov = np.matmul(inv_L, inv_L.T)
 
     #=== Save Prior ===#
-    save_prior(filepaths, mean_vec, cov, inv_L, L)
+    save_prior(filepaths, mean_vec, cov, inv_cov, L, inv_L)

@@ -20,7 +20,7 @@ from dolfin import *
 from utils_mesh.construct_mesh_rectangular import construct_mesh
 from utils_prior.smoothness_prior_autocorr import smoothness_prior_autocorr
 from utils_prior.gaussian_field import construct_matern_covariance
-from utils_io.load_prior import load_prior
+from utils_io.prior import load_prior
 from utils_prior.draw_from_distribution import draw_from_distribution
 from utils_io.load_dataset import load_dataset
 from utils_fenics.plot_fem_function_fenics_3d import plot_fem_function_fenics_3d
@@ -85,7 +85,7 @@ if __name__ == "__main__":
                     options.prior_cov_length)
 
     #=== Load Prior ===#
-    prior_mean, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof_meta)
+    prior_mean, _, _, prior_covariance_cholesky, _ = load_prior(filepaths, dof_meta)
 
     #=== Draw Parameters from Prior ===#
     if options.draw_and_save_parameters == 1:

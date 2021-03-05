@@ -76,6 +76,8 @@ class FilePaths():
                 'prior_mean_' + num_nodes_string + '_' + prior_string
         self.prior_covariance = self.directory_dataset +\
                 'prior_covariance_' + num_nodes_string + '_' + prior_string
+        self.prior_covariance_inverse = self.directory_dataset +\
+                'prior_covariance_inverse' + data_options + '_' + prior_string
         self.prior_covariance_cholesky = self.directory_dataset +\
                 'prior_covariance_cholesky_' + num_nodes_string + '_' + prior_string
         self.prior_covariance_cholesky_inverse = self.directory_dataset +\
