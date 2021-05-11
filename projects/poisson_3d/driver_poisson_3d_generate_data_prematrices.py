@@ -60,6 +60,10 @@ if __name__ == "__main__":
     #=== File Paths ===#
     filepaths = FilePaths(options)
 
+    #=== Creating Directory ===#
+    if not os.path.exists(filepaths.directory_dataset):
+        os.makedirs(filepaths.directory_dataset)
+
     ############
     #   Mesh   #
     ############
