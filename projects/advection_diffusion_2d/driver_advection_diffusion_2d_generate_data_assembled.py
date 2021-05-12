@@ -95,6 +95,7 @@ if __name__ == "__main__":
         draw_from_distribution(filepaths,
                                prior_mean, prior_covariance_cholesky, dof,
                                positivity_constraint_log_exp, 0.5,
+                               options.save_standard_gaussian_draws,
                                num_samples = options.num_data)
 
     #=== Load Parameters ===#

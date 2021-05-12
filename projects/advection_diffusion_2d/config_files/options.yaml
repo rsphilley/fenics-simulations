@@ -30,6 +30,7 @@ num_data : 10
 #=== Parameter Options ===#
 construct_prior : True
 draw_and_save_parameters : True
+save_standard_gaussian_draws: True
 
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp : False

@@ -18,6 +18,7 @@ num_data : 2
 #=== Parameter Options ===#
 construct_prior : 1
 draw_and_save_parameters : 1
+save_standard_gaussian_draws: True
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_AC : 1

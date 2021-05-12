@@ -95,6 +95,9 @@ class FilePaths():
         self.parameter = self.directory_dataset +\
                 project_name + 'parameter_' + train_or_test +\
                 'd%d_'%(options.num_data) + num_nodes_string + '_' + prior_string
+        self.standard_gaussian = self.directory_dataset +\
+                project_name + 'standard_gaussian_' + train_or_test +\
+                'd%d_'%(options.num_data) + data_options + '_' + prior_string
         self.input_specific = self.directory_dataset +\
                 project_name + 'parameter_specific_' + data_options
         self.parameter_blob = self.directory_dataset +\
