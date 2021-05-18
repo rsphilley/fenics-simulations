@@ -37,8 +37,8 @@ prior_kern_type : 'm32'
 prior_cov_length : 0.08
 
 #=== Construct and Save Prematrices ===#
-construct_and_save_prematrices : 0
-construct_and_save_boundary_matrices : 0
+construct_and_save_prematrices : False
+construct_and_save_boundary_matrices : False
 
 #=== PDE Properties ===#
 boundary_matrix_constant : 0.5
@@ -47,7 +47,7 @@ load_vector_constant : -1
 #=== Plotting ===#
 plot_parameters : True
 plot_solutions : True
-plot_mesh : True
+plot_mesh : False
 
 #=== Random Seed ===#
 random_seed : 4
