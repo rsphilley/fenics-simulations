@@ -22,6 +22,7 @@ import math
 from utils_mesh.construct_mesh_rectangular import construct_mesh
 from utils_mesh.plot_mesh import plot_mesh
 from utils_prior.bilaplacian_prior import construct_bilaplacian_prior
+from utils_misc.positivity_constraints import positivity_constraint_log_exp
 from utils_fenics.convert_array_to_dolfin_function import convert_array_to_dolfin_function
 from utils_mesh.observation_points import load_observation_points
 from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
@@ -52,8 +53,8 @@ if __name__ == "__main__":
 #                              Inversion Options                              #
 ###############################################################################
     #=== True Parameter Options ===#
-    true_parameter_prior = False
-    true_parameter_specific = True
+    true_parameter_prior = True
+    true_parameter_specific = False
 
     #=== Prior Options ===#
     prior_scalar_yaml = True
@@ -143,7 +144,8 @@ if __name__ == "__main__":
     #=== True Parameter ===#
     if true_parameter_prior == True:
         mtrue = true_model(prior)
-        mtrue_dl = convert_array_to_dolfin_function(Vh[PARAMETER], np.array(mtrue))
+        mtrue_array = positivity_constraint_log_exp(np.array(mtrue), 0.5)
+        mtrue_dl = convert_array_to_dolfin_function(Vh[PARAMETER], mtrue_array)
         mtrue = mtrue_dl.vector()
     if true_parameter_specific == True:
         df_mtrue = pd.read_csv(filepaths.input_specific + '.csv')

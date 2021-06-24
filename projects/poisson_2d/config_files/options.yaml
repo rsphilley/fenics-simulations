@@ -20,14 +20,14 @@ draw_and_save_parameters : True
 save_standard_gaussian_draws: True
 
 #=== BiLaplacian Prior Properties ===#
-prior_type_blp : True
+prior_type_blp : False
 prior_mean_blp : 2.0
 prior_gamma_blp : 0.1
 prior_delta_blp : 0.5
 
 #=== Autocorrelation Prior Properties ===#
-prior_type_AC : False
-prior_mean_AC : 2
+prior_type_AC : True
+prior_mean_AC : 2.0
 prior_variance_AC : 2.0
 prior_corr_AC : 0.5
 
@@ -50,4 +50,4 @@ plot_solutions : True
 plot_mesh : False
 
 #=== Random Seed ===#
-random_seed : 4
+random_seed : 40
