@@ -232,14 +232,14 @@ if __name__ == "__main__":
     #=== Form Model ===#
     model = Model(pde,prior, misfit)
 
+    #=== Initial Guess ===#
+    m0 = dl.interpolate(
+            dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
+
     #=== Test Gradient ===#
     if rank == 0:
         print( sep, "Test the gradient and the Hessian of the model", sep )
     modelVerify(model, m0.vector(), is_quadratic = False, verbose = (rank == 0) )
-
-    #=== Initial Guess ===#
-    m0 = dl.interpolate(
-            dl.Expression("sin(x[0])", element=Vh[PARAMETER].ufl_element() ), Vh[PARAMETER])
 
     #=== Solver Parameters ===#
     if rank == 0:
